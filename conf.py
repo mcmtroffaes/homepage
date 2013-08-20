@@ -23,7 +23,7 @@ author = 'Matthias C. M. Troffaes'
 copyright = '2013, ' + author
 
 # Change this to your blog root URL (required for RSS feed)
-website = 'http://127.0.0.1/blog/html/'
+website = 'http://mcmtroffaes.github.io/blowyourmindwithhaskell/'
 
 # **************************************************************
 # More tweaks you can do
