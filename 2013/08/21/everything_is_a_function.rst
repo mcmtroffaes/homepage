@@ -239,7 +239,8 @@ Lessons Learned
 * A function can be polymorphic through type variables in their type signature.
 
 * For now, ``main`` returns magic blob.
-  For the time being, we will use ``print`` and be happy in our ignorance.
+  For the time being, we will use ``print`` to blobify our final result,
+  and be happy in our ignorance.
 
 .. [1] Actually, the type signature is ``(+) :: Num a => a -> a -> a``
        but let us not get ahead of ourselves.
