@@ -236,7 +236,7 @@ Lessons Learned
   it is useful to pass these operators as arguments of other functions,
   which is made possible through the prefix notation.
 
-* A function can be polymorphic through type variables in their type signature.
+* A function can be polymorphic through type variables in its type signature.
 
 * For now, ``main`` returns magic blob.
   For the time being, we will use ``print`` to blobify our final result,
