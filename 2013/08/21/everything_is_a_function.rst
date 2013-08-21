@@ -24,7 +24,7 @@ start with treating monads---specifically, the IO monad---as
 some kind of a magical blob.
 In retrospect, now that I *think* to have an at least somewhat
 sufficiently accurate understanding of
-what monads do, and what role they play functional languages,
+what monads do, and what role they play in functional languages,
 it makes sense to me to try to understand monads first,
 before diving into the IO monad magic.
 
