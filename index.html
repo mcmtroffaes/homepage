@@ -79,7 +79,7 @@ start with treating monads—specifically, the IO monad—as
 some kind of a magical blob.
 In retrospect, now that I <em>think</em> to have an at least somewhat
 sufficiently accurate understanding of
-what monads do, and what role they play functional languages,
+what monads do, and what role they play in functional languages,
 it makes sense to me to try to understand monads first,
 before diving into the IO monad magic.</p>
 <p>So, my aim is to try to explain in the next few posts how monads work
@@ -133,11 +133,11 @@ Well, there are two things going on:</p>
 <li><p class="first"><span class="docutils literal"><span class="pre">x</span> <span class="pre">+</span> <span class="pre">1</span></span> is just an alternative notation for <span class="docutils literal"><span class="pre">((+)</span> <span class="pre">x)</span> <span class="pre">1</span></span>.</p>
 </li>
 <li><p class="first">As the notation in the previous point already suggests,
-<span class="docutils literal"><span class="pre">(+)</span></span> is <em>a function which returns another function</em>::
+<span class="docutils literal"><span class="pre">(+)</span></span> is <em>a function which returns another function</em>:
 <a class="footnote-reference" href="#id2" id="id1">[1]</a></p>
-<blockquote>
-<div><p>(+) :: Int -&gt; (Int -&gt; Int)</p>
-</div></blockquote>
+<div class="highlight-haskell"><div class="highlight"><pre><span class="p">(</span><span class="o">+</span><span class="p">)</span> <span class="ow">::</span> <span class="kt">Int</span> <span class="ow">-&gt;</span> <span class="p">(</span><span class="kt">Int</span> <span class="ow">-&gt;</span> <span class="kt">Int</span><span class="p">)</span>
+</pre></div>
+</div>
 <p>The brackets around the plus symbol
 distinguish the <em>infix</em> notation
 <span class="docutils literal"><span class="pre">x</span> <span class="pre">+</span> <span class="pre">1</span></span> from the <em>prefix</em> notation <span class="docutils literal"><span class="pre">((+)</span> <span class="pre">x)</span> <span class="pre">1</span></span>.</p>
@@ -280,7 +280,8 @@ it is useful to pass these operators as arguments of other functions,
 which is made possible through the prefix notation.</li>
 <li>A function can be polymorphic through type variables in their type signature.</li>
 <li>For now, <span class="docutils literal"><span class="pre">main</span></span> returns magic blob.
-For the time being, we will use <span class="docutils literal"><span class="pre">print</span></span> and be happy in our ignorance.</li>
+For the time being, we will use <span class="docutils literal"><span class="pre">print</span></span> to blobify our final result,
+and be happy in our ignorance.</li>
 </ul>
 <table class="docutils footnote" frame="void" id="id2" rules="none">
 <colgroup><col class="label"/><col/></colgroup>
