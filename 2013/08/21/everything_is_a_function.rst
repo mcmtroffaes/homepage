@@ -82,8 +82,10 @@ Well, there are two things going on:
 * ``x + 1`` is just an alternative notation for ``((+) x) 1``.
 
 * As the notation in the previous point already suggests,
-  ``(+)`` is *a function which returns another function*::
+  ``(+)`` is *a function which returns another function*:
   [1]_
+
+  ::
 
     (+) :: Int -> (Int -> Int)
 
