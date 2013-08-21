@@ -5,8 +5,242 @@
         <link>http://mcmtroffaes.github.io/blowyourmindwithhaskell/</link>
         <description>Musings of a Haskell Learner</description>
         <language>en-us</language>
-        <pubDate>Mon, 19 Aug 2013 00:00:00 +0100</pubDate>
+        <pubDate>Wed, 21 Aug 2013 00:00:00 +0100</pubDate>
         
+        <item>
+            <link>http://mcmtroffaes.github.io/blowyourmindwithhaskell/2013/08/21/everything_is_a_function.html</link>
+            <guid>http://mcmtroffaes.github.io/blowyourmindwithhaskell/2013/08/21/everything_is_a_function.html</guid>
+            <title><![CDATA[Everything is a Function]]></title>
+            <description><![CDATA[
+<div class="section" id="everything-is-a-function">
+<h1>Everything is a Function</h1>
+<div class="section" id="monads-and-the-magic-blob">
+<h2>Monads and The Magic Blob</h2>
+<p>Everyone who starts learning Haskell eventually hits monads.
+In fact, it ought to be the first thing to start with in Haskell:
+remember how any Haskell program essentially does one thing, namely
+evaluating the <span class="docutils literal"><span class="pre">main</span></span> function?
+Guess what <span class="docutils literal"><span class="pre">main</span></span> returns: yes, indeed, a monad.</p>
+<p>Many (though certainly not all) tutorials I came across
+start with treating monads—specifically, the IO monad—as
+some kind of a magical blob.
+In retrospect, now that I <em>think</em> to have an at least somewhat
+sufficiently accurate understanding of
+what monads do, and what role they play functional languages,
+it makes sense to me to try to understand monads first,
+before diving into the IO monad magic.</p>
+<p>So, my aim is to try to explain in the next few posts how monads work
+in a pure functional language,
+and how they allow you to refactor your code to be more beautiful—because
+that is what Haskell is all about, beautiful code!
+Apparently, monads are <em>also</em> useful for functions that have side effects,
+i.e. functions whose result
+does not depend only on the value of their arguments.
+Once we have a good understanding of what monads are,
+our plan is to look at the implementation of the IO monad,
+to finally understand the magic.</p>
+</div>
+<div class="section" id="functions">
+<h2>Functions</h2>
+<p>Before we look at monads,
+it is useful to reflect on how Haskell works with functions,
+and how it provides really convenient notation
+for combining simple functions together to make up really complex functions.
+That is the main purpose of the current post.</p>
+<p>First, how do we denote functions?
+In Haskell, functions have a name, and one argument.
+Yes, all functions have a single argument—we will see in a bit how we
+can fake functions with multiple arguments.
+It is a good habit, although not necessary, to annotate your functions
+with a so-called type signature:</p>
+<div class="highlight-haskell"><div class="highlight"><pre><span class="nf">increment</span> <span class="ow">::</span> <span class="kt">Int</span> <span class="ow">-&gt;</span> <span class="kt">Int</span>
+</pre></div>
+</div>
+<p>In the above, <span class="docutils literal"><span class="pre">Int</span></span> is simply the name of the type for integers in Haskell.
+The code declares the fact that the function, named <span class="docutils literal"><span class="pre">increment</span></span>,
+takes an integer, and returns an integer.
+Once we have this, we can define the function itself:</p>
+<div class="highlight-haskell"><div class="highlight"><pre><span class="nf">increment</span> <span class="n">x</span> <span class="ow">=</span> <span class="n">x</span> <span class="o">+</span> <span class="mi">1</span>
+</pre></div>
+</div>
+<p>The left hand side denotes the function name (<span class="docutils literal"><span class="pre">increment</span></span>)
+and its argument (<span class="docutils literal"><span class="pre">x</span></span>).
+Note that we do not need to use brackets for the function argument:
+a space denotes function application.
+This may seem a bit weird at first,
+but one gets used it quite quickly:
+it makes for neat code.</p>
+<p>The right hand side denotes the expression used to evaluate the function,
+namely <span class="docutils literal"><span class="pre">x</span> <span class="pre">+</span> <span class="pre">1</span></span>, which does what you expect.
+We already have something weird here: surely, addition is a function too.
+How can we write <span class="docutils literal"><span class="pre">x</span> <span class="pre">+</span> <span class="pre">1</span></span> if every function takes just a single argument?
+And why is the function, <span class="docutils literal"><span class="pre">+</span></span>, denoted in between of its arguments?
+Well, there are two things going on:</p>
+<ul>
+<li><p class="first"><span class="docutils literal"><span class="pre">x</span> <span class="pre">+</span> <span class="pre">1</span></span> is just an alternative notation for <span class="docutils literal"><span class="pre">((+)</span> <span class="pre">x)</span> <span class="pre">1</span></span>.</p>
+</li>
+<li><p class="first">As the notation in the previous point already suggests,
+<span class="docutils literal"><span class="pre">(+)</span></span> is <em>a function which returns another function</em>::
+<a class="footnote-reference" href="#id2" id="id1">[1]</a></p>
+<blockquote>
+<div><p>(+) :: Int -&gt; (Int -&gt; Int)</p>
+</div></blockquote>
+<p>The brackets around the plus symbol
+distinguish the <em>infix</em> notation
+<span class="docutils literal"><span class="pre">x</span> <span class="pre">+</span> <span class="pre">1</span></span> from the <em>prefix</em> notation <span class="docutils literal"><span class="pre">((+)</span> <span class="pre">x)</span> <span class="pre">1</span></span>.</p>
+</li>
+</ul>
+<p>So, <span class="docutils literal"><span class="pre">x</span> <span class="pre">+</span> <span class="pre">1</span></span> first evaluates <span class="docutils literal"><span class="pre">(+)</span> <span class="pre">x</span></span>,
+which is a function with type signature <span class="docutils literal"><span class="pre">Int</span> <span class="pre">-&gt;</span> <span class="pre">Int</span></span>.
+Consequently, we apply this function to the argument <span class="docutils literal"><span class="pre">1</span></span>,
+to get an integer back.
+To make the confusion complete,
+observe that we can also denote <span class="docutils literal"><span class="pre">(+)</span> <span class="pre">x</span></span> as <span class="docutils literal"><span class="pre">(x+)</span></span>.
+Cool.</p>
+<p>Here is the full code,
+which you can save as <span class="docutils literal"><span class="pre">test.hs</span></span> and run with <span class="docutils literal"><span class="pre">runghc</span> <span class="pre">test.hs</span></span>:</p>
+<div class="highlight-haskell"><div class="highlight"><pre><span class="nf">increment</span> <span class="ow">::</span> <span class="kt">Int</span> <span class="ow">-&gt;</span> <span class="kt">Int</span>
+<span class="nf">increment</span> <span class="n">x</span> <span class="ow">=</span> <span class="n">x</span> <span class="o">+</span> <span class="mi">1</span>
+<span class="nf">main</span> <span class="ow">::</span> <span class="kt">IO</span> <span class="nb">()</span>
+<span class="nf">main</span> <span class="ow">=</span> <span class="n">print</span> <span class="p">(</span><span class="n">increment</span> <span class="mi">5</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The type signature of <span class="docutils literal"><span class="pre">main</span></span> is a bit strange: main takes no arguments,
+and returns something that has type <span class="docutils literal"><span class="pre">IO</span> <span class="pre">()</span></span>.
+In fact, <span class="docutils literal"><span class="pre">IO</span> <span class="pre">()</span></span> is a monad.
+For now, suffice it to say that
+to get an IO monad out of some result, we can use the <span class="docutils literal"><span class="pre">print</span></span> function.
+Coincidently, <span class="docutils literal"><span class="pre">print</span></span> will also print its argument to the screen,
+which is rather convenient.</p>
+<p>A few conventions help us with reducing bracket bloat.</p>
+<ol class="arabic">
+<li><p class="first">The mapping operator <span class="docutils literal"><span class="pre">-&gt;</span></span> in type signatures is right-associative,
+so we can write:</p>
+<div class="highlight-haskell"><div class="highlight"><pre><span class="p">(</span><span class="o">+</span><span class="p">)</span> <span class="ow">::</span> <span class="kt">Int</span> <span class="ow">-&gt;</span> <span class="kt">Int</span> <span class="ow">-&gt;</span> <span class="kt">Int</span>
+</pre></div>
+</div>
+<p>instead of:</p>
+<div class="highlight-haskell"><div class="highlight"><pre><span class="p">(</span><span class="o">+</span><span class="p">)</span> <span class="ow">::</span> <span class="kt">Int</span> <span class="ow">-&gt;</span> <span class="p">(</span><span class="kt">Int</span> <span class="ow">-&gt;</span> <span class="kt">Int</span><span class="p">)</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">Space (for function application) is left-associative,
+so we can write:</p>
+<div class="highlight-haskell"><div class="highlight"><pre><span class="p">(</span><span class="o">+</span><span class="p">)</span> <span class="n">x</span> <span class="mi">1</span>
+</pre></div>
+</div>
+<p>instead of:</p>
+<div class="highlight-haskell"><div class="highlight"><pre><span class="p">((</span><span class="o">+</span><span class="p">)</span> <span class="n">x</span><span class="p">)</span> <span class="mi">1</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">Space (for function application)
+has higher precedence than any other operator.</p>
+</li>
+</ol>
+<p>Note that, earlier, we put brackets around <span class="docutils literal"><span class="pre">increment</span> <span class="pre">5</span></span>
+to apply its outcome to the <span class="docutils literal"><span class="pre">print</span></span> function. Had we omitted those brackets,
+as in:</p>
+<div class="highlight-haskell"><div class="highlight"><pre><span class="nf">main</span> <span class="ow">=</span> <span class="n">print</span> <span class="n">increment</span> <span class="mi">5</span>
+</pre></div>
+</div>
+<p>then the compiler would have interpreted this as:</p>
+<div class="highlight-haskell"><div class="highlight"><pre><span class="nf">main</span> <span class="ow">=</span> <span class="p">(</span><span class="n">print</span> <span class="n">increment</span><span class="p">)</span> <span class="mi">5</span>
+</pre></div>
+</div>
+<p>due to the left-associativity of the space operator
+(as function application),
+which is obviously wrong.
+In fact, Haskell will give you a compile error on such code,
+because the expression fails the type checks.
+Indeed, type checks do prevent a rather frequent cause
+of sometimes hard to track bugs;
+that is why those type signatures are especially important.</p>
+<p>Anyway, with this knowledge, we can now for instance define:</p>
+<div class="highlight-haskell"><div class="highlight"><pre><span class="nf">affine</span> <span class="ow">::</span> <span class="kt">Double</span> <span class="ow">-&gt;</span> <span class="kt">Double</span> <span class="ow">-&gt;</span> <span class="kt">Double</span> <span class="ow">-&gt;</span> <span class="kt">Double</span>
+<span class="nf">affine</span> <span class="n">a</span> <span class="n">b</span> <span class="n">x</span> <span class="ow">=</span> <span class="n">a</span> <span class="o">+</span> <span class="n">b</span> <span class="o">*</span> <span class="n">x</span>
+<span class="nf">main</span> <span class="ow">::</span> <span class="kt">IO</span> <span class="nb">()</span>
+<span class="nf">main</span> <span class="ow">=</span> <span class="n">print</span> <span class="p">(</span><span class="n">affine</span> <span class="mi">1</span> <span class="mi">2</span> <span class="mi">3</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>There are two more infix operators which help us with readability.</p>
+<p>First, the <span class="docutils literal"><span class="pre">$</span></span> operator denotes function application,
+so it is identical to the space operator,
+with the only difference that <span class="docutils literal"><span class="pre">$</span></span> has very low precedence
+and is right-associative,
+whereas space has very high precedence
+and is left-associative.
+Thus, we can simplify the last line and write:</p>
+<div class="highlight-haskell"><div class="highlight"><pre><span class="nf">main</span> <span class="ow">=</span> <span class="n">print</span> <span class="o">$</span> <span class="n">affine</span> <span class="mi">1</span> <span class="mi">2</span> <span class="mi">3</span>
+</pre></div>
+</div>
+<p>Finally, the <span class="docutils literal"><span class="pre">.</span></span> operator denotes function composition.
+Here is its definition:</p>
+<div class="highlight-haskell"><div class="highlight"><pre><span class="p">(</span><span class="o">.</span><span class="p">)</span> <span class="ow">::</span> <span class="p">(</span><span class="n">b</span> <span class="ow">-&gt;</span> <span class="n">c</span><span class="p">)</span> <span class="ow">-&gt;</span> <span class="p">(</span><span class="n">a</span> <span class="ow">-&gt;</span> <span class="n">b</span><span class="p">)</span> <span class="ow">-&gt;</span> <span class="p">(</span><span class="n">a</span> <span class="ow">-&gt;</span> <span class="n">c</span><span class="p">)</span>
+<span class="p">(</span><span class="n">f</span> <span class="o">.</span> <span class="n">g</span><span class="p">)</span> <span class="n">x</span> <span class="ow">=</span> <span class="n">f</span> <span class="o">$</span> <span class="n">g</span> <span class="n">x</span>
+</pre></div>
+</div>
+<p>In the above, <span class="docutils literal"><span class="pre">a</span></span>, <span class="docutils literal"><span class="pre">b</span></span>, and <span class="docutils literal"><span class="pre">c</span></span>, are generic placeholders
+for any type our heart desires; we say that <span class="docutils literal"><span class="pre">.</span></span> is polymorphic,
+and <span class="docutils literal"><span class="pre">a</span></span>, <span class="docutils literal"><span class="pre">b</span></span>, and <span class="docutils literal"><span class="pre">c</span></span> are called <em>type variables</em>.
+They are similar to template arguments in C++.</p>
+<p><span class="docutils literal"><span class="pre">.</span></span> has higher precedence than <span class="docutils literal"><span class="pre">$</span></span>, but lower precedence
+than space.
+Function composition is associative, so if we chain functions together
+through composition, there is no need to write brackets to denote
+the order of composition.</p>
+</div>
+<div class="section" id="something-to-blow-your-mind">
+<h2>Something to Blow Your Mind</h2>
+<p>Explain why:</p>
+<div class="highlight-haskell"><div class="highlight"><pre><span class="nf">main</span> <span class="ow">=</span> <span class="n">print</span> <span class="o">.</span> <span class="n">affine</span> <span class="mi">1</span> <span class="mi">2</span> <span class="o">$</span> <span class="mi">3</span>
+</pre></div>
+</div>
+<p>is the same as:</p>
+<div class="highlight-haskell"><div class="highlight"><pre><span class="nf">main</span> <span class="ow">=</span> <span class="n">print</span> <span class="o">$</span> <span class="n">affine</span> <span class="mi">1</span> <span class="mi">2</span> <span class="mi">3</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="lessons-learned">
+<h2>Lessons Learned</h2>
+<ul class="simple">
+<li>A function that takes multiple arguments can be modelled as a
+function which returns another function.</li>
+<li>Space is an operator: it applies functions to arguments, and it
+is left-associative, which saves us brackets when working with functions
+that take multiple arguments.</li>
+<li>A dollar <span class="docutils literal"><span class="pre">$</span></span> is like space, but with very low precedence, and it is
+right-associative.</li>
+<li>A dot <span class="docutils literal"><span class="pre">.</span></span> denotes function composition. It is associative,
+and has medium precedence (higher than <span class="docutils literal"><span class="pre">$</span></span>, and actually also
+higher than all the usual binary operators, but lower than space).</li>
+<li>Mapping operators <span class="docutils literal"><span class="pre">-&gt;</span></span> in type signatures are right-associative, which
+saves us brackets, again, when working with functions that take
+multiple arguments.</li>
+<li>The standard binary infix operators (<span class="docutils literal"><span class="pre">+</span></span>, <span class="docutils literal"><span class="pre">*</span></span>, <span class="docutils literal"><span class="pre">-</span></span>, <span class="docutils literal"><span class="pre">/</span></span>,
+and so on) can be used
+in prefix notation—i.e. as normal functions—by
+surrounding them with brackets.
+It is now not clear why this is useful—just take it on faith that
+there are plenty of situations where
+it is useful to pass these operators as arguments of other functions,
+which is made possible through the prefix notation.</li>
+<li>A function can be polymorphic through type variables in their type signature.</li>
+<li>For now, <span class="docutils literal"><span class="pre">main</span></span> returns magic blob.
+For the time being, we will use <span class="docutils literal"><span class="pre">print</span></span> and be happy in our ignorance.</li>
+</ul>
+<table class="docutils footnote" frame="void" id="id2" rules="none">
+<colgroup><col class="label"/><col/></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id1">[1]</a></td><td>Actually, the type signature is <span class="docutils literal"><span class="pre">(+)</span> <span class="pre">::</span> <span class="pre">Num</span> <span class="pre">a</span> <span class="pre">=&gt;</span> <span class="pre">a</span> <span class="pre">-&gt;</span> <span class="pre">a</span> <span class="pre">-&gt;</span> <span class="pre">a</span></span>
+but let us not get ahead of ourselves.</td></tr>
+</tbody>
+</table>
+</div>
+</div>]]></description>
+             <pubDate>Wed, 21 Aug 2013 00:00:00 +0100</pubDate>
+        </item>
+    
         <item>
             <link>http://mcmtroffaes.github.io/blowyourmindwithhaskell/2013/08/19/what_is_haskell_.html</link>
             <guid>http://mcmtroffaes.github.io/blowyourmindwithhaskell/2013/08/19/what_is_haskell_.html</guid>
