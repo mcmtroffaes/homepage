@@ -1,0 +1,518 @@
+
+
+<!DOCTYPE html><!--[if lt IE 7]>      <html xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:og="http://ogp.me/ns#"
+    xmlns:fb="https://www.facebook.com/2008/fbml" class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:og="http://ogp.me/ns#"
+    xmlns:fb="https://www.facebook.com/2008/fbml" class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:og="http://ogp.me/ns#"
+    xmlns:fb="https://www.facebook.com/2008/fbml" class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:og="http://ogp.me/ns#"
+    xmlns:fb="https://www.facebook.com/2008/fbml" class="no-js"> <!--<![endif]-->
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <meta name="description" content="A Haskell tutorial">
+        <meta name="viewport" content="width=device-width">
+        <title>The List Monad &mdash; Blow Your Mind With Haskell</title>
+            <link rel="stylesheet" href="../../../_static/normalize.css" type="text/css">
+            <link rel="stylesheet" href="../../../_static/sphinx.css" type="text/css">
+            <link rel="stylesheet" href="../../../_static/main.css" type="text/css">
+            <link rel="stylesheet" href="../../../_static/minimal5.css" type="text/css">
+            <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+            <link rel="stylesheet" href="../../../_static/webfont.css" type="text/css">
+        <!-- Load modernizr and JQuery -->
+        <script src="../../../_static/vendor/modernizr-2.6.2.min.js"></script>
+        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+        <script>window.jQuery || document.write('<script src="../../../_static/vendor/jquery-1.8.2.min.js"><\/script>')</script>
+        <script src="../../../_static/plugins.js"></script>
+        <script src="../../../_static/main.js"></script>
+        <link rel="next" title="Everything is a Function" href="../21/everything_is_a_function.html" /><link rel="alternate" type="application/rss+xml" title="RSS" href="../../../rss.html" /><script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '1.2.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script><script type="text/javascript" src="../../../_static/underscore.js"></script><script type="text/javascript" src="../../../_static/doctools.js"></script><script type="text/javascript" src="../../../_static/disqus.js"></script></head>
+    <body>
+        <!--[if lt IE 7]>
+            <p class="chromeframe">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> or <a href="http://www.google.com/chromeframe/?redirect=true">activate Google Chrome Frame</a> to improve your experience.</p>
+        <![endif]-->
+
+      <div id="container">
+  <nav>
+    <ul><li class="quicklink"><div class="rss">
+        <a href="../../../rss.html" title="Subscribe via RSS"><span class="webfont">B</span></a>
+    </div></li><li class="main-nav">
+          <a href="../../../index.html">Home</a>
+        </li>
+      <li class="main-nav">
+          <a href="../../../pages/about.html">About</a>
+        </li>
+      </ul>
+  </nav>
+
+  <header>
+            <hgroup>
+              <h1><a href="../../../index.html">Blow Your Mind With Haskell</a></h1><h2>Musings of a Haskell Learner</h2></hgroup>
+          </header>
+      <div class="main-container"><div class="main wrapper clearfix"><article><ul class="related clearfix">
+            <li class="left"></li>
+            <li class="right"><a href="../21/everything_is_a_function.html">Everything is a Function</a> &raquo; </li>
+        </ul><div class="timestamp postmeta">
+            <span>August 24, 2013</span>
+        </div>
+    <div class="section" id="the-list-monad">
+<h1>The List Monad</h1>
+<p>In the last post, we briefly looked at functions.
+Today, we will use our learnings
+to investigate a first simple example of monads,
+namely, lists.</p>
+<p>Lists are as fundamental to Haskell as functions.
+Indeed, because everything is a function in Haskell,
+you may have wondered how one writes loops in such language.
+In a purely functional language,
+loops are naturally translated to operations on lists.</p>
+<div class="section" id="list-syntax">
+<h2>List Syntax</h2>
+<p>First, some syntax. The empty list is denoted as:</p>
+<div class="highlight-haskell"><div class="highlight"><pre><span class="kt">[]</span>
+</pre></div>
+</div>
+<p>Lists can, obviously, contain as many elements as we want.
+In fact, in Haskell, a list can even take any countable number of elements.
+This is possible because Haskell is lazy.
+To compare with Python, lists are like Python generators,
+which can also go on to countable infinity.
+Finite lists are denoted as follows:</p>
+<div class="highlight-haskell"><div class="highlight"><pre><span class="p">[</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">7</span><span class="p">,</span><span class="mi">11</span><span class="p">,</span><span class="mi">13</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>In Haskell, a list consisting of characters is a <em>string</em>:</p>
+<div class="highlight-haskell"><div class="highlight"><pre><span class="p">[</span><span class="n">&#39;h&#39;</span><span class="p">,</span><span class="n">&#39;e&#39;</span><span class="p">,</span><span class="n">&#39;l&#39;</span><span class="p">,</span><span class="n">&#39;l&#39;</span><span class="p">,</span><span class="n">&#39;o&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>Because this notation is rather heavy,
+we can write the above list also as:</p>
+<div class="highlight-haskell"><div class="highlight"><pre><span class="s">&quot;hello&quot;</span>
+</pre></div>
+</div>
+<p>which is simply syntactic sugar.</p>
+<p>The arithmetic progression, say, starting at 5, with step size 2, and
+ending at 21, is denoted as:</p>
+<div class="highlight-haskell"><div class="highlight"><pre><span class="p">[</span><span class="mi">5</span><span class="p">,</span><span class="mi">7</span><span class="o">..</span><span class="mi">21</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>We can also denote infinite arithmetic progressions:</p>
+<div class="highlight-haskell"><div class="highlight"><pre><span class="p">[</span><span class="mi">5</span><span class="p">,</span><span class="mi">7</span><span class="o">..</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>In many (or perhaps most?) languages, the fundamental operation to
+extend lists is appending, that is, extending at the end of the
+list&#8212;for example, in Python, it is very natural to use the <span class="docutils literal"><span class="pre">+=</span></span>
+operator.
+In Haskell however, <em>prepending</em> is the fundamental operation to
+extend lists. The reason for this is straightforward: if you allow infinite
+lists, prepending is the only sensible extension operator.
+The <span class="docutils literal"><span class="pre">:</span></span> (colon) operator denotes prepend:</p>
+<div class="highlight-haskell"><div class="highlight"><pre><span class="mi">1</span><span class="kt">:</span><span class="p">[</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">]</span> <span class="o">==</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>How do we denote lists in type signatures? Here is an example:</p>
+<div class="highlight-haskell"><div class="highlight"><pre><span class="nf">func</span> <span class="ow">::</span> <span class="p">[</span><span class="kt">Int</span><span class="p">]</span> <span class="ow">-&gt;</span> <span class="kt">Int</span>
+<span class="nf">func</span> <span class="n">xs</span> <span class="ow">=</span> <span class="mi">3</span> <span class="o">*</span> <span class="n">sum</span> <span class="n">xs</span>
+</pre></div>
+</div>
+<p>So, <span class="docutils literal"><span class="pre">[Int]</span></span> denote a list of <span class="docutils literal"><span class="pre">Int</span></span> elements.
+Observe that the argument of <span class="docutils literal"><span class="pre">func</span></span> is called <span class="docutils literal"><span class="pre">xs</span></span>, rather than <span class="docutils literal"><span class="pre">x</span></span>.
+It is a useful convention in Haskell code to denote list variables by
+<span class="docutils literal"><span class="pre">xs</span></span>, <span class="docutils literal"><span class="pre">ys</span></span>, and so on,
+and to denote their elements by <span class="docutils literal"><span class="pre">x</span></span>, <span class="docutils literal"><span class="pre">y</span></span>, and so on.</p>
+<p>In Haskell, all of a list&#8217;s elements must be of the same type.
+For example, we <strong>cannot</strong> write:</p>
+<div class="highlight-haskell"><div class="highlight"><pre><span class="p">[</span><span class="mi">2</span><span class="p">,</span><span class="n">&#39;a&#39;</span><span class="p">,</span><span class="s">&quot;xyz&quot;</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="comprehension">
+<h2>Comprehension</h2>
+<p>There is one more notation for lists which is enormously useful:</p>
+<div class="highlight-haskell"><div class="highlight"><pre><span class="p">[</span> <span class="p">[</span><span class="n">n</span><span class="p">,</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">,</span><span class="n">z</span><span class="p">]</span> <span class="o">|</span> <span class="n">n</span> <span class="ow">&lt;-</span> <span class="p">[</span><span class="mi">2</span><span class="o">..</span><span class="mi">15</span><span class="p">],</span> <span class="n">x</span> <span class="ow">&lt;-</span> <span class="p">[</span><span class="mi">1</span><span class="o">..</span><span class="mi">15</span><span class="p">],</span> <span class="n">y</span> <span class="ow">&lt;-</span> <span class="p">[</span><span class="mi">1</span><span class="o">..</span><span class="mi">15</span><span class="p">],</span>
+              <span class="n">z</span> <span class="ow">&lt;-</span> <span class="p">[</span><span class="mi">1</span><span class="o">..</span><span class="mi">15</span><span class="p">],</span> <span class="n">x</span> <span class="o">^</span> <span class="n">n</span> <span class="o">+</span> <span class="n">y</span> <span class="o">^</span> <span class="n">n</span> <span class="o">==</span> <span class="n">z</span> <span class="o">^</span> <span class="n">n</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>This will give you all numbers, less than 15,
+satisfying the conditions of Fermat&#8217;s equation <span class="formula"><i>x</i><sup><i>n</i></sup> + <i>y</i><sup><i>n</i></sup> = <i>z</i><sup><i>n</i></sup></span>
+;
+for the curious, the answer is:</p>
+<div class="highlight-haskell"><div class="highlight"><pre><span class="p">[[</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">],[</span><span class="mi">2</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">5</span><span class="p">],[</span><span class="mi">2</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">12</span><span class="p">,</span><span class="mi">13</span><span class="p">],[</span><span class="mi">2</span><span class="p">,</span><span class="mi">6</span><span class="p">,</span><span class="mi">8</span><span class="p">,</span><span class="mi">10</span><span class="p">],[</span><span class="mi">2</span><span class="p">,</span><span class="mi">8</span><span class="p">,</span><span class="mi">6</span><span class="p">,</span><span class="mi">10</span><span class="p">],</span>
+ <span class="p">[</span><span class="mi">2</span><span class="p">,</span><span class="mi">9</span><span class="p">,</span><span class="mi">12</span><span class="p">,</span><span class="mi">15</span><span class="p">],[</span><span class="mi">2</span><span class="p">,</span><span class="mi">12</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">13</span><span class="p">],[</span><span class="mi">2</span><span class="p">,</span><span class="mi">12</span><span class="p">,</span><span class="mi">9</span><span class="p">,</span><span class="mi">15</span><span class="p">]]</span>
+</pre></div>
+</div>
+<p>Note that <span class="formula"><i>n</i></span>
+ is never larger than 2,
+per <a class="reference external" href="http://en.wikipedia.org/wiki/Fermat%27s_Last_Theorem">Fermat&#8217;s famous last theorem</a>.
+Here is how you could ask Haskell to try to prove the theorem:</p>
+<div class="highlight-haskell"><div class="highlight"><pre><span class="nf">null</span> <span class="p">[</span> <span class="p">[</span><span class="n">n</span><span class="p">,</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">,</span><span class="n">z</span><span class="p">]</span> <span class="o">|</span> <span class="n">n</span> <span class="ow">&lt;-</span> <span class="p">[</span><span class="mi">3</span><span class="o">..</span><span class="p">],</span> <span class="n">x</span> <span class="ow">&lt;-</span> <span class="p">[</span><span class="mi">1</span><span class="o">..</span><span class="p">],</span> <span class="n">y</span> <span class="ow">&lt;-</span> <span class="p">[</span><span class="mi">1</span><span class="o">..</span><span class="p">],</span>
+                   <span class="n">z</span> <span class="ow">&lt;-</span> <span class="p">[</span><span class="mi">1</span><span class="o">..</span><span class="p">],</span> <span class="n">x</span> <span class="o">^</span> <span class="n">n</span> <span class="o">+</span> <span class="n">y</span> <span class="o">^</span> <span class="n">n</span> <span class="o">==</span> <span class="n">z</span> <span class="o">^</span> <span class="n">n</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>The calculation is still running on my machine&#8212;in fact, it will never end,
+because Haskell will simply use brute force,
+which is of course problematic
+when there are infinitely many cases to consider.
+In the above, the function:</p>
+<div class="highlight-haskell"><div class="highlight"><pre><span class="nf">null</span> <span class="ow">::</span> <span class="p">[</span><span class="n">a</span><span class="p">]</span> <span class="ow">-&gt;</span> <span class="kt">Bool</span>
+</pre></div>
+</div>
+<p>returns <span class="docutils literal"><span class="pre">True</span></span> if its list argument is empty&#8212;remember
+that <span class="docutils literal"><span class="pre">a</span></span> is a type variable,
+so this function is polymorphic and will work for lists of any type.</p>
+<p>Anyway, let us stop this brief digression and get back to topic: monads!</p>
+</div>
+<div class="section" id="a-poor-man-s-monad">
+<h2>A Poor Man&#8217;s Monad</h2>
+<p>One way to explain monads, is to try to implement
+list comprehension by ourselves, using just functions,
+aiming to get as close as possible to the list comprehension syntax.
+For this purpose, let us investigate a very simple example,
+and try to rewrite:</p>
+<div class="highlight-haskell"><div class="highlight"><pre><span class="p">[</span> <span class="n">x</span> <span class="o">+</span> <span class="n">y</span> <span class="o">^</span> <span class="mi">3</span> <span class="o">|</span> <span class="n">x</span> <span class="ow">&lt;-</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">],</span> <span class="n">y</span> <span class="ow">&lt;-</span> <span class="p">[</span><span class="o">-</span><span class="n">x</span><span class="p">,</span><span class="n">x</span><span class="p">]</span> <span class="p">]</span>
+</pre></div>
+</div>
+<p>which results in:</p>
+<div class="highlight-haskell"><div class="highlight"><pre><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="o">-</span><span class="mi">6</span><span class="p">,</span><span class="mi">10</span><span class="p">,</span><span class="o">-</span><span class="mi">24</span><span class="p">,</span><span class="mi">30</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>First, let us tackle each of the parts separately,
+namely <span class="docutils literal"><span class="pre">x</span> <span class="pre">&lt;-</span> <span class="pre">[1,2,3]</span></span>, <span class="docutils literal"><span class="pre">y</span> <span class="pre">&lt;-</span> <span class="pre">[-x,x]</span></span>, and <span class="docutils literal"><span class="pre">x</span> <span class="pre">+</span> <span class="pre">y</span> <span class="pre">^</span> <span class="pre">3</span></span>.
+Can we rewrite these as functions?</p>
+<div class="highlight-haskell"><div class="highlight"><pre><span class="nf">funcx</span> <span class="ow">::</span> <span class="p">[</span><span class="kt">Int</span><span class="p">]</span>
+<span class="nf">funcx</span> <span class="ow">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">]</span>
+
+<span class="nf">funcy</span> <span class="ow">::</span> <span class="kt">Int</span> <span class="ow">-&gt;</span> <span class="p">[</span><span class="kt">Int</span><span class="p">]</span>
+<span class="nf">funcy</span> <span class="n">x</span> <span class="ow">=</span> <span class="p">[</span><span class="o">-</span><span class="n">x</span><span class="p">,</span> <span class="n">x</span><span class="p">]</span>
+
+<span class="nf">funcfinal</span> <span class="ow">::</span> <span class="kt">Int</span> <span class="ow">-&gt;</span> <span class="kt">Int</span> <span class="ow">-&gt;</span> <span class="p">[</span><span class="kt">Int</span><span class="p">]</span>
+<span class="nf">funcfinal</span> <span class="n">x</span> <span class="n">y</span> <span class="ow">=</span> <span class="p">[</span><span class="n">x</span> <span class="o">+</span> <span class="n">y</span> <span class="o">^</span> <span class="mi">3</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>Note that we do not actually need <span class="docutils literal"><span class="pre">funcx</span></span>&#8212;we introduce it here
+merely for the sake of symmetry. The important observation is
+that all these functions produce lists.
+If we may get slightly ahead of ourselves,
+in light of general monad theory,
+what matters here is that all these functions
+produce <em>containers</em> of the same <em>form</em>.</p>
+<p>Next, we need a function to combine <span class="docutils literal"><span class="pre">funcx</span></span>, <span class="docutils literal"><span class="pre">funcy</span></span>, and <span class="docutils literal"><span class="pre">funcfinal</span></span>.
+Specifically, we wish to <em>bind</em> the outcome of <span class="docutils literal"><span class="pre">funcx</span></span>
+to the input of the function <span class="docutils literal"><span class="pre">funcy</span></span>, and then to <em>bind</em>
+the outcome of both of these to <span class="docutils literal"><span class="pre">funcfinal</span></span>.
+Here is what you might write in a possible attempt:</p>
+<div class="highlight-haskell"><div class="highlight"><pre><span class="nf">bind</span> <span class="ow">::</span> <span class="p">[</span><span class="kt">Int</span><span class="p">]</span> <span class="ow">-&gt;</span> <span class="p">(</span><span class="kt">Int</span> <span class="ow">-&gt;</span> <span class="p">[</span><span class="kt">Int</span><span class="p">])</span> <span class="ow">-&gt;</span> <span class="p">[</span><span class="kt">Int</span><span class="p">]</span>
+<span class="nf">bind</span> <span class="n">zs</span> <span class="n">f</span> <span class="ow">=</span> <span class="n">concat</span> <span class="o">.</span> <span class="n">map</span> <span class="n">f</span> <span class="o">$</span> <span class="n">zs</span>
+</pre></div>
+</div>
+<p>In the above, <span class="docutils literal"><span class="pre">map</span></span> applies a function to every element of a list:</p>
+<div class="highlight-haskell"><div class="highlight"><pre><span class="nf">map</span> <span class="n">funcy</span> <span class="o">$</span> <span class="n">funcx</span>
+</pre></div>
+</div>
+<p>gives:</p>
+<div class="highlight-haskell"><div class="highlight"><pre><span class="p">[[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">],[</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">],[</span><span class="o">-</span><span class="mi">3</span><span class="p">,</span><span class="mi">3</span><span class="p">]]</span>
+</pre></div>
+</div>
+<p>The function <span class="docutils literal"><span class="pre">concat</span></span> concatenates this list of lists. Consequently:</p>
+<div class="highlight-haskell"><div class="highlight"><pre><span class="nf">bind</span> <span class="n">funcx</span> <span class="n">funcy</span>
+</pre></div>
+</div>
+<p>gives:</p>
+<div class="highlight-haskell"><div class="highlight"><pre><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="o">-</span><span class="mi">3</span><span class="p">,</span><span class="mi">3</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>This is not exactly the result we want,
+but we are clearly getting close:
+we already have a list with six elements.
+The elements are <span class="docutils literal"><span class="pre">y</span></span> rather than <span class="docutils literal"><span class="pre">x</span> <span class="pre">+</span> <span class="pre">y</span> <span class="pre">^</span> <span class="pre">3</span></span>,
+because we have not yet used <span class="docutils literal"><span class="pre">funcfinal</span></span>.
+Can we use <span class="docutils literal"><span class="pre">bind</span></span> to combine <span class="docutils literal"><span class="pre">funcy</span></span> and <span class="docutils literal"><span class="pre">funcfinal</span></span>?
+Of course! For instance:</p>
+<div class="highlight-haskell"><div class="highlight"><pre><span class="nf">bind</span> <span class="p">(</span><span class="n">funcy</span> <span class="mi">1</span><span class="p">)</span> <span class="p">(</span><span class="n">funcfinal</span> <span class="mi">1</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>will give us:</p>
+<div class="highlight-haskell"><div class="highlight"><pre><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>which is the desired result, for <span class="docutils literal"><span class="pre">x</span> <span class="pre">=</span> <span class="pre">1</span></span>.
+The only remaining problem is to feed all values for <span class="docutils literal"><span class="pre">x</span></span>
+into this expression:</p>
+<div class="highlight-haskell"><div class="highlight"><pre><span class="nf">bind2</span> <span class="n">f1</span> <span class="n">f2</span> <span class="n">x</span> <span class="ow">=</span> <span class="n">bind</span> <span class="p">(</span><span class="n">f1</span> <span class="n">x</span><span class="p">)</span> <span class="p">(</span><span class="n">f2</span> <span class="n">x</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>(The type signature is rather complex, so we have omitted it here.)
+To get the final result, we thus apply <span class="docutils literal"><span class="pre">bind</span></span> twice:</p>
+<div class="highlight-haskell"><div class="highlight"><pre><span class="nf">bind</span> <span class="n">funcx</span> <span class="o">$</span> <span class="n">bind2</span> <span class="n">funcy</span> <span class="n">funcfinal</span>
+</pre></div>
+</div>
+<p>This is about as close as we can get to the original expression:</p>
+<div class="highlight-haskell"><div class="highlight"><pre><span class="p">[</span> <span class="n">x</span> <span class="o">+</span> <span class="n">y</span> <span class="o">^</span> <span class="mi">3</span> <span class="o">|</span> <span class="n">x</span> <span class="ow">&lt;-</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">],</span> <span class="n">y</span> <span class="ow">&lt;-</span> <span class="p">[</span><span class="o">-</span><span class="n">x</span><span class="p">,</span><span class="n">x</span><span class="p">]</span> <span class="p">]</span>
+</pre></div>
+</div>
+<p>where
+<span class="docutils literal"><span class="pre">funcx</span></span> represents <span class="docutils literal"><span class="pre">x</span> <span class="pre">&lt;-</span> <span class="pre">[1,2,3]</span></span>,
+<span class="docutils literal"><span class="pre">funcy</span></span> represents <span class="docutils literal"><span class="pre">y</span> <span class="pre">&lt;-</span> <span class="pre">[x,-x]</span></span>, and
+<span class="docutils literal"><span class="pre">funcfinal</span></span> represents <span class="docutils literal"><span class="pre">x</span> <span class="pre">+</span> <span class="pre">y</span> <span class="pre">^</span> <span class="pre">3</span></span>.
+The <span class="docutils literal"><span class="pre">bind</span></span> and <span class="docutils literal"><span class="pre">bind2</span></span> functions are merely glue.</p>
+<p>If you followed this far, congratulations!!
+You may not realize it yet, but you now know in essence what a monad is.
+A monad is a container, along with a higher order function
+which binds functions that operate on these containers.
+Everything else about monads in Haskell comes down to:</p>
+<ol class="arabic simple">
+<li>adding syntactic sugar to remove the boilerplate in the above code, and</li>
+<li>generalizing from <span class="docutils literal"><span class="pre">[Int]</span></span> lists to arbitrary containers.</li>
+</ol>
+<p>Yippikayee!</p>
+</div>
+<div class="section" id="syntactic-sugar">
+<h2>Syntactic Sugar</h2>
+<p>The aim of this section is
+to simplify the structure of our monad code, step by step.</p>
+<div class="section" id="infix-notation">
+<h3>Infix Notation</h3>
+<p>The first thing we can do is rewrite the glue in infix notation:</p>
+<div class="highlight-haskell"><div class="highlight"><pre><span class="nf">funcx</span> <span class="p">`</span><span class="n">bind</span><span class="p">`</span> <span class="p">(</span><span class="n">funcy</span> <span class="p">`</span><span class="n">bind2</span><span class="p">`</span> <span class="n">funcfinal</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>For any function <span class="docutils literal"><span class="pre">f</span></span> in Haskell:</p>
+<div class="highlight-haskell"><div class="highlight"><pre><span class="nf">x</span> <span class="p">`</span><span class="n">f</span><span class="p">`</span> <span class="n">y</span>
+</pre></div>
+</div>
+<p>is just a shorthand notation for:</p>
+<div class="highlight-haskell"><div class="highlight"><pre><span class="nf">f</span> <span class="n">x</span> <span class="n">y</span>
+</pre></div>
+</div>
+<p>Backticked functions are left-associative.
+In the above, we are using the operators in a right-associative way,
+thus we need brackets to denote the order of operation.</p>
+</div>
+<div class="section" id="lambda-functions">
+<h3>Lambda Functions</h3>
+<p>To get one more step closer to list comprehension notation,
+we would like to get rid of the helper functions.
+For this purpose, we can use so-called lambda functions,
+which allow us to define anonymous functions directly into our expressions.
+Note that the use of lambda functions is somewhat frowned upon,
+and are generally only used for very simple functions:</p>
+<div class="highlight-haskell"><div class="highlight"><pre><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">]</span> <span class="p">`</span><span class="n">bind</span><span class="p">`</span> <span class="p">((</span><span class="nf">\</span><span class="n">x</span> <span class="ow">-&gt;</span> <span class="p">[</span><span class="o">-</span><span class="n">x</span><span class="p">,</span><span class="n">x</span><span class="p">])</span> <span class="p">`</span><span class="n">bind2</span><span class="p">`</span> <span class="p">(</span><span class="nf">\</span><span class="n">x</span> <span class="n">y</span> <span class="ow">-&gt;</span> <span class="p">[</span><span class="n">x</span> <span class="o">+</span> <span class="n">y</span> <span class="o">^</span> <span class="mi">3</span><span class="p">]))</span>
+</pre></div>
+</div>
+<p>In fact, with lambda functions, we can also get rid of <span class="docutils literal"><span class="pre">bind2</span></span>:</p>
+<div class="highlight-haskell"><div class="highlight"><pre><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">]</span> <span class="p">`</span><span class="n">bind</span><span class="p">`</span> <span class="p">(</span><span class="nf">\</span><span class="n">x</span> <span class="ow">-&gt;</span> <span class="p">([</span><span class="o">-</span><span class="n">x</span><span class="p">,</span><span class="n">x</span><span class="p">]</span> <span class="p">`</span><span class="n">bind</span><span class="p">`</span> <span class="p">(</span><span class="nf">\</span><span class="n">y</span> <span class="ow">-&gt;</span> <span class="p">[</span><span class="n">x</span> <span class="o">+</span> <span class="n">y</span> <span class="o">^</span> <span class="mi">3</span><span class="p">])))</span>
+</pre></div>
+</div>
+<p>Oh dear, what has happened here?
+Let us look at the unsugared version of this code:</p>
+<div class="highlight-haskell"><div class="highlight"><pre><span class="nf">bind</span> <span class="n">funcx</span> <span class="n">funcxy</span>
+</pre></div>
+</div>
+<p>where:</p>
+<div class="highlight-haskell"><div class="highlight"><pre><span class="nf">funcxy</span> <span class="n">x</span> <span class="ow">=</span> <span class="n">bind</span> <span class="p">[</span><span class="o">-</span><span class="n">x</span><span class="p">,</span><span class="n">x</span><span class="p">]</span> <span class="p">(</span><span class="nf">\</span><span class="n">y</span> <span class="ow">-&gt;</span> <span class="p">[</span><span class="n">x</span> <span class="o">+</span> <span class="n">y</span> <span class="o">^</span> <span class="mi">3</span><span class="p">])</span>
+</pre></div>
+</div>
+<p>or equivalently:</p>
+<div class="highlight-haskell"><div class="highlight"><pre><span class="nf">funcxy&#39;</span> <span class="n">x</span> <span class="ow">=</span> <span class="n">bind</span> <span class="p">(</span><span class="n">funcy</span> <span class="n">x</span><span class="p">)</span> <span class="p">(</span><span class="n">funcfinal</span> <span class="n">x</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>It now becomes clear that this is entirely equivalent to the original code,
+simply by observing that we could also have written:</p>
+<div class="highlight-haskell"><div class="highlight"><pre><span class="nf">funcxy&#39;&#39;</span> <span class="ow">=</span> <span class="n">bind2</span> <span class="n">funcy</span> <span class="n">funcfinal</span>
+</pre></div>
+</div>
+<p>Note that our full code is now down to two lines: a definition of <cite>bind</cite>,
+(which is highly generic: we can reuse it for any list comprehension),
+and the comprehension itself:</p>
+<div class="highlight-haskell"><div class="highlight"><pre><span class="nf">bind</span> <span class="n">zs</span> <span class="n">f</span> <span class="ow">=</span> <span class="n">concat</span> <span class="o">.</span> <span class="n">map</span> <span class="n">f</span> <span class="o">$</span> <span class="n">zs</span>
+<span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">]</span> <span class="p">`</span><span class="n">bind</span><span class="p">`</span> <span class="p">(</span><span class="nf">\</span><span class="n">x</span> <span class="ow">-&gt;</span> <span class="p">([</span><span class="o">-</span><span class="n">x</span><span class="p">,</span><span class="n">x</span><span class="p">]</span> <span class="p">`</span><span class="n">bind</span><span class="p">`</span> <span class="p">(</span><span class="nf">\</span><span class="n">y</span> <span class="ow">-&gt;</span> <span class="p">[</span><span class="n">x</span> <span class="o">+</span> <span class="n">y</span> <span class="o">^</span> <span class="mi">3</span><span class="p">])))</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="the-operator">
+<h3>The <span class="docutils literal"><span class="pre">&gt;&gt;=</span></span> Operator</h3>
+<p>Because the <span class="docutils literal"><span class="pre">bind</span></span> operation is so generically useful
+for arbitrary list comprehensions,
+Haskell implements an <span class="docutils literal"><span class="pre">&gt;&gt;=</span></span> operator for us,
+which behaves just like our <span class="docutils literal"><span class="pre">bind</span></span>,
+but which is also conveniently right-associative,
+unlike our <span class="docutils literal"><span class="pre">bind</span></span> when used as an infix operator. We get:</p>
+<div class="highlight-haskell"><div class="highlight"><pre><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">]</span> <span class="o">&gt;&gt;=</span> <span class="nf">\</span><span class="n">x</span> <span class="ow">-&gt;</span> <span class="p">[</span><span class="o">-</span><span class="n">x</span><span class="p">,</span><span class="n">x</span><span class="p">]</span> <span class="o">&gt;&gt;=</span> <span class="nf">\</span><span class="n">y</span> <span class="ow">-&gt;</span> <span class="p">[</span><span class="n">x</span> <span class="o">+</span> <span class="n">y</span> <span class="o">^</span> <span class="mi">3</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>We got rid of all brackets,
+and this <em>almost</em> looks like our list comprehension.</p>
+<p>We note that, in this example,
+the infix notation, along with right-associativity,
+is absolutely indispensible to make for readable code.
+To convince yourself, compare with the prefix notation:</p>
+<div class="highlight-haskell"><div class="highlight"><pre><span class="nf">bind</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">]</span> <span class="p">(</span><span class="nf">\</span><span class="n">x</span> <span class="ow">-&gt;</span> <span class="p">(</span><span class="n">bind</span> <span class="p">[</span><span class="o">-</span><span class="n">x</span><span class="p">,</span><span class="n">x</span><span class="p">]</span> <span class="p">(</span><span class="nf">\</span><span class="n">y</span> <span class="ow">-&gt;</span> <span class="p">[</span><span class="n">x</span> <span class="o">+</span> <span class="n">y</span> <span class="o">^</span> <span class="mi">3</span><span class="p">])))</span>
+</pre></div>
+</div>
+<p>which, although perhaps more explicit, may feel less natural.</p>
+</div>
+<div class="section" id="do-notation-and-the-operator">
+<h3>Do Notation and the <span class="docutils literal"><span class="pre">&lt;-</span></span> Operator</h3>
+<p>For large list comprehensions, keeping everything on a single line
+becomes tedious. Instead, we can write:</p>
+<div class="highlight-haskell"><div class="highlight"><pre><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">]</span> <span class="o">&gt;&gt;=</span>
+<span class="nf">\</span><span class="n">x</span> <span class="ow">-&gt;</span> <span class="p">[</span><span class="o">-</span><span class="n">x</span><span class="p">,</span><span class="n">x</span><span class="p">]</span> <span class="o">&gt;&gt;=</span>
+<span class="nf">\</span><span class="n">y</span> <span class="ow">-&gt;</span> <span class="p">[</span><span class="n">x</span> <span class="o">+</span> <span class="n">y</span> <span class="o">^</span> <span class="mi">3</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>where it is <strong>very important to remember that ``&gt;&gt;=`` is right-associative</strong>,
+i.e. with brackets, our code is equivalent to:</p>
+<div class="highlight-haskell"><div class="highlight"><pre><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">]</span> <span class="o">&gt;&gt;=</span>
+    <span class="p">(</span><span class="nf">\</span><span class="n">x</span> <span class="ow">-&gt;</span> <span class="p">[</span><span class="o">-</span><span class="n">x</span><span class="p">,</span><span class="n">x</span><span class="p">]</span> <span class="o">&gt;&gt;=</span>
+        <span class="p">(</span><span class="nf">\</span><span class="n">y</span> <span class="ow">-&gt;</span> <span class="p">[</span><span class="n">x</span> <span class="o">+</span> <span class="n">y</span> <span class="o">^</span> <span class="mi">3</span><span class="p">]))</span>
+</pre></div>
+</div>
+<p>Perhaps, you will find that this is already obscure enough.
+Nevertheless, Haskell allows you to take this yet one step further,
+with a so-called do block.
+A do block allows us to replace <span class="docutils literal"><span class="pre">&gt;&gt;=</span></span> operators with
+newlines and some sort of &#8216;reverse lambda notation&#8217;:</p>
+<div class="highlight-haskell"><div class="highlight"><pre><span class="kr">do</span> <span class="n">x</span> <span class="ow">&lt;-</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">]</span>
+   <span class="n">y</span> <span class="ow">&lt;-</span> <span class="p">[</span><span class="o">-</span><span class="n">x</span><span class="p">,</span><span class="n">x</span><span class="p">]</span>
+   <span class="p">[</span><span class="n">x</span> <span class="o">+</span> <span class="n">y</span> <span class="o">^</span> <span class="mi">3</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>The only remaining touch we can give this code is to use Haskell&#8217;s
+<span class="docutils literal"><span class="pre">return</span></span> function:</p>
+<div class="highlight-haskell"><div class="highlight"><pre><span class="kr">do</span> <span class="n">x</span> <span class="ow">&lt;-</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">]</span>
+   <span class="n">y</span> <span class="ow">&lt;-</span> <span class="p">[</span><span class="o">-</span><span class="n">x</span><span class="p">,</span><span class="n">x</span><span class="p">]</span>
+   <span class="n">return</span> <span class="p">(</span><span class="n">x</span> <span class="o">+</span> <span class="n">y</span> <span class="o">^</span> <span class="mi">3</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The <span class="docutils literal"><span class="pre">return</span></span> function transforms a value into a container
+(or, a monad, if you like), and for lists, it is defined as:</p>
+<div class="highlight-haskell"><div class="highlight"><pre><span class="nf">return</span> <span class="ow">::</span> <span class="n">a</span> <span class="ow">-&gt;</span> <span class="p">[</span><span class="n">a</span><span class="p">]</span>
+<span class="nf">return</span> <span class="n">x</span> <span class="ow">=</span> <span class="p">[</span><span class="n">x</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>This now looks suspiciously similar to code from an imperative language,
+for instance the following in Python:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">def</span> <span class="nf">example</span><span class="p">():</span>
+    <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]:</span>
+        <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="p">[</span><span class="o">-</span><span class="n">x</span><span class="p">,</span> <span class="n">x</span><span class="p">]:</span>
+            <span class="k">yield</span> <span class="n">x</span> <span class="o">+</span> <span class="n">y</span> <span class="o">**</span> <span class="mi">3</span>
+</pre></div>
+</div>
+<p>It is tempting, yet flawed,
+to think of do blocks as a sequence of imperative statements.
+Indeed, Haskell may evaluate expressions in any order it wants,
+and is only constrained by data flow. For example, in:</p>
+<div class="highlight-haskell"><div class="highlight"><pre><span class="kr">do</span> <span class="n">x</span> <span class="ow">&lt;-</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">]</span>
+   <span class="n">y</span> <span class="ow">&lt;-</span> <span class="p">[</span><span class="mi">9</span><span class="p">,</span><span class="mi">10</span><span class="p">]</span>
+   <span class="p">[</span><span class="n">x</span> <span class="o">+</span> <span class="n">y</span><span class="p">,</span> <span class="n">x</span> <span class="o">-</span> <span class="n">y</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>there is no guarantee whatsoever that Haskell will evaluate <span class="docutils literal"><span class="pre">[1,</span> <span class="pre">2]</span></span>
+before <span class="docutils literal"><span class="pre">[9,10]</span></span>. For all we know,
+Haskell might even evaluate them in parallel.</p>
+</div>
+</div>
+<div class="section" id="the-monad-typeclass">
+<h2>The Monad Typeclass</h2>
+<p>The do notation does not only exist for lists, but applies to any monad.
+It is crucial to realize that
+<strong>the ``&gt;&gt;=`` operator determines how a do block is evaluated</strong>,
+as do blocks are simply a fancy way of rewriting
+a <span class="docutils literal"><span class="pre">&gt;&gt;=</span></span>-separated chain of expressions.
+In fact, any container type
+which implements <span class="docutils literal"><span class="pre">&gt;&gt;=</span></span> and <span class="docutils literal"><span class="pre">return</span></span> is a monad.
+We have not yet seen
+how Haskell can overload functions to take arbitrary types.
+This is done through Haskell&#8217;s typeclasses.</p>
+<p>We will cover typeclasses in a next post,
+along with more monad examples.</p>
+</div>
+<div class="section" id="something-to-blow-your-mind">
+<h2>Something to Blow Your Mind</h2>
+<ol class="arabic">
+<li><p class="first">Our attempt at proving Fermat&#8217;s theorem using Haskell
+leads to a never ending evaluation,
+quite logically so.</p>
+<p>Explain why:</p>
+<div class="highlight-haskell"><div class="highlight"><pre><span class="nf">null</span> <span class="p">[</span> <span class="p">[</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">,</span><span class="n">z</span><span class="p">]</span> <span class="o">|</span> <span class="n">x</span> <span class="ow">&lt;-</span> <span class="p">[</span><span class="mi">1</span><span class="o">..</span><span class="p">],</span> <span class="n">y</span> <span class="ow">&lt;-</span> <span class="p">[</span><span class="mi">1</span><span class="o">..</span><span class="p">],</span>
+                 <span class="n">z</span> <span class="ow">&lt;-</span> <span class="p">[</span><span class="mi">1</span><span class="o">..</span><span class="p">],</span> <span class="n">x</span> <span class="o">^</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">y</span> <span class="o">^</span> <span class="mi">2</span> <span class="o">==</span> <span class="n">z</span> <span class="o">^</span> <span class="mi">2</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>might not end either (depending on the details of the compiler)
+although the list is non-empty, but:</p>
+<div class="highlight-haskell"><div class="highlight"><pre><span class="nf">null</span> <span class="p">[</span> <span class="p">[</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">,</span><span class="n">z</span><span class="p">]</span> <span class="o">|</span> <span class="n">x</span> <span class="ow">&lt;-</span> <span class="p">[</span><span class="mi">3</span><span class="o">..</span><span class="p">],</span> <span class="n">y</span> <span class="ow">&lt;-</span> <span class="p">[</span><span class="mi">4</span><span class="o">..</span><span class="p">],</span>
+                 <span class="n">z</span> <span class="ow">&lt;-</span> <span class="p">[</span><span class="mi">1</span><span class="o">..</span><span class="p">],</span> <span class="n">x</span> <span class="o">^</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">y</span> <span class="o">^</span> <span class="mi">2</span> <span class="o">==</span> <span class="n">z</span> <span class="o">^</span> <span class="mi">2</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>might be evaluated in finite time
+(again depending on the details of the compiler).</p>
+</li>
+<li><p class="first">Fermat&#8217;s problem involved filtering,
+but our poor man&#8217;s implementation did not implement filtering.
+What extra operations do we need for our list monad
+to gain filtering ability?</p>
+<p>How could you abstract this to apply to general monads?</p>
+<p>Hint. Analyze the following code:</p>
+<div class="highlight-haskell"><div class="highlight"><pre><span class="nf">filt</span> <span class="ow">::</span> <span class="kt">Bool</span> <span class="ow">-&gt;</span> <span class="kt">Int</span> <span class="ow">-&gt;</span> <span class="p">[</span><span class="kt">Int</span><span class="p">]</span>
+<span class="nf">filt</span> <span class="n">cond</span> <span class="n">x</span> <span class="ow">=</span> <span class="kr">if</span> <span class="n">cond</span> <span class="kr">then</span> <span class="p">[</span><span class="n">x</span><span class="p">]</span> <span class="kr">else</span> <span class="kt">[]</span>
+
+<span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">]</span> <span class="o">&gt;&gt;=</span>
+<span class="nf">\</span><span class="n">x</span> <span class="ow">-&gt;</span> <span class="p">[</span><span class="o">-</span><span class="n">x</span><span class="o">..</span><span class="n">x</span><span class="p">]</span> <span class="o">&gt;&gt;=</span>
+<span class="nf">\</span><span class="n">y</span> <span class="ow">-&gt;</span> <span class="p">[</span><span class="n">x</span> <span class="o">+</span> <span class="n">y</span> <span class="o">^</span> <span class="mi">3</span><span class="p">]</span> <span class="o">&gt;&gt;=</span>
+<span class="nf">filt</span> <span class="p">(</span><span class="n">odd</span> <span class="n">y</span><span class="p">)</span>
+</pre></div>
+</div>
+</li>
+</ol>
+</div>
+</div>
+
+    <div class="postmeta">
+        <div class="author">
+            <span>Posted by Matthias C. M. Troffaes</span>
+        </div>
+        
+        
+        </div>
+    <div id="disqus_thread"></div><script type="text/javascript">    var disqus_shortname = "blowyourmindwithhaskell";    var disqus_identifier = "2013/08/24/the_list_monad";    disqus_thread();</script><noscript>Please enable JavaScript to view the    <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript><ul class="related clearfix">
+            <li class="left"></li>
+            <li class="right"><a href="../21/everything_is_a_function.html">Everything is a Function</a> &raquo; </li>
+        </ul></article><aside class="sidebar"><section><div class="widget">
+    <h1>Recent Posts</h1>
+    <ul><li>
+            <a href="#">The List Monad</a>
+        </li><li>
+            <a href="../21/everything_is_a_function.html">Everything is a Function</a>
+        </li><li>
+            <a href="../19/what_is_haskell_.html">What is Haskell?</a>
+        </li></ul>
+</div>
+</section><section><div class="widget" id="searchbox">
+    <h1>Search</h1>
+    <form action="../../../search.html" method="get">
+        <input type="text" name="q" />
+        <button type="submit"><span class="webfont">L</span></button>
+    </form>
+</div></section></aside></div> <!-- #main --></div> <!-- #main-container -->
+
+        <div class="footer-container"><footer class="wrapper">&copy; Copyright 2013, Matthias C. M. Troffaes. Powered by <a href="http://www.tinkerer.me/">Tinkerer</a> and <a href="http://sphinx.pocoo.org/">Sphinx</a>.</footer></div> <!-- footer-container -->
+
+      </div> <!--! end of #container --><!--[if lt IE 7 ]>
+          <script src="//ajax.googleapis.com/ajax/libs/chrome-frame/1.0.3/CFInstall.min.js"></script>
+          <script>window.attachEvent('onload',function(){CFInstall.check({mode:'overlay'})})</script>
+        <![endif]-->
+    </body>
+</html>
