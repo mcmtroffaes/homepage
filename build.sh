@@ -1,6 +1,6 @@
 #!/bin/bash
 
 rm -rf build
-rm -rf ../bymwhaskell-gh-pages/*
-rm -rf ../bymwhaskell-gh-pages/.buildinfo
-sphinx-build -d build/doctrees . ../bymwhaskell-gh-pages/
+rm -rf ../blowyourmindwithhaskell-gh-pages/*
+rm -rf ../blowyourmindwithhaskell-gh-pages/.buildinfo
+sphinx-build -d build/doctrees . ../blowyourmindwithhaskell-gh-pages/
