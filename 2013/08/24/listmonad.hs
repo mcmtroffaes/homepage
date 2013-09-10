@@ -34,6 +34,7 @@ main = do
    print $ funcx `bind` (funcy `bind2` funcfinal)
    print $ [1,2,3] `bind` ((\x -> [-x,x]) `bind2` (\x y -> [x + y ^ 3]))
    print $ [1,2,3] `bind` (\x -> ([-x,x] `bind` (\y -> [x + y ^ 3])))
+   print $ [1,2,3] `bind` \x -> [-x,x] `bind` \y -> [x + y ^ 3]
    print $ bind funcx funcxy
    print $ bind funcx funcxy'
    print $ bind funcx funcxy''

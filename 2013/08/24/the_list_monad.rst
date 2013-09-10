@@ -302,9 +302,8 @@ The ``>>=`` Operator
 Because the ``bind`` operation is so generically useful
 for arbitrary list comprehensions,
 Haskell implements an ``>>=`` operator for us,
-which behaves just like our ``bind``,
-but which is also conveniently right-associative,
-unlike our ``bind`` when used as an infix operator. We get::
+which behaves just like our ``bind``.
+We get::
 
   [1,2,3] >>= \x -> [-x,x] >>= \y -> [x + y ^ 3]
 
