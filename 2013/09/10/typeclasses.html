@@ -1,0 +1,276 @@
+
+
+<!DOCTYPE html><!--[if lt IE 7]>      <html xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:og="http://ogp.me/ns#"
+    xmlns:fb="https://www.facebook.com/2008/fbml" class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:og="http://ogp.me/ns#"
+    xmlns:fb="https://www.facebook.com/2008/fbml" class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:og="http://ogp.me/ns#"
+    xmlns:fb="https://www.facebook.com/2008/fbml" class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:og="http://ogp.me/ns#"
+    xmlns:fb="https://www.facebook.com/2008/fbml" class="no-js"> <!--<![endif]-->
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <meta name="description" content="A Haskell tutorial">
+        <meta name="viewport" content="width=device-width">
+        <title>Typeclasses &mdash; Blow Your Mind With Haskell</title>
+            <link rel="stylesheet" href="../../../_static/normalize.css" type="text/css">
+            <link rel="stylesheet" href="../../../_static/sphinx.css" type="text/css">
+            <link rel="stylesheet" href="../../../_static/main.css" type="text/css">
+            <link rel="stylesheet" href="../../../_static/minimal5.css" type="text/css">
+            <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+            <link rel="stylesheet" href="../../../_static/webfont.css" type="text/css">
+        <!-- Load modernizr and JQuery -->
+        <script src="../../../_static/vendor/modernizr-2.6.2.min.js"></script>
+        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+        <script>window.jQuery || document.write('<script src="../../../_static/vendor/jquery-1.8.2.min.js"><\/script>')</script>
+        <script src="../../../_static/plugins.js"></script>
+        <script src="../../../_static/main.js"></script>
+        <link rel="next" title="The List Monad" href="../../08/24/the_list_monad.html" /><link rel="alternate" type="application/rss+xml" title="RSS" href="../../../rss.html" /><script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '1.2.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script><script type="text/javascript" src="../../../_static/underscore.js"></script><script type="text/javascript" src="../../../_static/doctools.js"></script><script type="text/javascript" src="../../../_static/disqus.js"></script></head>
+    <body>
+        <!--[if lt IE 7]>
+            <p class="chromeframe">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> or <a href="http://www.google.com/chromeframe/?redirect=true">activate Google Chrome Frame</a> to improve your experience.</p>
+        <![endif]-->
+
+      <div id="container">
+  <nav>
+    <ul><li class="quicklink"><div class="rss">
+        <a href="../../../rss.html" title="Subscribe via RSS"><span class="webfont">B</span></a>
+    </div></li><li class="main-nav">
+          <a href="../../../index.html">Home</a>
+        </li>
+      <li class="main-nav">
+          <a href="../../../pages/about.html">About</a>
+        </li>
+      </ul>
+  </nav>
+
+  <header>
+            <hgroup>
+              <h1><a href="../../../index.html">Blow Your Mind With Haskell</a></h1><h2>Musings of a Haskell Learner</h2></hgroup>
+          </header>
+      <div class="main-container"><div class="main wrapper clearfix"><article><ul class="related clearfix">
+            <li class="left"></li>
+            <li class="right"><a href="../../08/24/the_list_monad.html">The List Monad</a> &raquo; </li>
+        </ul><div class="timestamp postmeta">
+            <span>10 September 2013</span>
+        </div>
+    <div class="section" id="typeclasses">
+<h1>Typeclasses</h1>
+<div class="section" id="polymorphism">
+<h2>Polymorphism</h2>
+<p>We already saw one way to achieve polymorphism in Haskell:
+<a class="reference internal" href="../../08/21/everything_is_a_function.html#type-variables"><em>type variables</em></a>. For example,
+we defined function composition as:</p>
+<div class="highlight-haskell"><div class="highlight"><pre><span class="p">(</span><span class="o">.</span><span class="p">)</span> <span class="ow">::</span> <span class="p">(</span><span class="n">b</span> <span class="ow">-&gt;</span> <span class="n">c</span><span class="p">)</span> <span class="ow">-&gt;</span> <span class="p">(</span><span class="n">a</span> <span class="ow">-&gt;</span> <span class="n">b</span><span class="p">)</span> <span class="ow">-&gt;</span> <span class="p">(</span><span class="n">a</span> <span class="ow">-&gt;</span> <span class="n">c</span><span class="p">)</span>
+<span class="p">(</span><span class="n">f</span> <span class="o">.</span> <span class="n">g</span><span class="p">)</span> <span class="n">x</span> <span class="ow">=</span> <span class="n">f</span> <span class="o">$</span> <span class="n">g</span> <span class="n">x</span>
+</pre></div>
+</div>
+<p>Above, <span class="docutils literal"><span class="pre">a</span></span>, <span class="docutils literal"><span class="pre">b</span></span>, and <span class="docutils literal"><span class="pre">c</span></span> are generic placeholders
+to denote arbitrary types. These are called type variables.</p>
+<p>If we think about generalising the monad pattern to general types,
+we will quickly find that type variables cannot help us doing so.
+Why is that? Well, to use the monad pattern, we need, in essence,
+to define a function that binds our monadic structures.
+Looking at further examples,
+we will very quickly find that we cannot implement this binding operation
+in a fully generic way using type variables, because the implementation
+of the binding operation is highly tied to the monad structure itself.
+In terms of, say, C++, we would like to overload the binding function
+for different types.</p>
+<p>This is exactly what a <em>typeclass</em> does: it allows us to specify that
+a certain type implements certain functions.
+The monad typeclass is defined as follows:</p>
+<div class="highlight-haskell"><div class="highlight"><pre><span class="kr">class</span> <span class="kt">Monad</span> <span class="n">m</span> <span class="kr">where</span>
+    <span class="p">(</span><span class="o">&gt;&gt;=</span><span class="p">)</span> <span class="ow">::</span> <span class="n">m</span> <span class="n">a</span> <span class="ow">-&gt;</span> <span class="p">(</span><span class="n">a</span> <span class="ow">-&gt;</span> <span class="n">m</span> <span class="n">b</span><span class="p">)</span> <span class="ow">-&gt;</span> <span class="n">m</span> <span class="n">b</span>
+    <span class="n">return</span> <span class="ow">::</span> <span class="n">a</span> <span class="ow">-&gt;</span> <span class="n">m</span> <span class="n">a</span>
+</pre></div>
+</div>
+<p>Note that we are also required to implement a return function
+to embed a type into our monad;
+actually, for may examples, this is not really required,
+but it can be useful in case a type&#8217;s constructors are hidden.
+Note that the bind operator <span class="docutils literal"><span class="pre">&gt;&gt;=</span></span> and the <span class="docutils literal"><span class="pre">return</span></span> function
+are required to be polymorphic, through type variables.</p>
+<p>So, in essence,
+typeclasses are used to declare that
+a particular type implements a particular interface.
+For example, the list monad would be implemented as:</p>
+<div class="highlight-haskell"><div class="highlight"><pre><span class="kr">instance</span> <span class="kt">Monad</span> <span class="kt">[]</span> <span class="kr">where</span>
+    <span class="p">(</span><span class="o">&gt;&gt;=</span><span class="p">)</span> <span class="n">xs</span> <span class="n">f</span> <span class="ow">=</span> <span class="n">concat</span> <span class="o">.</span> <span class="n">map</span> <span class="n">f</span> <span class="o">$</span> <span class="n">xs</span>
+    <span class="n">return</span> <span class="n">x</span> <span class="ow">=</span> <span class="p">[</span><span class="n">x</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>Of course, we do not have to type the above ourselves;
+Haskell has already done that for us.</p>
+</div>
+<div class="section" id="a-simple-container-monad">
+<h2>A Simple Container Monad</h2>
+<p>Let us proceed to a second example of a monad.
+Suppose we are carrying out a computation on some value,
+but each step of the computation might fail for some reason.
+In case of failure, we simply wish to return a dummy value
+to signal this failure.</p>
+<p>For the time being, let us use a list for this purpose:
+an empty list denotes a failed computation, and a non-empty list
+of length one denotes successful computation,
+with the value it stores being the value computed so far.</p>
+<p>As an example of computation, we will parse three digits into an
+integer.
+A first challenge is to convert a single character into a numerical value.
+For this we use the <span class="docutils literal"><span class="pre">ord</span></span> function from the <span class="docutils literal"><span class="pre">Data.Char</span></span> module:</p>
+<div class="highlight-haskell"><div class="highlight"><pre><span class="kr">import</span> <span class="nn">Data.Char</span>
+</pre></div>
+</div>
+<p>We will construct our parser by chaining. A single step of the algorithm
+consists of taking a character from the front of a string
+(we could also take it from the back, but Haskell encourages
+it the other way around), trying to convert it to an integer,
+and returning that integer along with the remainder of the characters
+still to convert. So, ideally, we would like our function signature to be:</p>
+<div class="highlight-haskell"><div class="highlight"><pre><span class="nf">getdigit</span> <span class="ow">::</span> <span class="p">[</span><span class="kt">Char</span><span class="p">]</span> <span class="ow">-&gt;</span> <span class="p">(</span><span class="kt">Int</span><span class="p">,</span> <span class="p">[</span><span class="kt">Char</span><span class="p">])</span>
+</pre></div>
+</div>
+<p>Two problems still to solve are:
+(i) how to deal with error conditions, and
+(ii) how to allow this function to be recursively &#8220;eat&#8221; characters.
+We change the function signature somewhat to accommodate both issues:</p>
+<div class="highlight-haskell"><div class="highlight"><pre><span class="nf">getdigit</span> <span class="ow">::</span> <span class="p">(</span><span class="kt">Int</span><span class="p">,</span> <span class="p">[</span><span class="kt">Char</span><span class="p">])</span> <span class="ow">-&gt;</span> <span class="p">[(</span><span class="kt">Int</span><span class="p">,</span> <span class="p">[</span><span class="kt">Char</span><span class="p">])]</span>
+</pre></div>
+</div>
+<p>Two things have happened: we have written the function
+to take just a single argument, namely, a tuple of <span class="docutils literal"><span class="pre">Int</span></span> and <span class="docutils literal"><span class="pre">[Char]</span></span>.
+This will simplify chaining: suppose we have eaten a character
+and are left with a remaining string, then we can simply call
+the function again to get the next digit with its remaining string, and so on.
+The second change is that the function now returns a list,
+so an empty list can signal an error condition,
+and a single element list can signal successful parsing.</p>
+<p>Here is the full implementation:</p>
+<div class="highlight-haskell"><div class="highlight"><pre><span class="nf">getdigit</span> <span class="ow">::</span> <span class="p">(</span><span class="kt">Int</span><span class="p">,</span> <span class="p">[</span><span class="kt">Char</span><span class="p">])</span> <span class="ow">-&gt;</span> <span class="p">[(</span><span class="kt">Int</span><span class="p">,</span> <span class="p">[</span><span class="kt">Char</span><span class="p">])]</span>
+<span class="nf">getdigit</span> <span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="kt">[]</span><span class="p">)</span> <span class="ow">=</span> <span class="kt">[]</span>
+<span class="nf">getdigit</span> <span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">x</span><span class="kt">:</span><span class="n">xs</span><span class="p">)</span>
+  <span class="o">|</span> <span class="n">m</span> <span class="o">&gt;=</span> <span class="mi">0</span> <span class="o">&amp;&amp;</span> <span class="n">m</span> <span class="o">&lt;=</span> <span class="mi">9</span> <span class="ow">=</span> <span class="p">[(</span><span class="mi">10</span> <span class="o">*</span> <span class="n">n</span> <span class="o">+</span> <span class="n">m</span><span class="p">,</span> <span class="n">xs</span><span class="p">)]</span>
+  <span class="o">|</span> <span class="n">otherwise</span>        <span class="ow">=</span> <span class="kt">[]</span>
+  <span class="kr">where</span> <span class="n">m</span> <span class="ow">=</span> <span class="n">ord</span> <span class="n">x</span> <span class="o">-</span> <span class="n">ord</span> <span class="sc">&#39;0&#39;</span>
+</pre></div>
+</div>
+<p>In case of invalid input (empty string, or non-numerical character),
+the function simply returns an empty string.
+If the input is valid, then the function multiplies the result so far by 10,
+and adds the parsed digit to that result;
+it also returns the remaining characters.</p>
+<p>How can we now parse, say, a three-digit integer?
+The list monad helps us out:</p>
+<div class="highlight-haskell"><div class="highlight"><pre><span class="nf">getint</span> <span class="ow">::</span> <span class="p">[</span><span class="kt">Char</span><span class="p">]</span> <span class="ow">-&gt;</span> <span class="p">[(</span><span class="kt">Int</span><span class="p">,</span> <span class="p">[</span><span class="kt">Char</span><span class="p">])]</span>
+<span class="nf">getint</span> <span class="n">xs</span> <span class="ow">=</span> <span class="n">getdigit</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">xs</span><span class="p">)</span> <span class="o">&gt;&gt;=</span> <span class="n">getdigit</span> <span class="o">&gt;&gt;=</span> <span class="n">getdigit</span>
+</pre></div>
+</div>
+<p>That looks rather elegant, but what is going on here?</p>
+<p>Remember what the list monad does: it takes a list, applies a function
+to all elements of that list, and then concatenates the resulting
+elements of that list. Let us analyse this process in the above code.
+First, we start with <span class="docutils literal"><span class="pre">getdigit</span> <span class="pre">(0,</span> <span class="pre">xs)</span></span>.
+If, on the one hand,
+the input <span class="docutils literal"><span class="pre">xs</span></span> is empty, or has an invalid first character,
+then we end up with an empty list.
+If, on the other hand,
+the input <span class="docutils literal"><span class="pre">xs</span></span> starts with a valid character,
+then we get a list containing the value of that character,
+along with the tail of <span class="docutils literal"><span class="pre">xs</span></span>, i.e. all characters still to process.</p>
+<p>The monad operation <span class="docutils literal"><span class="pre">&gt;&gt;=</span></span> will then apply <span class="docutils literal"><span class="pre">getdigit</span></span>
+to all elements of the list we just obtained&#8212;remember that this
+list is either empty, or contains exactly one element.
+If that list was empty, <span class="docutils literal"><span class="pre">&gt;&gt;=</span></span> will just return an empty list again
+without even calling <span class="docutils literal"><span class="pre">getdigit</span></span>.
+If that list contained one element,
+it will multiply the original result by 10, add the newly processed digit
+to the result, and return a list containing one pair,
+namely the result and the remaining characters.
+If at this stage, parsing fails, an empty list is produced.</p>
+<p>Rinse and repeat.</p>
+</div>
+<div class="section" id="maybe">
+<h2>Maybe</h2>
+<p>Using a list to keep track of a failure mode is somewhat contorted:
+we are using a cannon to shoot a fly.
+Haskell provides a simpler data structure just for the purpose
+of storing so-called <em>optional</em> values:</p>
+<div class="highlight-haskell"><div class="highlight"><pre><span class="kr">data</span> <span class="kt">Maybe</span> <span class="n">a</span> <span class="ow">=</span> <span class="kt">Nothing</span> <span class="o">|</span> <span class="kt">Just</span> <span class="n">a</span>
+</pre></div>
+</div>
+<p>Semantically, a <span class="docutils literal"><span class="pre">Maybe</span></span> is just like a list with at most one element.
+Its monad implementation is somewhat simpler than that of lists:</p>
+<div class="highlight-haskell"><div class="highlight"><pre><span class="p">(</span><span class="o">&gt;&gt;=</span><span class="p">)</span> <span class="ow">::</span> <span class="kt">Maybe</span> <span class="n">a</span> <span class="ow">-&gt;</span> <span class="p">(</span><span class="n">a</span> <span class="ow">-&gt;</span> <span class="kt">Maybe</span> <span class="n">b</span><span class="p">)</span> <span class="ow">-&gt;</span> <span class="kt">Maybe</span> <span class="n">b</span>
+<span class="p">(</span><span class="o">&gt;&gt;=</span><span class="p">)</span> <span class="kt">Nothing</span> <span class="n">f</span> <span class="ow">=</span> <span class="kt">Nothing</span>
+<span class="p">(</span><span class="o">&gt;&gt;=</span><span class="p">)</span> <span class="p">(</span><span class="kt">Just</span> <span class="n">a</span><span class="p">)</span> <span class="n">f</span> <span class="ow">=</span> <span class="n">f</span> <span class="n">a</span>
+</pre></div>
+</div>
+<p>The full implementation becomes:</p>
+<div class="highlight-haskell"><div class="highlight"><pre><span class="nf">getdigit2</span> <span class="ow">::</span> <span class="p">(</span><span class="kt">Int</span><span class="p">,</span> <span class="p">[</span><span class="kt">Char</span><span class="p">])</span> <span class="ow">-&gt;</span> <span class="kt">Maybe</span> <span class="p">(</span><span class="kt">Int</span><span class="p">,</span> <span class="p">[</span><span class="kt">Char</span><span class="p">])</span>
+<span class="nf">getdigit2</span> <span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="kt">[]</span><span class="p">)</span> <span class="ow">=</span> <span class="kt">Nothing</span>
+<span class="nf">getdigit2</span> <span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">x</span><span class="kt">:</span><span class="n">xs</span><span class="p">)</span>
+  <span class="o">|</span> <span class="n">m</span> <span class="o">&gt;=</span> <span class="mi">0</span> <span class="o">&amp;&amp;</span> <span class="n">m</span> <span class="o">&lt;=</span> <span class="mi">9</span> <span class="ow">=</span> <span class="kt">Just</span> <span class="p">(</span><span class="mi">10</span> <span class="o">*</span> <span class="n">n</span> <span class="o">+</span> <span class="n">m</span><span class="p">,</span> <span class="n">xs</span><span class="p">)</span>
+  <span class="o">|</span> <span class="n">otherwise</span>        <span class="ow">=</span> <span class="kt">Nothing</span>
+  <span class="kr">where</span> <span class="n">m</span> <span class="ow">=</span> <span class="n">ord</span> <span class="n">x</span> <span class="o">-</span> <span class="n">ord</span> <span class="sc">&#39;0&#39;</span>
+
+<span class="nf">getint2</span> <span class="ow">::</span> <span class="p">[</span><span class="kt">Char</span><span class="p">]</span> <span class="ow">-&gt;</span> <span class="kt">Maybe</span> <span class="p">(</span><span class="kt">Int</span><span class="p">,</span> <span class="p">[</span><span class="kt">Char</span><span class="p">])</span>
+<span class="nf">getint2</span> <span class="n">xs</span> <span class="ow">=</span> <span class="n">getdigit2</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">xs</span><span class="p">)</span> <span class="o">&gt;&gt;=</span> <span class="n">getdigit2</span> <span class="o">&gt;&gt;=</span> <span class="n">getdigit2</span>
+</pre></div>
+</div>
+<p>This is obviously very similar to our list implementation.
+The main difference is that the intent of the code has become clearer
+due to the explicit use of <span class="docutils literal"><span class="pre">Maybe</span></span>, <span class="docutils literal"><span class="pre">Nothing</span></span>, and <span class="docutils literal"><span class="pre">Just</span></span>.</p>
+</div>
+</div>
+
+    <div class="postmeta">
+        <div class="author">
+            <span>Posted by Matthias C. M. Troffaes</span>
+        </div>
+        
+        
+        </div>
+    <div id="disqus_thread"></div><script type="text/javascript">    var disqus_shortname = "blowyourmindwithhaskell";    var disqus_identifier = "2013/09/10/typeclasses";    disqus_thread();</script><noscript>Please enable JavaScript to view the    <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript><ul class="related clearfix">
+            <li class="left"></li>
+            <li class="right"><a href="../../08/24/the_list_monad.html">The List Monad</a> &raquo; </li>
+        </ul></article><aside class="sidebar"><section><div class="widget">
+    <h1>Recent Posts</h1>
+    <ul><li>
+            <a href="#">Typeclasses</a>
+        </li><li>
+            <a href="../../08/24/the_list_monad.html">The List Monad</a>
+        </li><li>
+            <a href="../../08/21/everything_is_a_function.html">Everything is a Function</a>
+        </li><li>
+            <a href="../../08/19/what_is_haskell_.html">What is Haskell?</a>
+        </li></ul>
+</div>
+</section><section><div class="widget" id="searchbox">
+    <h1>Search</h1>
+    <form action="../../../search.html" method="get">
+        <input type="text" name="q" />
+        <button type="submit"><span class="webfont">L</span></button>
+    </form>
+</div></section></aside></div> <!-- #main --></div> <!-- #main-container -->
+
+        <div class="footer-container"><footer class="wrapper">&copy; Copyright 2013, Matthias C. M. Troffaes. Powered by <a href="http://www.tinkerer.me/">Tinkerer</a> and <a href="http://sphinx.pocoo.org/">Sphinx</a>.</footer></div> <!-- footer-container -->
+
+      </div> <!--! end of #container --><!--[if lt IE 7 ]>
+          <script src="//ajax.googleapis.com/ajax/libs/chrome-frame/1.0.3/CFInstall.min.js"></script>
+          <script>window.attachEvent('onload',function(){CFInstall.check({mode:'overlay'})})</script>
+        <![endif]-->
+    </body>
+</html>
