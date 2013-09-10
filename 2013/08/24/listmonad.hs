@@ -38,7 +38,7 @@ main = do
    print $ bind funcx funcxy
    print $ bind funcx funcxy'
    print $ bind funcx funcxy''
-   print $ bind [1,2,3] (\x -> (bind [-x,x] (\y -> [x + y ^ 3])))
+   print $ bind [1,2,3] (\x -> bind [-x,x] (\y -> [x + y ^ 3]))
    print $ [1,2,3] >>= \x -> [-x,x] >>= \y -> [x + y ^ 3]
    print funcdo
    print $ [1,2,3] >>=
