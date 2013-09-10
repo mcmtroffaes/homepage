@@ -184,6 +184,8 @@ Here is its definition::
   (.) :: (b -> c) -> (a -> b) -> (a -> c)
   (f . g) x = f $ g x
 
+.. _type-variables:
+
 In the above, ``a``, ``b``, and ``c``, are generic placeholders
 for any type our heart desires; we say that ``.`` is polymorphic,
 and ``a``, ``b``, and ``c`` are called *type variables*.
