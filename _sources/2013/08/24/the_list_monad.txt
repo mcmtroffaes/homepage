@@ -296,27 +296,36 @@ and the comprehension itself::
   bind zs f = concat . map f $ zs
   [1,2,3] `bind` (\x -> ([-x,x] `bind` (\y -> [x + y ^ 3])))
 
+We can omit the brackets around lambda definitions, because
+the body of the lambda extends as far to the right as possible without hitting
+an unbalanced parenthesis [1]_::
+
+  [1,2,3] `bind` \x -> [-x,x] `bind` \y -> [x + y ^ 3]
+
+We got rid of all brackets,
+and this *almost* looks like our list comprehension.
+
 The ``>>=`` Operator
 ~~~~~~~~~~~~~~~~~~~~
 
 Because the ``bind`` operation is so generically useful
 for arbitrary list comprehensions,
 Haskell implements an ``>>=`` operator for us,
-which behaves just like our ``bind``,
-but which is also conveniently right-associative,
-unlike our ``bind`` when used as an infix operator. We get::
+which behaves just like our ``bind``.
+We get::
 
   [1,2,3] >>= \x -> [-x,x] >>= \y -> [x + y ^ 3]
 
-We got rid of all brackets,
-and this *almost* looks like our list comprehension.
-
 We note that, in this example,
-the infix notation, along with right-associativity,
+the infix notation, along with the lambda notation,
 is absolutely indispensible to make for readable code.
 To convince yourself, compare with the prefix notation::
 
   bind [1,2,3] (\x -> (bind [-x,x] (\y -> [x + y ^ 3])))
+
+or with fewer brackets::
+
+  bind [1,2,3] (\x -> bind [-x,x] (\y -> [x + y ^ 3]))
 
 which, although perhaps more explicit, may feel less natural.
 
@@ -330,7 +339,8 @@ becomes tedious. Instead, we can write::
   \x -> [-x,x] >>=
   \y -> [x + y ^ 3]
 
-where it is **very important to remember that ``>>=`` is right-associative**,
+where it is **very important to remember that
+the body of ``->`` extends to the right as far as logically possible**,
 i.e. with brackets, our code is equivalent to::
 
   [1,2,3] >>=
@@ -440,3 +450,4 @@ Something to Blow Your Mind
      \y -> [x + y ^ 3] >>=
      filt (odd y)
 
+.. [1] http://stackoverflow.com/questions/11237076/haskell-precedence-lambda-and-operator

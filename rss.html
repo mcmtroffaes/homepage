@@ -460,25 +460,34 @@ and the comprehension itself:</p>
 <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">]</span> <span class="p">`</span><span class="n">bind</span><span class="p">`</span> <span class="p">(</span><span class="nf">\</span><span class="n">x</span> <span class="ow">-&gt;</span> <span class="p">([</span><span class="o">-</span><span class="n">x</span><span class="p">,</span><span class="n">x</span><span class="p">]</span> <span class="p">`</span><span class="n">bind</span><span class="p">`</span> <span class="p">(</span><span class="nf">\</span><span class="n">y</span> <span class="ow">-&gt;</span> <span class="p">[</span><span class="n">x</span> <span class="o">+</span> <span class="n">y</span> <span class="o">^</span> <span class="mi">3</span><span class="p">])))</span>
 </pre></div>
 </div>
+<p>We can omit the brackets around lambda definitions, because
+the body of the lambda extends as far to the right as possible without hitting
+an unbalanced parenthesis <a class="footnote-reference" href="#id2" id="id1">[1]</a>:</p>
+<div class="highlight-haskell"><div class="highlight"><pre><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">]</span> <span class="p">`</span><span class="n">bind</span><span class="p">`</span> <span class="nf">\</span><span class="n">x</span> <span class="ow">-&gt;</span> <span class="p">[</span><span class="o">-</span><span class="n">x</span><span class="p">,</span><span class="n">x</span><span class="p">]</span> <span class="p">`</span><span class="n">bind</span><span class="p">`</span> <span class="nf">\</span><span class="n">y</span> <span class="ow">-&gt;</span> <span class="p">[</span><span class="n">x</span> <span class="o">+</span> <span class="n">y</span> <span class="o">^</span> <span class="mi">3</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>We got rid of all brackets,
+and this <em>almost</em> looks like our list comprehension.</p>
 </div>
 <div class="section" id="the-operator">
 <h3>The <span class="docutils literal"><span class="pre">&gt;&gt;=</span></span> Operator</h3>
 <p>Because the <span class="docutils literal"><span class="pre">bind</span></span> operation is so generically useful
 for arbitrary list comprehensions,
 Haskell implements an <span class="docutils literal"><span class="pre">&gt;&gt;=</span></span> operator for us,
-which behaves just like our <span class="docutils literal"><span class="pre">bind</span></span>,
-but which is also conveniently right-associative,
-unlike our <span class="docutils literal"><span class="pre">bind</span></span> when used as an infix operator. We get:</p>
+which behaves just like our <span class="docutils literal"><span class="pre">bind</span></span>.
+We get:</p>
 <div class="highlight-haskell"><div class="highlight"><pre><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">]</span> <span class="o">&gt;&gt;=</span> <span class="nf">\</span><span class="n">x</span> <span class="ow">-&gt;</span> <span class="p">[</span><span class="o">-</span><span class="n">x</span><span class="p">,</span><span class="n">x</span><span class="p">]</span> <span class="o">&gt;&gt;=</span> <span class="nf">\</span><span class="n">y</span> <span class="ow">-&gt;</span> <span class="p">[</span><span class="n">x</span> <span class="o">+</span> <span class="n">y</span> <span class="o">^</span> <span class="mi">3</span><span class="p">]</span>
 </pre></div>
 </div>
-<p>We got rid of all brackets,
-and this <em>almost</em> looks like our list comprehension.</p>
 <p>We note that, in this example,
-the infix notation, along with right-associativity,
+the infix notation, along with the lambda notation,
 is absolutely indispensible to make for readable code.
 To convince yourself, compare with the prefix notation:</p>
 <div class="highlight-haskell"><div class="highlight"><pre><span class="nf">bind</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">]</span> <span class="p">(</span><span class="nf">\</span><span class="n">x</span> <span class="ow">-&gt;</span> <span class="p">(</span><span class="n">bind</span> <span class="p">[</span><span class="o">-</span><span class="n">x</span><span class="p">,</span><span class="n">x</span><span class="p">]</span> <span class="p">(</span><span class="nf">\</span><span class="n">y</span> <span class="ow">-&gt;</span> <span class="p">[</span><span class="n">x</span> <span class="o">+</span> <span class="n">y</span> <span class="o">^</span> <span class="mi">3</span><span class="p">])))</span>
+</pre></div>
+</div>
+<p>or with fewer brackets:</p>
+<div class="highlight-haskell"><div class="highlight"><pre><span class="nf">bind</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">]</span> <span class="p">(</span><span class="nf">\</span><span class="n">x</span> <span class="ow">-&gt;</span> <span class="n">bind</span> <span class="p">[</span><span class="o">-</span><span class="n">x</span><span class="p">,</span><span class="n">x</span><span class="p">]</span> <span class="p">(</span><span class="nf">\</span><span class="n">y</span> <span class="ow">-&gt;</span> <span class="p">[</span><span class="n">x</span> <span class="o">+</span> <span class="n">y</span> <span class="o">^</span> <span class="mi">3</span><span class="p">]))</span>
 </pre></div>
 </div>
 <p>which, although perhaps more explicit, may feel less natural.</p>
@@ -492,7 +501,8 @@ becomes tedious. Instead, we can write:</p>
 <span class="nf">\</span><span class="n">y</span> <span class="ow">-&gt;</span> <span class="p">[</span><span class="n">x</span> <span class="o">+</span> <span class="n">y</span> <span class="o">^</span> <span class="mi">3</span><span class="p">]</span>
 </pre></div>
 </div>
-<p>where it is <strong>very important to remember that ``&gt;&gt;=`` is right-associative</strong>,
+<p>where it is <strong>very important to remember that
+the body of ``-&gt;`` extends to the right as far as logically possible</strong>,
 i.e. with brackets, our code is equivalent to:</p>
 <div class="highlight-haskell"><div class="highlight"><pre><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">]</span> <span class="o">&gt;&gt;=</span>
     <span class="p">(</span><span class="nf">\</span><span class="n">x</span> <span class="ow">-&gt;</span> <span class="p">[</span><span class="o">-</span><span class="n">x</span><span class="p">,</span><span class="n">x</span><span class="p">]</span> <span class="o">&gt;&gt;=</span>
@@ -596,6 +606,12 @@ to gain filtering ability?</p>
 </div>
 </li>
 </ol>
+<table class="docutils footnote" frame="void" id="id2" rules="none">
+<colgroup><col class="label"/><col/></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id1">[1]</a></td><td><a class="reference external" href="http://stackoverflow.com/questions/11237076/haskell-precedence-lambda-and-operator">http://stackoverflow.com/questions/11237076/haskell-precedence-lambda-and-operator</a></td></tr>
+</tbody>
+</table>
 </div>
 </div>]]></description>
              <pubDate>Sat, 24 Aug 2013 00:00:00 +0100</pubDate>
