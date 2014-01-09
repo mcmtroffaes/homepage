@@ -1,0 +1,357 @@
+
+
+<!DOCTYPE html><!--[if lt IE 7]>      <html xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:og="http://ogp.me/ns#"
+    xmlns:fb="https://www.facebook.com/2008/fbml" class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:og="http://ogp.me/ns#"
+    xmlns:fb="https://www.facebook.com/2008/fbml" class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:og="http://ogp.me/ns#"
+    xmlns:fb="https://www.facebook.com/2008/fbml" class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:og="http://ogp.me/ns#"
+    xmlns:fb="https://www.facebook.com/2008/fbml" class="no-js"> <!--<![endif]-->
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <meta name="description" content="A Haskell tutorial">
+        <meta name="viewport" content="width=device-width">
+        <title>Agda, Dependent Types, Theorem Proving &mdash; Blow Your Mind With Haskell</title>
+            <link rel="stylesheet" href="../../../_static/normalize.css" type="text/css">
+            <link rel="stylesheet" href="../../../_static/sphinx.css" type="text/css">
+            <link rel="stylesheet" href="../../../_static/main.css" type="text/css">
+            <link rel="stylesheet" href="../../../_static/minimal5.css" type="text/css">
+            <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+            <link rel="stylesheet" href="../../../_static/webfont.css" type="text/css">
+        <!-- Load modernizr and JQuery -->
+        <script src="../../../_static/vendor/modernizr-2.6.2.min.js"></script>
+        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+        <script>window.jQuery || document.write('<script src="../../../_static/vendor/jquery-1.8.2.min.js"><\/script>')</script>
+        <script src="../../../_static/plugins.js"></script>
+        <script src="../../../_static/main.js"></script>
+        <link rel="next" title="Typeclasses" href="../../../2013/09/10/typeclasses.html" /><link rel="alternate" type="application/rss+xml" title="RSS" href="../../../rss.html" /><script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '1.2.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script><script type="text/javascript" src="../../../_static/underscore.js"></script><script type="text/javascript" src="../../../_static/doctools.js"></script><script type="text/javascript" src="../../../_static/disqus.js"></script></head>
+    <body>
+        <!--[if lt IE 7]>
+            <p class="chromeframe">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> or <a href="http://www.google.com/chromeframe/?redirect=true">activate Google Chrome Frame</a> to improve your experience.</p>
+        <![endif]-->
+
+      <div id="container">
+  <nav>
+    <ul><li class="quicklink"><div class="rss">
+        <a href="../../../rss.html" title="Subscribe via RSS"><span class="webfont">B</span></a>
+    </div></li><li class="main-nav">
+          <a href="../../../index.html">Home</a>
+        </li>
+      <li class="main-nav">
+          <a href="../../../pages/about.html">About</a>
+        </li>
+      </ul>
+  </nav>
+
+  <header>
+            <hgroup>
+              <h1><a href="../../../index.html">Blow Your Mind With Haskell</a></h1><h2>Musings of a Haskell Learner</h2></hgroup>
+          </header>
+      <div class="main-container"><div class="main wrapper clearfix"><article><ul class="related clearfix">
+            <li class="left"></li>
+            <li class="right"><a href="../../../2013/09/10/typeclasses.html">Typeclasses</a> &raquo; </li>
+        </ul><div class="timestamp postmeta">
+            <span>09 January 2014</span>
+        </div>
+    <div class="section" id="agda-dependent-types-theorem-proving">
+<h1>Agda, Dependent Types, Theorem Proving</h1>
+<div class="section" id="agda">
+<h2>Agda</h2>
+<p>A few days ago, I stumbled on
+<a class="reference external" href="http://youtu.be/vy5C-mlUQ1w">David Sankel&#8217;s talk at BoostCon 2013</a>
+on Agda.
+Whilst the focus of the talk is, eventually, software design,
+computer assisted theorem proving was repeatedly mentioned.
+Some years ago I tried
+the proof assistent
+<a class="reference external" href="http://www.cl.cam.ac.uk/research/hvg/Isabelle/">Isabelle</a>
+but I never really played around enough in it to a point
+where I could really use it.</p>
+<p>Now, what David Sankel&#8217;s talk made me realise,
+is that functional programming languages are a stepping stone to
+proof assistents.
+The only bit missing from Haskell to make this happen
+are so-called <em>dependent types</em>.
+Take Haskell, add dependent types, and you get Agda!
+So, for the next few months,
+I have set myself the task of understanding how exactly this works.</p>
+</div>
+<div class="section" id="types-as-instances">
+<h2>Types as Instances</h2>
+<p>The first important feature which enables assisted theorem proving
+in Agda is the unification of types and instances.
+In many languages,
+including C++ and Haskell,
+types and instances are completely different concepts.
+In Agda, types are instances as well.
+This is certainly not unique to Agda.
+For example, in Python, types are called classes,
+and it turns out that an instance of a class can be another class:
+simply derive your class from <span class="docutils literal"><span class="pre">type</span></span>.
+Such class is called a <em>metaclass</em> in Python,
+to distinguish it from <cite>standard&#8217; classes, which derive from ``object`</cite>.
+In Agda, by convention,
+standard types are instances of a builtin type called <span class="docutils literal"><span class="pre">Set</span></span>.
+So, one could think of Agda&#8217;s <span class="docutils literal"><span class="pre">Set</span></span> as Python&#8217;s <span class="docutils literal"><span class="pre">type</span></span>.</p>
+<p>There is however one crucial difference:
+in Agda, <span class="docutils literal"><span class="pre">Set</span></span> is not an instance of <span class="docutils literal"><span class="pre">Set</span></span>,
+whereas <span class="docutils literal"><span class="pre">type</span></span> is an instance of <span class="docutils literal"><span class="pre">type</span></span> in Python:</p>
+<div class="highlight-haskell"><div class="highlight"><pre><span class="nf">x</span> <span class="kt">:</span> <span class="kt">Set</span>
+<span class="nf">x</span> <span class="ow">=</span> <span class="kt">Set</span>
+</pre></div>
+</div>
+<p>will fail to load in Agda, but</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="nb">isinstance</span><span class="p">(</span><span class="nb">type</span><span class="p">,</span> <span class="nb">type</span><span class="p">)</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+<p>runs just fine in Python.
+Instead, in Agda, <span class="docutils literal"><span class="pre">Set</span></span> is an instance of <span class="docutils literal"><span class="pre">Set1</span></span>:</p>
+<div class="highlight-haskell"><div class="highlight"><pre><span class="nf">x</span> <span class="kt">:</span> <span class="kt">Set1</span>
+<span class="nf">x</span> <span class="ow">=</span> <span class="kt">Set</span>
+</pre></div>
+</div>
+<p>loads just fine in Agda.
+There are deep reasons for <span class="docutils literal"><span class="pre">Set</span></span> not being an instance of itself:
+if <span class="docutils literal"><span class="pre">Set</span></span> were an instance of <span class="docutils literal"><span class="pre">Set</span></span>, then
+<a class="reference external" href="https://en.wikipedia.org/wiki/Russell%27s_paradox">Russell&#8217;s paradox</a>
+would hold true.
+Coming from a standard set-theoretic background,
+it can be helpful to think of types as sets,
+and of the colon operator <span class="docutils literal"><span class="pre">:</span></span>
+as an <cite>is an element of&#8217; operator `</cite> ∈``.</p>
+</div>
+<div class="section" id="dependent-types">
+<h2>Dependent Types</h2>
+<p>What are they?
+Informally, they are types which depend on a value,
+like templates in C++. Here is an example:</p>
+<div class="highlight-haskell"><div class="highlight"><pre><span class="nf">id</span> <span class="kt">:</span> <span class="p">(</span><span class="kt">A</span> <span class="kt">:</span> <span class="kt">Set</span><span class="p">)</span> <span class="ow">-&gt;</span> <span class="kt">A</span> <span class="ow">-&gt;</span> <span class="kt">A</span>
+<span class="nf">id</span> <span class="kr">_</span> <span class="n">a</span> <span class="ow">=</span> <span class="n">a</span>
+</pre></div>
+</div>
+<p>The type signature declares a function, which takes
+as arguments an arbitrary type and a value of that type,
+and returns a value of that type.
+The definition is simply the identity map.
+Something to blow your mind:
+could you define any other function with the same function signature?</p>
+<p>In the above example,
+the second argument and the return value have dependent types,
+because their type depends on the first argument.</p>
+</div>
+<div class="section" id="proving-theorems">
+<h2>Proving Theorems</h2>
+<p>With just these ingredients&#8212;static typing with unified types and instances,
+and dependent types&#8212;we can do all of constructive mathematics.
+How does this work? The key thing to remember is that
+<strong>a theorem is a type</strong>,
+and <strong>a proof of that theorem is an instance of that type.</strong>
+That sounds weird at first, so let us first explore some simple examples.</p>
+<p>Let us start with propositional logic.
+Propositional logic deals with statements.
+In set theory, statements
+are usually identified with subsets of some possibility space.
+We have seen that we can think of sets as types:
+by convention, let us take statements to be instances of Agda&#8217;s <span class="docutils literal"><span class="pre">Set</span></span> type.</p>
+<p>How do we specify that a statement is true, or false?
+Well, theorems are statements, and theorems are true
+if they can be proven, that is, if the corresponding type has an instance.
+So, we specify that a statement is true simply by stating that it has a value.
+For example, we can declare the following algebraic data types: <a class="footnote-reference" href="#id2" id="id1">[1]</a></p>
+<div class="highlight-haskell"><div class="highlight"><pre><span class="kr">data</span> <span class="kt">False</span> <span class="kt">:</span> <span class="kt">Set</span> <span class="kr">where</span>
+
+<span class="kr">data</span> <span class="kt">True</span> <span class="kt">:</span> <span class="kt">Set</span> <span class="kr">where</span>
+  <span class="n">tt</span> <span class="kt">:</span> <span class="kt">True</span>
+</pre></div>
+</div>
+<p>Here, <span class="docutils literal"><span class="pre">False</span></span> is a proposition which has no instances,
+or, no proofs. We can identify it with the impossible event.</p>
+<p>Conversely, <span class="docutils literal"><span class="pre">True</span></span> is a proposition which is always true,
+i.e. we can identify it with the true event:
+it has exactly one instance, or proof, namely <span class="docutils literal"><span class="pre">tt</span></span>
+(we could declare more constructors, this would make no practical difference).</p>
+<p>So, what can we do with propositions?
+Well, one proposition can imply another.
+How do we formalize that?
+We need to distinguish carefully between two things:
+the statement that A implies B,
+which is a theorem and hence an instance of <span class="docutils literal"><span class="pre">Set</span></span>,
+and an actual proof of A implying B,
+which is an instance of the theorem&#8217;s type.</p>
+<p>How do we produce a new statement from two existing statements?
+We use a function:</p>
+<div class="highlight-haskell"><div class="highlight"><pre><span class="nf">_implies_</span> <span class="kt">:</span> <span class="kt">Set</span> <span class="ow">-&gt;</span> <span class="kt">Set</span> <span class="ow">-&gt;</span> <span class="kt">Set</span>
+</pre></div>
+</div>
+<p>(The underscores make this an infix function, which will read better.)
+So, the function <span class="docutils literal"><span class="pre">implies</span></span> takes as arguments two statements or theorems,
+and uses them to produce a new statement. What statement?</p>
+<div class="highlight-haskell"><div class="highlight"><pre><span class="kt">A</span> <span class="n">implies</span> <span class="kt">B</span> <span class="ow">=</span> <span class="kt">A</span> <span class="ow">-&gt;</span> <span class="kt">B</span>
+</pre></div>
+</div>
+<p>The set of functions from A to B? What does this mean?
+It means that <span class="docutils literal"><span class="pre">A</span> <span class="pre">implies</span> <span class="pre">B</span></span> is considered true
+if there is an instance of <span class="docutils literal"><span class="pre">A</span> <span class="pre">-&gt;</span> <span class="pre">B</span></span>,
+that is if
+<strong>there is a function that transforms any proof of A into a proof of B</strong>.</p>
+<p>We can now prove a first theorem:</p>
+<div class="highlight-haskell"><div class="highlight"><pre><span class="nf">thmimpliesisreflexive</span> <span class="kt">:</span> <span class="p">(</span><span class="kt">A</span> <span class="kt">:</span> <span class="kt">Set</span><span class="p">)</span> <span class="ow">-&gt;</span> <span class="p">(</span><span class="kt">A</span> <span class="n">implies</span> <span class="kt">A</span><span class="p">)</span>
+<span class="nf">thmimpliesisreflexive</span> <span class="kt">A</span> <span class="ow">=</span> <span class="nf">\</span><span class="n">a</span> <span class="ow">-&gt;</span> <span class="n">a</span>
+</pre></div>
+</div>
+<p>The definition of the proof reads as follows.
+The function has one argument:
+<span class="docutils literal"><span class="pre">A</span></span> is simply the theorem or statement under consideration.
+The result is an implication, which we represent as a function.
+For our purpose, the identity map <span class="docutils literal"><span class="pre">\a</span> <span class="pre">-&gt;</span> <span class="pre">a</span></span> does the job.
+<span class="docutils literal"><span class="pre">a</span></span> is a proof of the left hand side of the implication,
+namely of <span class="docutils literal"><span class="pre">A</span></span>.
+The function needs to produce
+a proof for the right hand side of the implication, which is also <span class="docutils literal"><span class="pre">A</span></span>.
+Obviously, we can simply return the same proof <span class="docutils literal"><span class="pre">a</span></span> again.</p>
+<p>A more tricky case:</p>
+<div class="highlight-haskell"><div class="highlight"><pre><span class="nf">thmfimpt</span> <span class="kt">:</span> <span class="p">(</span><span class="kt">False</span> <span class="n">implies</span> <span class="kt">True</span><span class="p">)</span>
+<span class="nf">thmfimpt</span> <span class="nb">()</span>
+</pre></div>
+</div>
+<p>The type <span class="docutils literal"><span class="pre">False</span> <span class="pre">implies</span> <span class="pre">True</span></span> simply maps proofs of <span class="docutils literal"><span class="pre">False</span></span>
+to proofs of <span class="docutils literal"><span class="pre">True</span></span>.
+But, there are no proofs of <span class="docutils literal"><span class="pre">False</span></span>.
+Consequently, <span class="docutils literal"><span class="pre">thmfimpt</span></span> is simply the empty function,
+mapping nothing to nothing.
+In Agda, we say that a function is empty by writing empty brackets.</p>
+<p>Can we do negation? Easily, in terms of implication:</p>
+<div class="highlight-haskell"><div class="highlight"><pre><span class="nf">not</span> <span class="kt">:</span> <span class="kt">Set</span> <span class="ow">-&gt;</span> <span class="kt">Set</span>
+<span class="nf">not</span> <span class="kt">A</span> <span class="ow">=</span> <span class="p">(</span><span class="kt">A</span> <span class="n">implies</span> <span class="kt">False</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>So, <span class="docutils literal"><span class="pre">not</span> <span class="pre">A</span></span> is true if we can map every proof of <span class="docutils literal"><span class="pre">A</span></span>
+to a proof of <span class="docutils literal"><span class="pre">False</span></span>.
+But, <span class="docutils literal"><span class="pre">False</span></span> has no proofs. So we can only do this if <span class="docutils literal"><span class="pre">A</span></span> has no proofs.
+Similarly, <span class="docutils literal"><span class="pre">not</span> <span class="pre">A</span></span> is false
+if there is no map from a proof of <span class="docutils literal"><span class="pre">A</span></span> to a proof of <span class="docutils literal"><span class="pre">False</span></span>.
+This happens as soon as <span class="docutils literal"><span class="pre">A</span></span> has a proof
+(otherwise, if there would be such a map, <span class="docutils literal"><span class="pre">False</span></span> would be true).</p>
+<p>So, to show that <span class="docutils literal"><span class="pre">not</span> <span class="pre">A</span></span> is true,
+effectively, we must establish that there is no proof of <span class="docutils literal"><span class="pre">A</span></span>.
+To do this, we rely on contradiction: assuming we had a proof
+for <span class="docutils literal"><span class="pre">A</span></span>, we find a map that gives us a proof for <span class="docutils literal"><span class="pre">False</span></span>.
+Agda&#8217;s typechecker will figure out from this that <span class="docutils literal"><span class="pre">A</span></span> has no proofs:
+if it had, it would have a proof of <span class="docutils literal"><span class="pre">False</span></span>,
+which would contradict the type declaration of <span class="docutils literal"><span class="pre">False</span></span>.</p>
+<p>Here is an example of proving a negation:</p>
+<div class="highlight-haskell"><div class="highlight"><pre><span class="nf">thmntimpf</span> <span class="kt">:</span> <span class="n">not</span> <span class="p">(</span><span class="kt">True</span> <span class="n">implies</span> <span class="kt">False</span><span class="p">)</span>
+<span class="nf">thmntimpf</span> <span class="n">timpf</span> <span class="ow">=</span> <span class="n">timpf</span> <span class="n">tt</span>
+</pre></div>
+</div>
+<p>How do we interpret this proof?
+The function signature reduces to <span class="docutils literal"><span class="pre">True</span> <span class="pre">implies</span> <span class="pre">False</span> <span class="pre">-&gt;</span> <span class="pre">False</span></span>,
+so <span class="docutils literal"><span class="pre">timpf</span></span> is a proof of <span class="docutils literal"><span class="pre">True</span> <span class="pre">implies</span> <span class="pre">False</span></span>.
+Applying this function to our proof of truth, <span class="docutils literal"><span class="pre">tt</span></span>,
+we get a proof of <span class="docutils literal"><span class="pre">False</span></span>,
+establishing the contradiction.</p>
+<p>Let us finish with proving something slightly less trivial:</p>
+<div class="highlight-haskell"><div class="highlight"><pre><span class="nf">thmcontraposition</span> <span class="kt">:</span> <span class="p">(</span><span class="kt">A</span> <span class="kt">B</span> <span class="kt">:</span> <span class="kt">Set</span><span class="p">)</span> <span class="ow">-&gt;</span> <span class="p">((</span><span class="kt">A</span> <span class="n">implies</span> <span class="kt">B</span><span class="p">)</span> <span class="n">implies</span> <span class="p">((</span><span class="n">not</span> <span class="kt">B</span><span class="p">)</span> <span class="n">implies</span> <span class="p">(</span><span class="n">not</span> <span class="kt">A</span><span class="p">)))</span>
+<span class="nf">thmcontraposition</span> <span class="kt">A</span> <span class="kt">B</span> <span class="n">aimpb</span> <span class="n">nb</span> <span class="n">a</span> <span class="ow">=</span> <span class="n">nb</span> <span class="p">(</span><span class="n">aimpb</span> <span class="n">a</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>How do we arrive at this proof? In emacs, write the proof definition as</p>
+<div class="highlight-haskell"><div class="highlight"><pre><span class="nf">thmcontraposition</span> <span class="kt">A</span> <span class="kt">B</span> <span class="ow">=</span> <span class="p">{</span><span class="o">!</span> <span class="o">!</span><span class="p">}</span>
+</pre></div>
+</div>
+<p>and use C-c C-l to load the file. This will tell you that
+the normalised type signature of the expression between curly brackets is
+<span class="docutils literal"><span class="pre">A</span> <span class="pre">implies</span> <span class="pre">B</span> <span class="pre">-&gt;</span> <span class="pre">not</span> <span class="pre">B</span> <span class="pre">-&gt;</span> <span class="pre">A</span> <span class="pre">-&gt;</span> <span class="pre">False</span></span>
+(this is also easy to figure this out without the help of Agda,
+but using Agda to provide hints like this saves some time).
+In other words,
+<span class="docutils literal"><span class="pre">aimpb</span></span> proves <span class="docutils literal"><span class="pre">A</span> <span class="pre">implies</span> <span class="pre">B</span></span>,
+<span class="docutils literal"><span class="pre">nb</span></span> proves <span class="docutils literal"><span class="pre">not</span> <span class="pre">B</span></span>,
+and <span class="docutils literal"><span class="pre">a</span></span> proves <span class="docutils literal"><span class="pre">A</span></span>.
+We must produce <span class="docutils literal"><span class="pre">False</span></span>: a contradiction.
+Indeed,
+<span class="docutils literal"><span class="pre">aimpb</span> <span class="pre">a</span></span> turns <span class="docutils literal"><span class="pre">a</span></span> into a proof of <span class="docutils literal"><span class="pre">B</span></span>.
+And <span class="docutils literal"><span class="pre">nb</span></span> turns this proof into a proof of <span class="docutils literal"><span class="pre">False</span></span>. Done!</p>
+<p>Note that <span class="docutils literal"><span class="pre">nb</span> <span class="pre">(aimpb</span> <span class="pre">a)</span></span> translates directly into
+the proof by contradiction:
+Given A implies B, and not B,
+we must show that A does not hold.
+Assume, A were to hold (<span class="docutils literal"><span class="pre">a</span></span>).
+Then, because A implies B, B needs to hold as well (<span class="docutils literal"><span class="pre">aimpb</span> <span class="pre">a</span></span>).
+But, B does not hold, so we arrived at a contradiction (<span class="docutils literal"><span class="pre">nb</span> <span class="pre">(aimpb</span> <span class="pre">a)</span></span>).</p>
+<p>Finally,
+note that the actual act of theorem proving
+does not involve compilation
+of the code into a binary.
+The theorems are proved as soon as it is verified
+that the function definitions match the type signatures.
+So, <strong>theorem proving is just a special case of type checking</strong>.</p>
+<table class="docutils footnote" frame="void" id="id2" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id1">[1]</a></td><td><p class="first">In Haskell, this would be:</p>
+<div class="last highlight-haskell"><div class="highlight"><pre><span class="kr">data</span> <span class="kt">False</span>
+<span class="kr">data</span> <span class="kt">True</span> <span class="ow">=</span> <span class="kt">True</span>
+</pre></div>
+</div>
+</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+
+    <div class="postmeta">
+        <div class="author">
+            <span>Posted by Matthias C. M. Troffaes</span>
+        </div>
+        
+        
+        </div>
+    <div id="disqus_thread"></div><script type="text/javascript">    var disqus_shortname = "blowyourmindwithhaskell";    var disqus_identifier = "2014/01/09/agda__dependent_types__theorem_proving";    disqus_thread();</script><noscript>Please enable JavaScript to view the    <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript><ul class="related clearfix">
+            <li class="left"></li>
+            <li class="right"><a href="../../../2013/09/10/typeclasses.html">Typeclasses</a> &raquo; </li>
+        </ul></article><aside class="sidebar"><section><div class="widget">
+    <h1>Recent Posts</h1>
+    <ul><li>
+            <a href="#">Agda, Dependent Types, Theorem Proving</a>
+        </li><li>
+            <a href="../../../2013/09/10/typeclasses.html">Typeclasses</a>
+        </li><li>
+            <a href="../../../2013/08/24/the_list_monad.html">The List Monad</a>
+        </li><li>
+            <a href="../../../2013/08/21/everything_is_a_function.html">Everything is a Function</a>
+        </li><li>
+            <a href="../../../2013/08/19/what_is_haskell_.html">What is Haskell?</a>
+        </li></ul>
+</div>
+</section><section><div class="widget" id="searchbox">
+    <h1>Search</h1>
+    <form action="../../../search.html" method="get">
+        <input type="text" name="q" />
+        <button type="submit"><span class="webfont">L</span></button>
+    </form>
+</div></section></aside></div> <!-- #main --></div> <!-- #main-container -->
+
+        <div class="footer-container"><footer class="wrapper">&copy; Copyright 2013, Matthias C. M. Troffaes. Powered by <a href="http://www.tinkerer.me/">Tinkerer</a> and <a href="http://sphinx.pocoo.org/">Sphinx</a>.</footer></div> <!-- footer-container -->
+
+      </div> <!--! end of #container --><!--[if lt IE 7 ]>
+          <script src="//ajax.googleapis.com/ajax/libs/chrome-frame/1.0.3/CFInstall.min.js"></script>
+          <script>window.attachEvent('onload',function(){CFInstall.check({mode:'overlay'})})</script>
+        <![endif]-->
+    </body>
+</html>
