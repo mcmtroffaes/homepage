@@ -4,6 +4,7 @@ Sitemap
 .. toctree::
    :maxdepth: 1
 
+   2014/01/13/propositional_logic_in_agda
    2014/01/09/agda__dependent_types__theorem_proving
    2013/09/10/typeclasses
    2013/08/24/the_list_monad

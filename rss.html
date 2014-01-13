@@ -5,8 +5,163 @@
         <link>http://mcmtroffaes.github.io/blowyourmindwithhaskell/</link>
         <description>Musings of a Haskell Learner</description>
         <language>en-us</language>
-        <pubDate>Thu, 09 Jan 2014 00:00:00 +0000</pubDate>
+        <pubDate>Mon, 13 Jan 2014 00:00:00 +0000</pubDate>
         
+        <item>
+            <link>http://mcmtroffaes.github.io/blowyourmindwithhaskell/2014/01/13/propositional_logic_in_agda.html</link>
+            <guid>http://mcmtroffaes.github.io/blowyourmindwithhaskell/2014/01/13/propositional_logic_in_agda.html</guid>
+            <title><![CDATA[Propositional Logic in Agda]]></title>
+            <description><![CDATA[<div class="section" id="propositional-logic-in-agda">
+<h1>Propositional Logic in Agda</h1>
+<div class="section" id="types-are-theorems-proofs-are-instances-implications-are-functions">
+<h2>Types are Theorems, Proofs are Instances, Implications are Functions</h2>
+<p>In the last post, we looked at Agda,
+a extension of Haskell which implements dependent types,
+to assist us in proving theorems.
+In Agda, theorems are types, and proofs are instances of types.
+To verify the proof of a theorem,
+we define a function whose type signature corresponds to the theorem,
+and whose implementation is an instance of that type, namely, the proof.</p>
+<p>Why functions? Because functions embody implication.
+Specifically, A implies B
+if every proof of A can be transformed into a proof of B.</p>
+<div class="highlight-haskell"><div class="highlight"><pre><span class="nf">_implies_</span> <span class="kt">:</span> <span class="kt">Set</span> <span class="ow">-&gt;</span> <span class="kt">Set</span> <span class="ow">-&gt;</span> <span class="kt">Set</span>
+<span class="kt">A</span> <span class="n">implies</span> <span class="kt">B</span> <span class="ow">=</span> <span class="kt">A</span> <span class="ow">-&gt;</span> <span class="kt">B</span>
+</pre></div>
+</div>
+<p>So, in Agda, we essentially reason by transforming proofs.
+This corresponds nicely to how traditional mathematical reasoning works.
+In this post, we will further explore propositional logic
+to gain more confidence in proof transformation.</p>
+<p>We will not use the above <span class="docutils literal"><span class="pre">implies</span></span> operator any more,
+and instead directly write <span class="docutils literal"><span class="pre">-&gt;</span></span> for implication.</p>
+</div>
+<div class="section" id="conjunction-and-disjunction">
+<h2>Conjunction and Disjunction</h2>
+<p>How do we model logical ‘and’ and logical ‘or’?
+Both operators take two theorems, and return a new theorem,
+so the type signatures should be as follows:</p>
+<div class="highlight-haskell"><div class="highlight"><pre><span class="nf">_and_</span> <span class="kt">:</span> <span class="p">(</span><span class="kt">A</span> <span class="kt">B</span> <span class="kt">:</span> <span class="kt">Set</span><span class="p">)</span> <span class="ow">-&gt;</span> <span class="kt">Set</span>
+<span class="nf">_or_</span> <span class="kt">:</span> <span class="p">(</span><span class="kt">A</span> <span class="kt">B</span> <span class="kt">:</span> <span class="kt">Set</span><span class="p">)</span> <span class="ow">-&gt;</span> <span class="kt">Set</span>
+</pre></div>
+</div>
+<p>The implementations are also reasonably obvious:
+<span class="docutils literal"><span class="pre">A</span> <span class="pre">and</span> <span class="pre">B</span></span> is proven
+if we have an instance of <span class="docutils literal"><span class="pre">A</span></span> and an instance of <span class="docutils literal"><span class="pre">B</span></span>,
+for instance, it could return a pair, i.e. a Haskell tuple.
+On the other hand, <span class="docutils literal"><span class="pre">A</span> <span class="pre">or</span> <span class="pre">B</span></span> is proven
+if we have an instance of <span class="docutils literal"><span class="pre">A</span></span> or an instance of <span class="docutils literal"><span class="pre">B</span></span>:
+we could use Haskell’s <span class="docutils literal"><span class="pre">Either</span></span> type.</p>
+<p>As far as I know,
+Agda has no builtin implementation for tuples,
+and it also has no <span class="docutils literal"><span class="pre">Either</span></span> type, but it is easy to roll our own.
+For example:</p>
+<div class="highlight-haskell"><div class="highlight"><pre><span class="kr">data</span> <span class="kt">Pair</span> <span class="p">(</span><span class="kt">A</span> <span class="kt">B</span> <span class="kt">:</span> <span class="kt">Set</span><span class="p">)</span> <span class="kt">:</span> <span class="kt">Set</span> <span class="kr">where</span>
+  <span class="kr">_</span><span class="p">,</span><span class="kr">_</span> <span class="kt">:</span> <span class="kt">A</span> <span class="ow">-&gt;</span> <span class="kt">B</span> <span class="ow">-&gt;</span> <span class="kt">Pair</span> <span class="kt">A</span> <span class="kt">B</span>
+
+<span class="kr">data</span> <span class="kt">Either</span> <span class="p">(</span><span class="kt">A</span> <span class="kt">B</span> <span class="kt">:</span> <span class="kt">Set</span><span class="p">)</span> <span class="kt">:</span> <span class="kt">Set</span> <span class="kr">where</span>
+  <span class="n">left</span> <span class="kt">:</span> <span class="kt">A</span> <span class="ow">-&gt;</span> <span class="kt">Either</span> <span class="kt">A</span> <span class="kt">B</span>
+  <span class="n">right</span> <span class="kt">:</span> <span class="kt">B</span> <span class="ow">-&gt;</span> <span class="kt">Either</span> <span class="kt">A</span> <span class="kt">B</span>
+
+<span class="nf">_and_</span> <span class="kt">:</span> <span class="p">(</span><span class="kt">A</span> <span class="kt">B</span> <span class="kt">:</span> <span class="kt">Set</span><span class="p">)</span> <span class="ow">-&gt;</span> <span class="kt">Set</span>
+<span class="kt">A</span> <span class="n">and</span> <span class="kt">B</span> <span class="ow">=</span> <span class="kt">Pair</span> <span class="kt">A</span> <span class="kt">B</span>
+
+<span class="nf">_or_</span> <span class="kt">:</span> <span class="p">(</span><span class="kt">A</span> <span class="kt">B</span> <span class="kt">:</span> <span class="kt">Set</span><span class="p">)</span> <span class="ow">-&gt;</span> <span class="kt">Set</span>
+<span class="kt">A</span> <span class="n">or</span> <span class="kt">B</span> <span class="ow">=</span> <span class="kt">Either</span> <span class="kt">A</span> <span class="kt">B</span>
+</pre></div>
+</div>
+<p>The syntax for declaring data types is slightly different from Haskell’s,
+so this deserves some explanation.
+<span class="docutils literal"><span class="pre">Pair</span></span> has constructor <span class="docutils literal"><span class="pre">_,_</span> <span class="pre">:</span> <span class="pre">A</span> <span class="pre">-&gt;</span> <span class="pre">B</span> <span class="pre">-&gt;</span> <span class="pre">Pair</span> <span class="pre">A</span> <span class="pre">B</span></span>.
+The return type of a constructor is always the type it is defined for.
+What this signature thus says is that <span class="docutils literal"><span class="pre">_,_</span></span> constructs a
+new instance of <span class="docutils literal"><span class="pre">Pair</span> <span class="pre">A</span> <span class="pre">B</span></span>
+by taking an instance of <span class="docutils literal"><span class="pre">A</span></span> and an instance of <span class="docutils literal"><span class="pre">B</span></span>.
+Remember that, in Haskell and also in Agda,
+constructors of algebraic data types do not declare their implementation
+as in C++, Python, or Java.
+In Haskell and Agda, constructors simply define expressions
+that create instances of a particular type.</p>
+</div>
+<div class="section" id="expressing-a-proof-as-a-function">
+<h2>Expressing a Proof as a Function</h2>
+<p>Let us prove that <span class="docutils literal"><span class="pre">A</span> <span class="pre">and</span> <span class="pre">B</span></span> implies <span class="docutils literal"><span class="pre">A</span> <span class="pre">or</span> <span class="pre">B</span></span>:
+How does this work? Let us first do the proof in words,
+and then translate it into Agda code.
+Clearly, if <span class="docutils literal"><span class="pre">A</span> <span class="pre">and</span> <span class="pre">B</span></span> holds, then <span class="docutils literal"><span class="pre">A</span></span> holds.
+But if <span class="docutils literal"><span class="pre">A</span></span> holds, then <span class="docutils literal"><span class="pre">A</span> <span class="pre">or</span> <span class="pre">B</span></span> holds.</p>
+<div class="highlight-haskell"><div class="highlight"><pre><span class="nf">lemma</span> <span class="kt">:</span> <span class="p">(</span><span class="kt">A</span> <span class="kt">B</span> <span class="kt">:</span> <span class="kt">Set</span><span class="p">)</span> <span class="ow">-&gt;</span> <span class="p">(</span><span class="kt">A</span> <span class="n">and</span> <span class="kt">B</span><span class="p">)</span> <span class="ow">-&gt;</span> <span class="kt">A</span>
+<span class="nf">lemma</span> <span class="kt">A</span> <span class="kt">B</span> <span class="p">(</span><span class="n">a</span> <span class="p">,</span> <span class="n">b</span><span class="p">)</span> <span class="ow">=</span> <span class="n">a</span>
+
+<span class="nf">theorem</span> <span class="kt">:</span> <span class="p">(</span><span class="kt">A</span> <span class="kt">B</span> <span class="kt">:</span> <span class="kt">Set</span><span class="p">)</span> <span class="ow">-&gt;</span> <span class="p">(</span><span class="kt">A</span> <span class="n">and</span> <span class="kt">B</span><span class="p">)</span> <span class="ow">-&gt;</span> <span class="p">(</span><span class="kt">A</span> <span class="n">or</span> <span class="kt">B</span><span class="p">)</span>
+<span class="nf">theorem</span> <span class="kt">A</span> <span class="kt">B</span> <span class="n">ab</span> <span class="ow">=</span> <span class="n">left</span> <span class="p">(</span><span class="n">lemma</span> <span class="kt">A</span> <span class="kt">B</span> <span class="n">ab</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Here, <span class="docutils literal"><span class="pre">lemma</span></span> proves that if <span class="docutils literal"><span class="pre">A</span> <span class="pre">and</span> <span class="pre">B</span></span> holds, then <span class="docutils literal"><span class="pre">A</span></span> holds.
+To do so, we take a proof of <span class="docutils literal"><span class="pre">A</span> <span class="pre">and</span> <span class="pre">B</span></span>, which is <span class="docutils literal"><span class="pre">(a</span> <span class="pre">,</span> <span class="pre">b)</span></span>,
+and transform it into a proof of <span class="docutils literal"><span class="pre">A</span></span>, which is <span class="docutils literal"><span class="pre">a</span></span>.
+Next, <span class="docutils literal"><span class="pre">theorem</span></span> proves the initial statement.
+We take our proof of <span class="docutils literal"><span class="pre">A</span> <span class="pre">and</span> <span class="pre">B</span></span>, which we denote by <span class="docutils literal"><span class="pre">ab</span></span>,
+then apply <span class="docutils literal"><span class="pre">lemma</span></span> to get a proof of <span class="docutils literal"><span class="pre">A</span></span>,
+and then turn this into an instance of <span class="docutils literal"><span class="pre">A</span> <span class="pre">or</span> <span class="pre">B</span></span>.</p>
+<p>Something rather interesting is happening in the last step:
+constructors can be used as theorems too!
+Our type signature
+<span class="docutils literal"><span class="pre">left</span> <span class="pre">:</span> <span class="pre">A</span> <span class="pre">-&gt;</span> <span class="pre">Either</span> <span class="pre">A</span> <span class="pre">B</span></span>
+means that, from a proof of <span class="docutils literal"><span class="pre">A</span></span>, we can prove <span class="docutils literal"><span class="pre">Either</span> <span class="pre">A</span> <span class="pre">B</span></span>,
+which is the same as <span class="docutils literal"><span class="pre">A</span> <span class="pre">or</span> <span class="pre">B</span></span>.
+In a sense, <strong>constructors are the axioms of our theory</strong>.</p>
+<p>To make this more formal, we could simply get rid of <span class="docutils literal"><span class="pre">Pair</span></span> and <span class="docutils literal"><span class="pre">Either</span></span>,
+and directly write:</p>
+<div class="highlight-haskell"><div class="highlight"><pre><span class="kr">data</span> <span class="n">_and_</span> <span class="p">(</span><span class="kt">A</span> <span class="kt">B</span> <span class="kt">:</span> <span class="kt">Set</span><span class="p">)</span> <span class="kt">:</span> <span class="kt">Set</span> <span class="kr">where</span>
+  <span class="kr">_</span><span class="p">,</span><span class="kr">_</span> <span class="kt">:</span> <span class="kt">A</span> <span class="ow">-&gt;</span> <span class="kt">B</span> <span class="ow">-&gt;</span> <span class="kt">A</span> <span class="n">and</span> <span class="kt">B</span>
+
+<span class="kr">data</span> <span class="n">_or_</span> <span class="p">(</span><span class="kt">A</span> <span class="kt">B</span> <span class="kt">:</span> <span class="kt">Set</span><span class="p">)</span> <span class="kt">:</span> <span class="kt">Set</span> <span class="kr">where</span>
+  <span class="n">left</span> <span class="kt">:</span> <span class="kt">A</span> <span class="ow">-&gt;</span> <span class="kt">A</span> <span class="n">or</span> <span class="kt">B</span>
+  <span class="n">right</span> <span class="kt">:</span> <span class="kt">B</span> <span class="ow">-&gt;</span> <span class="kt">A</span> <span class="n">or</span> <span class="kt">B</span>
+</pre></div>
+</div>
+<p>Agda has some useful syntax
+that saves us from having to write all arguments:
+any arguments between curly braces can be omitted
+if they can be unambiguously inferred.
+With this in mind, the proof becomes a little bit more readable:</p>
+<div class="highlight-haskell"><div class="highlight"><pre><span class="nf">lemma</span> <span class="kt">:</span> <span class="p">{</span><span class="kt">A</span> <span class="kt">B</span> <span class="kt">:</span> <span class="kt">Set</span><span class="p">}</span> <span class="ow">-&gt;</span> <span class="p">(</span><span class="kt">A</span> <span class="n">and</span> <span class="kt">B</span><span class="p">)</span> <span class="ow">-&gt;</span> <span class="kt">A</span>
+<span class="nf">lemma</span> <span class="p">(</span><span class="n">a</span> <span class="p">,</span> <span class="n">b</span><span class="p">)</span> <span class="ow">=</span> <span class="n">a</span>
+
+<span class="nf">theorem</span> <span class="kt">:</span> <span class="p">{</span><span class="kt">A</span> <span class="kt">B</span> <span class="kt">:</span> <span class="kt">Set</span><span class="p">}</span> <span class="ow">-&gt;</span> <span class="p">(</span><span class="kt">A</span> <span class="n">and</span> <span class="kt">B</span><span class="p">)</span> <span class="ow">-&gt;</span> <span class="p">(</span><span class="kt">A</span> <span class="n">or</span> <span class="kt">B</span><span class="p">)</span>
+<span class="nf">theorem</span> <span class="n">ab</span> <span class="ow">=</span> <span class="n">left</span> <span class="p">(</span><span class="n">lemma</span> <span class="n">ab</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>(So, <span class="docutils literal"><span class="pre">lemma</span></span> is simply Haskell’s <span class="docutils literal"><span class="pre">fst</span></span>!)</p>
+<p>Finally, note that we could also have integrated
+the lemma into the proof of the theorem:</p>
+<div class="highlight-haskell"><div class="highlight"><pre><span class="nf">theorem</span> <span class="kt">:</span> <span class="p">{</span><span class="kt">A</span> <span class="kt">B</span> <span class="kt">:</span> <span class="kt">Set</span><span class="p">}</span> <span class="ow">-&gt;</span> <span class="p">(</span><span class="kt">A</span> <span class="n">and</span> <span class="kt">B</span><span class="p">)</span> <span class="ow">-&gt;</span> <span class="p">(</span><span class="kt">A</span> <span class="n">or</span> <span class="kt">B</span><span class="p">)</span>
+<span class="nf">theorem</span> <span class="p">(</span><span class="n">a</span> <span class="p">,</span> <span class="n">b</span><span class="p">)</span> <span class="ow">=</span> <span class="n">left</span> <span class="n">a</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="using-pattern-matching-to-prove-distinct-cases">
+<h2>Using Pattern Matching to Prove Distinct Cases</h2>
+<p>Let us prove another theorem:</p>
+<div class="highlight-haskell"><div class="highlight"><pre><span class="nf">distributivity</span> <span class="kt">:</span> <span class="p">{</span><span class="kt">A</span> <span class="kt">B</span> <span class="kt">C</span> <span class="kt">:</span> <span class="kt">Set</span><span class="p">}</span> <span class="ow">-&gt;</span> <span class="p">(</span><span class="kt">A</span> <span class="n">and</span> <span class="p">(</span><span class="kt">B</span> <span class="n">or</span> <span class="kt">C</span><span class="p">))</span> <span class="ow">-&gt;</span> <span class="p">((</span><span class="kt">A</span> <span class="n">and</span> <span class="kt">B</span><span class="p">)</span> <span class="n">or</span> <span class="p">(</span><span class="kt">A</span> <span class="n">and</span> <span class="kt">C</span><span class="p">))</span>
+<span class="nf">distributivity</span> <span class="p">(</span><span class="n">a</span> <span class="p">,</span> <span class="n">left</span> <span class="n">b</span><span class="p">)</span> <span class="ow">=</span> <span class="n">left</span> <span class="p">(</span><span class="n">a</span> <span class="p">,</span> <span class="n">b</span><span class="p">)</span>
+<span class="nf">distributivity</span> <span class="p">(</span><span class="n">a</span> <span class="p">,</span> <span class="n">right</span> <span class="n">c</span><span class="p">)</span> <span class="ow">=</span> <span class="n">right</span> <span class="p">(</span><span class="n">a</span> <span class="p">,</span> <span class="n">c</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Here, we exploited pattern matching to prove two cases separately.
+An instance of <span class="docutils literal"><span class="pre">A</span> <span class="pre">and</span> <span class="pre">(B</span> <span class="pre">or</span> <span class="pre">C)</span></span>
+is a proof of <span class="docutils literal"><span class="pre">A</span></span> (<span class="docutils literal"><span class="pre">a</span></span>),
+along with a proof of either <span class="docutils literal"><span class="pre">B</span></span> (<span class="docutils literal"><span class="pre">left</span> <span class="pre">b</span></span>) or <span class="docutils literal"><span class="pre">C</span></span> (<span class="docutils literal"><span class="pre">right</span> <span class="pre">c</span></span>).
+We can convert <span class="docutils literal"><span class="pre">(a</span> <span class="pre">,</span> <span class="pre">left</span> <span class="pre">b)</span></span>
+into an instance of <span class="docutils literal"><span class="pre">((A</span> <span class="pre">and</span> <span class="pre">B)</span> <span class="pre">or</span> <span class="pre">(A</span> <span class="pre">and</span> <span class="pre">C))</span></span>, namely <span class="docutils literal"><span class="pre">left</span> <span class="pre">(a</span> <span class="pre">,</span> <span class="pre">b)</span></span>.
+Similarly, we can convert <span class="docutils literal"><span class="pre">(a</span> <span class="pre">,</span> <span class="pre">left</span> <span class="pre">b)</span></span>
+into an instance of <span class="docutils literal"><span class="pre">((A</span> <span class="pre">and</span> <span class="pre">B)</span> <span class="pre">or</span> <span class="pre">(A</span> <span class="pre">and</span> <span class="pre">C))</span></span>, namely <span class="docutils literal"><span class="pre">right</span> <span class="pre">(a</span> <span class="pre">,</span> <span class="pre">c)</span></span>.</p>
+</div>
+</div>]]></description>
+             <pubDate>Mon, 13 Jan 2014 00:00:00 +0000</pubDate>
+        </item>
+    
         <item>
             <link>http://mcmtroffaes.github.io/blowyourmindwithhaskell/2014/01/09/agda__dependent_types__theorem_proving.html</link>
             <guid>http://mcmtroffaes.github.io/blowyourmindwithhaskell/2014/01/09/agda__dependent_types__theorem_proving.html</guid>
