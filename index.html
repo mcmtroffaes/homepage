@@ -62,6 +62,180 @@
               <h1><a href="#">Blow Your Mind With Haskell</a></h1><h2>Musings of a Haskell Learner</h2></hgroup>
           </header>
       <div class="main-container"><div class="main wrapper clearfix"><article><div class="timestamp postmeta">
+            <span>15 January 2014</span>
+        </div>
+        <div class="section" id="a-first-attempt-at-real-numbers-in-agda">
+<h1><a href="2014/01/15/a_first_attempt_at_real_numbers_in_agda.html">A First Attempt at Real Numbers in Agda</a></h1>
+<div class="section" id="agda-and-axioms">
+<h2>Agda and Axioms</h2>
+<p>Verifying proofs that involve real numbers is apparently not obvious in Agda.
+Real numbers are a mathematician’s bread and butter,
+so it comes somewhat as a surprise that there is, apparently, not even
+a standard module for reals.
+There is for natural numbers.
+In fact, natural numbers are really simple, just three lines.
+Defining a type for rational numbers
+is also reasonably straightforward
+(in essence, just pick two natural numbers).
+However, defining a type for the real numbers is far less straightforward,
+and there seems to be only little information about it.
+Nevertheless, as it turns out, we have all the ingredients already.</p>
+<p>First, some theory.
+Roughly, there are two ways to go about real numbers.
+Either, one defines the reals
+in terms of sets or sequences of rational numbers.
+Or, one defines the reals as some set
+along with some operators (notably, addition and multiplication)
+which satisfy a particular collection of axioms
+(e.g. <span class="docutils literal"><span class="pre">1</span> <span class="pre">*</span> <span class="pre">x</span> <span class="pre">==</span> <span class="pre">x</span></span> and so on).</p>
+<p>How will we go about this?
+When defining the reals in terms of rationals,
+the “axioms” of the reals need to be proven from the properties of rationals.
+On the other hand, when defining the reals through axioms,
+we will have a lot less proving to do,
+because axioms are precisely statements that are accepted without proof.
+So, the axiomatic approach seems to be the approach of least effort.
+Of course, in principle, we should to prove that the axioms are consistent.
+One way of doing so, is by proving that there is a construction
+in terms of rationals which satisfies the axioms.
+Agda allows us to state axioms without proof of consistency.
+So, we will take the axiomatic approach.</p>
+<p>For simplicity, for now,
+we will not attempt to define the full set of real numbers.
+Let us focus on a set with just some properties of the reals.</p>
+</div>
+<div class="section" id="constructing-real-instances">
+<h2>Constructing Real Instances</h2>
+<p>First, we declare the constructors of our mock real type:</p>
+<div class="highlight-haskell"><pre>data ℝ : Set where
+  r0 : ℝ
+  r1 : ℝ
+  _+_ : ℝ -&gt; ℝ -&gt; ℝ</pre>
+</div>
+<p>(In emacs, you get <span class="docutils literal"><span class="pre">ℝ</span></span> by typing <span class="docutils literal"><span class="pre">\br</span></span>.)</p>
+<p>This says that we can construct reals in three ways:
+we have two elements: zero and one, and we can also add reals together.
+Of course, a full definition would also include
+at least multiplication,
+possibly along with substraction, division, negation, and so on.</p>
+</div>
+<div class="section" id="declaring-axioms">
+<h2>Declaring Axioms</h2>
+<p>Now, we wish to specify some properties of addition.
+How do we go about this?
+Well, for instance, we might like to say that <span class="docutils literal"><span class="pre">r</span> <span class="pre">+</span> <span class="pre">r0</span> <span class="pre">==</span> <span class="pre">r</span></span>.
+We need an equality operator:</p>
+<div class="highlight-haskell"><pre>data _==_ : ℝ -&gt; ℝ -&gt; Set where
+  AXrefl== : ∀ {r} -&gt; r == r
+  AXsymm== : ∀ {r s} -&gt; r == s -&gt; s == r
+  AXtrans== : ∀ {r s t} -&gt; r == s -&gt; s == t -&gt; r == t
+  AX+0 : ∀ {r} -&gt; (r + r0) == r
+  AXsymm+ : ∀ {r s} -&gt; (r + s) == (s + r)
+  AX+== : ∀ {r s t} -&gt; r == s -&gt; (r + t) == (s + t)</pre>
+</div>
+<p>So, the equality operator <span class="docutils literal"><span class="pre">==</span></span> takes two real numbers,
+and returns a theorem, that is, an instance of <span class="docutils literal"><span class="pre">Set</span></span>.
+In an earlier post, we saw that instances of <span class="docutils literal"><span class="pre">Set</span></span> are types,
+and essentially correspond to theorems.
+So, <span class="docutils literal"><span class="pre">r</span> <span class="pre">==</span> <span class="pre">s</span></span>, where <span class="docutils literal"><span class="pre">r</span></span> and <span class="docutils literal"><span class="pre">s</span></span> are instances of <span class="docutils literal"><span class="pre">ℝ</span></span>,
+i.e. real numbers, is a theorem.
+The theorem <span class="docutils literal"><span class="pre">r</span> <span class="pre">==</span> <span class="pre">s</span></span> is true if there is an instance of this type.
+So, constructors of <span class="docutils literal"><span class="pre">==</span></span>
+declare theorems which are necessarily true.
+Therefore, they are axioms of our theory.
+In the code above,
+all of the constructors start with “AX” to emphasize that they are axioms.</p>
+<p>There is one bit of new syntax here: the forall operator “∀”.
+The code is fully equivalent to the following more verbose code:</p>
+<div class="highlight-haskell"><pre>data _==_ : ℝ -&gt; ℝ -&gt; Set where
+  AXrefl== : {r : ℝ} -&gt; r == r
+  AXsymm== : {r s : ℝ} -&gt; r == s -&gt; s == r
+  AXtrans== : {r s t : ℝ} -&gt; r == s -&gt; s == t -&gt; r == t
+  AX+0 : {r : ℝ} -&gt; (r + r0) == r
+  AXsymm+ : {r s : ℝ} -&gt; (r + s) == (s + r)
+  AX+== : {r s t : ℝ} -&gt; r == s -&gt; (r + t) == (s + t)</pre>
+</div>
+<p>So, <span class="docutils literal"><span class="pre">∀</span> <span class="pre">{r}</span></span> does two things:
+it declares <span class="docutils literal"><span class="pre">r</span></span> to be an optional argument
+(as you might have guessed from the curly braces,
+which we already discussed curly braces in an earlier post),
+and it causes the type of <span class="docutils literal"><span class="pre">r</span></span> to be inferred
+from the remainder of the function signature.
+Agda will complain if it cannot infer the type.</p>
+<p>For example, how can Agda know the type in <span class="docutils literal"><span class="pre">∀</span> <span class="pre">{r}</span> <span class="pre">-&gt;</span> <span class="pre">r</span> <span class="pre">==</span> <span class="pre">r</span></span>?
+Well, we know that <span class="docutils literal"><span class="pre">_==_</span> <span class="pre">:</span> <span class="pre">ℝ</span> <span class="pre">-&gt;</span> <span class="pre">ℝ</span> <span class="pre">-&gt;</span> <span class="pre">Set</span></span>,
+so in the expression <span class="docutils literal"><span class="pre">r</span> <span class="pre">==</span> <span class="pre">r</span></span>, it must be that <span class="docutils literal"><span class="pre">r</span></span> has type <span class="docutils literal"><span class="pre">ℝ</span></span>.</p>
+</div>
+<div class="section" id="a-first-theorem">
+<h2>A First Theorem</h2>
+<p>Let us prove a first theorem: <span class="docutils literal"><span class="pre">r</span> <span class="pre">=</span> <span class="pre">0</span> <span class="pre">+</span> <span class="pre">r</span></span>.
+This follows from  <span class="docutils literal"><span class="pre">AXsymm+</span></span> (<span class="docutils literal"><span class="pre">0</span> <span class="pre">+</span> <span class="pre">r</span> <span class="pre">=</span> <span class="pre">r</span> <span class="pre">+</span> <span class="pre">0</span></span>) and <span class="docutils literal"><span class="pre">AX+0</span></span> (<span class="docutils literal"><span class="pre">r</span> <span class="pre">+</span> <span class="pre">0</span> <span class="pre">=</span> <span class="pre">r</span></span>),
+by transitivity (<span class="docutils literal"><span class="pre">AXtrans</span> <span class="pre">==</span></span>), as well as symmetry (<span class="docutils literal"><span class="pre">AXsymm==</span></span>).</p>
+<p>In Agda, this can be written as follows:</p>
+<div class="highlight-haskell"><pre>THM0+ : {r : ℝ} -&gt; r == (r0 + r)
+THM0+ = AXsymm== (AXtrans== AXsymm+ AX+0)
+-- AXsymm+ AX+0   r0 + r == r + r0 and r + r0 == r
+-- AXtrans==      so r0 + r == r
+-- AXsymm==       so r == r0 + r</pre>
+</div>
+<p>Agda resolved all hidden parameters for us.
+This really simplified the notation.
+Here is how the same proof looks like with all parameters specified:</p>
+<div class="highlight-haskell"><div class="highlight"><pre><span class="kt">THM0</span><span class="o">+</span> <span class="p">{</span><span class="n">r</span><span class="p">}</span> <span class="ow">=</span> <span class="kt">AXsymm</span><span class="o">==</span> <span class="p">{</span><span class="n">r0</span> <span class="o">+</span> <span class="n">r</span><span class="p">}</span> <span class="p">{</span><span class="n">r</span><span class="p">}</span> <span class="p">((</span><span class="kt">AXtrans</span><span class="o">==</span> <span class="p">{</span><span class="n">r0</span> <span class="o">+</span> <span class="n">r</span><span class="p">}</span> <span class="p">{</span><span class="n">r</span> <span class="o">+</span> <span class="n">r0</span><span class="p">}</span> <span class="p">{</span><span class="n">r</span><span class="p">})</span> <span class="p">(</span><span class="kt">AXsymm</span><span class="o">+</span> <span class="p">{</span><span class="n">r0</span><span class="p">}</span> <span class="p">{</span><span class="n">r</span><span class="p">})</span> <span class="p">(</span><span class="kt">AX</span><span class="o">+</span><span class="mi">0</span> <span class="p">{</span><span class="n">r</span><span class="p">}))</span>
+</pre></div>
+</div>
+<p>This kind of symplicity really helps readability,
+although it probably also hurts understanding the code to some extent.
+But it does not really hurt understanding how the proof work:
+because we can omit all instances of reals,
+all that is left are the axioms (and theorems, later) that have been applied,
+and in what order.
+This provides a nice summary of the proof.</p>
+<p>What is amazing here is that it is <em>not</em> a summary.
+<strong>All variables in the proof can be inferred unambiguously from the axioms and the order in which they are applied.</strong>
+I am not sure whether this is possible in general (probably not),
+but it surely is a nice feature of Agda.</p>
+</div>
+<div class="section" id="another-theorem">
+<h2>Another Theorem</h2>
+<p>Here are some axioms for strict inequality:</p>
+<div class="highlight-haskell"><pre>data _&lt;_ : ℝ -&gt; ℝ -&gt; Set where
+  AXtrans&lt;&lt;&lt; : ∀ {r s t} -&gt; r &lt; s -&gt; s &lt; t -&gt; r &lt; t
+  AX&lt;=&lt; : ∀ {r s t} -&gt; r &lt; s -&gt; s == t -&gt; r &lt; t
+  AX=&lt;&lt; : ∀ {r s t} -&gt; r == s -&gt; s &lt; t -&gt; r &lt; t
+  AX0&lt;1 : r0 &lt; r1
+  AX+&lt;&lt; : ∀ {r s t} -&gt; r &lt; s -&gt; (r + t) &lt; (s + t)</pre>
+</div>
+<p>Let us prove that <span class="docutils literal"><span class="pre">r</span> <span class="pre">&lt;</span> <span class="pre">r</span> <span class="pre">+</span> <span class="pre">1</span></span>.</p>
+<div class="highlight-haskell"><pre>THM&lt;+1 : {r : ℝ} -&gt; r &lt; (r + r1)
+THM&lt;+1 = AX&lt;=&lt; (AX=&lt;&lt; THM0+ (AX+&lt;&lt; AX0&lt;1)) AXsymm+
+-- AX0&lt;1              0 &lt; 1
+-- AX&lt;+ %             so 0 + r &lt; 1 + r
+-- AX=&lt;&lt; lem0+ %      so r &lt; 1 + r
+-- AX&lt;=&lt; % AXsymm+    so r &lt; r + 1</pre>
+</div>
+<p>Again, to interpret these proofs, it is useful
+to first decipher the ordering in which the axioms and theorems
+are applied.
+The innermost expression is <span class="docutils literal"><span class="pre">AX0&lt;1</span></span>.
+We start from there and work our way to the outer expression
+to get to the full proof, as explained in the comments.
+I used <span class="docutils literal"><span class="pre">%</span></span> as a symbol for the expression on the previous line
+(as in Maple).</p>
+<p>Is the sky the limit?
+There seems nothing preventing us to do the entire real calculus.
+Let us try this in a next post.</p>
+</div>
+</div>
+        <div class="postmeta">
+        <div class="author">
+            <span>Posted by Matthias C. M. Troffaes</span>
+        </div>
+        
+        
+        <div class="comments">
+            <a href="http://mcmtroffaes.github.io/blowyourmindwithhaskell/2014/01/15/a_first_attempt_at_real_numbers_in_agda.html#disqus_thread" data-disqus-identifier="2014/01/15/a_first_attempt_at_real_numbers_in_agda">Leave a comment</a>
+        </div></div><div class="separator post_separator"></div><div class="timestamp postmeta">
             <span>13 January 2014</span>
         </div>
         <div class="section" id="propositional-logic-in-agda">
@@ -1448,6 +1622,8 @@ Also see:
     </div></article><aside class="sidebar"><section><div class="widget">
     <h1>Recent Posts</h1>
     <ul><li>
+            <a href="2014/01/15/a_first_attempt_at_real_numbers_in_agda.html">A First Attempt at Real Numbers in Agda</a>
+        </li><li>
             <a href="2014/01/13/propositional_logic_in_agda.html">Propositional Logic in Agda</a>
         </li><li>
             <a href="2014/01/09/agda__dependent_types__theorem_proving.html">Agda, Dependent Types, Theorem Proving</a>
