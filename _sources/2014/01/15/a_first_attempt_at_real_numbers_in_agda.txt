@@ -115,7 +115,7 @@ The code is fully equivalent to the following more verbose code:
 So, ``∀ {r}`` does two things:
 it declares ``r`` to be an optional argument
 (as you might have guessed from the curly braces,
-which we already discussed curly braces in an earlier post),
+which we already discussed in an earlier post),
 and it causes the type of ``r`` to be inferred
 from the remainder of the function signature.
 Agda will complain if it cannot infer the type.
@@ -184,7 +184,7 @@ Let us prove that ``r < r + 1``.
   THM<+1 = AX<=< (AX=<< THM0+ (AX+<< AX0<1)) AXsymm+
   -- AX0<1              0 < 1
   -- AX<+ %             so 0 + r < 1 + r
-  -- AX=<< lem0+ %      so r < 1 + r
+  -- AX=<< THM0+ %      so r < 1 + r
   -- AX<=< % AXsymm+    so r < r + 1
 
 Again, to interpret these proofs, it is useful

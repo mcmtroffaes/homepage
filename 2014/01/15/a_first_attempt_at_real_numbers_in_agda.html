@@ -161,7 +161,7 @@ The code is fully equivalent to the following more verbose code:</p>
 <p>So, <span class="docutils literal"><span class="pre">∀</span> <span class="pre">{r}</span></span> does two things:
 it declares <span class="docutils literal"><span class="pre">r</span></span> to be an optional argument
 (as you might have guessed from the curly braces,
-which we already discussed curly braces in an earlier post),
+which we already discussed in an earlier post),
 and it causes the type of <span class="docutils literal"><span class="pre">r</span></span> to be inferred
 from the remainder of the function signature.
 Agda will complain if it cannot infer the type.</p>
@@ -214,7 +214,7 @@ but it surely is a nice feature of Agda.</p>
 THM&lt;+1 = AX&lt;=&lt; (AX=&lt;&lt; THM0+ (AX+&lt;&lt; AX0&lt;1)) AXsymm+
 -- AX0&lt;1              0 &lt; 1
 -- AX&lt;+ %             so 0 + r &lt; 1 + r
--- AX=&lt;&lt; lem0+ %      so r &lt; 1 + r
+-- AX=&lt;&lt; THM0+ %      so r &lt; 1 + r
 -- AX&lt;=&lt; % AXsymm+    so r &lt; r + 1</pre>
 </div>
 <p>Again, to interpret these proofs, it is useful
