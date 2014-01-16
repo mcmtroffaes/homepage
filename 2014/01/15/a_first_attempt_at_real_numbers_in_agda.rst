@@ -184,7 +184,7 @@ Let us prove that ``r < r + 1``.
   THM<+1 = AX<=< (AX=<< THM0+ (AX+<< AX0<1)) AXsymm+
   -- AX0<1              0 < 1
   -- AX<+ %             so 0 + r < 1 + r
-  -- AX=<< lem0+ %      so r < 1 + r
+  -- AX=<< THM0+ %      so r < 1 + r
   -- AX<=< % AXsymm+    so r < r + 1
 
 Again, to interpret these proofs, it is useful
