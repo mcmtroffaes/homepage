@@ -20,6 +20,7 @@ Essentially, a record is a glorified data type.
 Glorified in two ways:
 (i) parameters can have names (called *fields*), and
 (ii) we can embed declarations inside records.
+In this post, we will only discuss the first point, fields.
 
 For example, let us revisit the mock real type that we declared in our
 earlier post:
@@ -219,6 +220,8 @@ corresponds to a module which provides direct access
 to the fields of the instance.
 We can thus simply write:
 
+.. code-block:: haskell
+
   theorem-equivalence2-simple-alt :
     {M : Set} -> {_≈_ : M -> M -> Set} -> IsEquivalence2 _≈_
     -> ∀ {r s t} -> r ≈ s -> ¬ (s ≈ t) -> ¬ (r ≈ t)
@@ -234,3 +237,75 @@ The record syntax that we discussed
 is heavily used in Agda's standard library,
 and it is probably time that we started to pay some more attention to it,
 in a next post.
+
+Reals Revisited
+---------------
+
+To finish this post, here is how our mock real type can be
+reimplemented using record syntax. This is entirely equivalent to our
+earlier simpler data type syntax, but it leads to code that is much
+easier to reuse:
+
+.. code-block:: haskell
+
+  module Reals where
+
+  record IsEquivalence
+    {M : Set}
+    (_==_ : M -> M -> Set)
+    : Set where
+    field
+      refl : ∀ {r} -> r == r
+      symm : ∀ {r s} -> r == s -> s == r
+      trans : ∀ {r s t} -> r == s -> s == t -> r == t
+
+  record IsStrictPartialOrder
+    {M : Set}
+    (_==_ : M -> M -> Set)
+    (_<_ : M -> M -> Set)
+    : Set where
+    field
+      trans<<< : ∀ {r s t} -> r < s -> s < t -> r < t
+      trans<=< : ∀ {r s t} -> r < s -> s == t -> r < t
+      trans=<< : ∀ {r s t} -> r == s -> s < t -> r < t
+
+  record IsMockReals
+    {ℝ : Set}
+    (_==_ : ℝ -> ℝ -> Set)
+    (_<_ : ℝ -> ℝ -> Set)
+    (_+_ : ℝ -> ℝ -> ℝ)
+    (r0 : ℝ)
+    (r1 : ℝ)
+    : Set where
+    field
+      isEquivalence : IsEquivalence _==_
+      isStrictPartialOrder : IsStrictPartialOrder _==_ _<_
+      r+r0 : ∀ {r} -> (r + r0) == r
+      symm+ : ∀ {r s} -> (r + s) == (s + r)
+      cong+= : ∀ {r s t} -> r == s -> (r + t) == (s + t)
+      cong+< : ∀ {r s t} -> r < s -> (r + t) < (s + t)
+      0<1 : r0 < r1
+
+    open IsEquivalence isEquivalence public
+      renaming (refl to refl==; symm to symm==; trans to trans==)
+
+    open IsStrictPartialOrder isStrictPartialOrder public
+
+    r0+r : {r : ℝ} -> r == (r0 + r)
+    r0+r = symm== (trans== symm+ r+r0)
+
+    thm<+1 : {r : ℝ} -> r < (r + r1)
+    thm<+1 = trans<=< (trans=<< r0+r (cong+< 0<1)) symm+
+
+The new bits are: ``public``, which re-exports all imported declarations,
+``renaming`` which renames imported declarations,
+and the use of declarations directly inside the record
+We could have used ``where open ...`` syntax as well in case we did not
+want the theorems to be included as members of the record.
+The Agda standard library seems not to put theorems inside records generally;
+it may also not always be obvious which record a theorem should belongs to.
+
+An interesting question:
+in an arbitrary record,
+which parameters should be (unnamed) type parameters,
+and which parameters should be (named) field parameters?
