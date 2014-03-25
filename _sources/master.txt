@@ -4,6 +4,7 @@ Sitemap
 .. toctree::
    :maxdepth: 1
 
+   2014/03/25/using_records_in_agda
    2014/01/15/a_first_attempt_at_real_numbers_in_agda
    2014/01/13/propositional_logic_in_agda
    2014/01/09/agda__dependent_types__theorem_proving

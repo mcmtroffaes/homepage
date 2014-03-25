@@ -147,15 +147,13 @@ For example, we <strong>cannot</strong> write:</p>
 </pre></div>
 </div>
 <p>This will give you all numbers, less than 15,
-satisfying the conditions of Fermat&#8217;s equation <span class="formula"><i>x</i><sup><i>n</i></sup> + <i>y</i><sup><i>n</i></sup> = <i>z</i><sup><i>n</i></sup></span>
-;
+satisfying the conditions of Fermat&#8217;s equation <img class="math" src="../../../_images/math/230acb45f71b4261904fb34a56e5cac92a6e5a40.png" alt="x^n+y^n=z^n"/>;
 for the curious, the answer is:</p>
 <div class="highlight-haskell"><div class="highlight"><pre><span class="p">[[</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">],[</span><span class="mi">2</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">5</span><span class="p">],[</span><span class="mi">2</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">12</span><span class="p">,</span><span class="mi">13</span><span class="p">],[</span><span class="mi">2</span><span class="p">,</span><span class="mi">6</span><span class="p">,</span><span class="mi">8</span><span class="p">,</span><span class="mi">10</span><span class="p">],[</span><span class="mi">2</span><span class="p">,</span><span class="mi">8</span><span class="p">,</span><span class="mi">6</span><span class="p">,</span><span class="mi">10</span><span class="p">],</span>
  <span class="p">[</span><span class="mi">2</span><span class="p">,</span><span class="mi">9</span><span class="p">,</span><span class="mi">12</span><span class="p">,</span><span class="mi">15</span><span class="p">],[</span><span class="mi">2</span><span class="p">,</span><span class="mi">12</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">13</span><span class="p">],[</span><span class="mi">2</span><span class="p">,</span><span class="mi">12</span><span class="p">,</span><span class="mi">9</span><span class="p">,</span><span class="mi">15</span><span class="p">]]</span>
 </pre></div>
 </div>
-<p>Note that <span class="formula"><i>n</i></span>
- is never larger than 2,
+<p>Note that <img class="math" src="../../../_images/math/413f8a8e40062a9090d9d50b88bc7b551b314c26.png" alt="n"/> is never larger than 2,
 per <a class="reference external" href="http://en.wikipedia.org/wiki/Fermat%27s_Last_Theorem">Fermat&#8217;s famous last theorem</a>.
 Here is how you could ask Haskell to try to prove the theorem:</p>
 <div class="highlight-haskell"><div class="highlight"><pre><span class="nf">null</span> <span class="p">[</span> <span class="p">[</span><span class="n">n</span><span class="p">,</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">,</span><span class="n">z</span><span class="p">]</span> <span class="o">|</span> <span class="n">n</span> <span class="ow">&lt;-</span> <span class="p">[</span><span class="mi">3</span><span class="o">..</span><span class="p">],</span> <span class="n">x</span> <span class="ow">&lt;-</span> <span class="p">[</span><span class="mi">1</span><span class="o">..</span><span class="p">],</span> <span class="n">y</span> <span class="ow">&lt;-</span> <span class="p">[</span><span class="mi">1</span><span class="o">..</span><span class="p">],</span>
@@ -509,6 +507,8 @@ to gain filtering ability?</p>
         </ul></article><aside class="sidebar"><section><div class="widget">
     <h1>Recent Posts</h1>
     <ul><li>
+            <a href="../../../2014/03/25/using_records_in_agda.html">Using Records in Agda</a>
+        </li><li>
             <a href="../../../2014/01/15/a_first_attempt_at_real_numbers_in_agda.html">A First Attempt at Real Numbers in Agda</a>
         </li><li>
             <a href="../../../2014/01/13/propositional_logic_in_agda.html">Propositional Logic in Agda</a>

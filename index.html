@@ -62,6 +62,290 @@
               <h1><a href="#">Blow Your Mind With Haskell</a></h1><h2>Musings of a Haskell Learner</h2></hgroup>
           </header>
       <div class="main-container"><div class="main wrapper clearfix"><article><div class="timestamp postmeta">
+            <span>25 March 2014</span>
+        </div>
+        <div class="section" id="using-records-in-agda">
+<h1><a href="2014/03/25/using_records_in_agda.html">Using Records in Agda</a></h1>
+<div class="section" id="organizing-code">
+<h2>Organizing Code</h2>
+<p>In previous posts, we covered some of the basic principles behind Agda.
+We discussed the use of data types to describe axioms of our theory,
+and the use of functions to prove theorems from those axioms.
+Using just data types and functions, however,
+it is quite hard to recycle properties in a convenient way.
+For this purpose, Agda provides a special bit of syntax: records.</p>
+<p>Essentially, a record is a glorified data type.
+Glorified in two ways:
+(i) parameters can have names (called <em>fields</em>), and
+(ii) we can embed declarations inside records.
+In this post, we will only discuss the first point, fields.</p>
+<p>For example, let us revisit the mock real type that we declared in our
+earlier post:</p>
+<div class="highlight-haskell"><div class="highlight"><pre>data ℝ : Set where
+  r0 : ℝ
+  r1 : ℝ
+  _+_ : ℝ -&gt; ℝ -&gt; ℝ
+
+data _==_ : ℝ -&gt; ℝ -&gt; Set where
+  AXrefl== : ∀ {r} -&gt; r == r
+  AXsymm== : ∀ {r s} -&gt; r == s -&gt; s == r
+  AXtrans== : ∀ {r s t} -&gt; r == s -&gt; s == t -&gt; r == t
+  AX+0 : ∀ {r} -&gt; (r + r0) == r
+  AXsymm+ : ∀ {r s} -&gt; (r + s) == (s + r)
+  AX+== : ∀ {r s t} -&gt; r == s -&gt; (r + t) == (s + t)
+</pre></div>
+</div>
+<p>How can we make this nicer?
+Well, it would be quite nice if we could
+somehow seperate the first three axioms that turn <span class="docutils literal"><span class="pre">_==_</span></span> into an
+equivalence relation.
+Secondly, there might be many different ways
+in which we can actually construct an equivalence relation on a type.
+In fact, we might work with different equivalence relations at the same time.
+How can we generically say that some arbitrary relation, say <span class="docutils literal"><span class="pre">_≈_</span></span>,
+is an equivalence relation?</p>
+</div>
+<div class="section" id="parametric-data-types-in-overdrive">
+<h2>Parametric Data Types in Overdrive</h2>
+<p>Well, we could specify the relation itself as a parameter,
+along with the axioms it needs to satisfy.</p>
+<p>Here is one way:</p>
+<div class="highlight-haskell"><div class="highlight"><pre>data IsEquivalence
+  {M : Set}
+  (_≈_ : M -&gt; M -&gt; Set)
+  (refl : ∀ {r} -&gt; r ≈ r)
+  (symm : ∀ {r s} -&gt; r ≈ s -&gt; s ≈ r)
+  (trans : ∀ {r s t} -&gt; r ≈ s -&gt; s ≈ t -&gt; r ≈ t)
+  : Set where
+
+  isEquivalence : IsEquivalence _≈_ refl symm trans
+</pre></div>
+</div>
+<p>So, if we can create an instance of the type <span class="docutils literal"><span class="pre">IsEquivalence</span></span>
+for some relation <span class="docutils literal"><span class="pre">_≈_</span></span>, then <span class="docutils literal"><span class="pre">_≈_</span></span> is an equivalence relation.
+Here is an example of how we might use <span class="docutils literal"><span class="pre">IsEquivalence</span></span>:</p>
+<div class="highlight-haskell"><div class="highlight"><pre>data ℕ : Set where
+  zero : ℕ
+  suc : ℕ -&gt; ℕ
+
+data _==_ : ℕ -&gt; ℕ -&gt; Set where
+  natrefl : ∀ {n} -&gt; n == n
+
+theorem-==-symm : ∀ {n m} -&gt; n == m -&gt; m == n
+theorem-==-symm natrefl = natrefl
+
+theorem-==-trans : ∀ {n m k} -&gt; n == m -&gt; m == k -&gt; n == k
+theorem-==-trans natrefl natrefl = natrefl
+
+theorem-==-is-equivalence
+  : IsEquivalence _==_ natrefl theorem-==-symm theorem-==-trans
+  theorem-==-is-equivalence = isEquivalence
+</pre></div>
+</div>
+<p>Note that in the above example,
+only reflexivity had to be specified as an axiom of <span class="docutils literal"><span class="pre">_==_</span></span>, and
+the other properties could be proved from the definition of <span class="docutils literal"><span class="pre">_==_</span></span>
+(of course this will not be the case in general!).</p>
+<p>This is very generic already.
+Can we do better? What are the problems with the above approach?</p>
+<p>An obvious problem occurs if we have to specify
+many parameters. Whenever we need
+the <span class="docutils literal"><span class="pre">IsEquivalence</span></span> type, or its <span class="docutils literal"><span class="pre">isEquivalence</span></span> constructor,
+we also need to specify four parameters
+(excluding the hidden parameter <span class="docutils literal"><span class="pre">M</span></span>), namely the relation,
+along with the three axioms.
+This makes the code hard to read,
+and even worse,
+we might get the ordering of parameters wrong.
+In the above example, we only have three axioms,
+but in general, the number of axioms that we may want to work with
+simultaneously can become very, very large.</p>
+<p>Finally, and perhaps this is the strongest shortcoming of all,
+showing already in this very simple example:
+using <span class="docutils literal"><span class="pre">IsEquivalence</span></span>
+in theorems that require equivalence relations
+does not lead to further abstraction and simplification of our code.
+For example:</p>
+<div class="highlight-haskell"><div class="highlight"><pre>data ⊥ : Set where
+¬_ : Set -&gt; Set
+¬ A = A -&gt; ⊥
+theorem-equivalence-simple :
+  {M : Set}
+  -&gt; {_≈_ : M -&gt; M -&gt; Set}
+  -&gt; {refl : ∀ {r} -&gt; r ≈ r}
+  -&gt; {symm : ∀ {r s} -&gt; r ≈ s -&gt; s ≈ r}
+  -&gt; {trans : ∀ {r s t} -&gt; r ≈ s -&gt; s ≈ t -&gt; r ≈ t}
+  -&gt; IsEquivalence _≈_ refl symm trans
+  -&gt; ∀ {r s t} -&gt; r ≈ s -&gt; ¬ (s ≈ t) -&gt; ¬ (r ≈ t)
+theorem-equivalence-simple
+  {_} {_≈_} {_} {symm} {trans} _
+  r≈s ¬s≈t r≈t = ¬s≈t (trans (symm r≈s) r≈t)
+</pre></div>
+</div>
+<p>In order to specify an instance of <span class="docutils literal"><span class="pre">IsEquivalence</span></span>
+in the premises of the theorem,
+we need to specify all axioms first anyway.
+In other words, we must replicate the type signature of all axioms
+in every theorem that needs <span class="docutils literal"><span class="pre">IsEquivalence</span></span>.</p>
+<p>Nevertheless,
+it does provide some simplification when we have to apply the theorem,
+say, to prove that it holds for natural numbers:</p>
+<div class="highlight-haskell"><div class="highlight"><pre>theorem-==-equivalence-simple :
+  ∀ {r s t} -&gt; r == s -&gt; ¬ (s == t) -&gt; ¬ (r == t)
+theorem-==-equivalence-simple
+  = theorem-equivalence-simple theorem-==-is-equivalence
+</pre></div>
+</div>
+</div>
+<div class="section" id="record-syntax">
+<h2>Record Syntax</h2>
+<p>A logical improvement would be to provide named parameters.
+This leads us to record syntax:</p>
+<div class="highlight-haskell"><div class="highlight"><pre>record IsEquivalence2
+  {M : Set}
+  (_≈_ : M -&gt; M -&gt; Set)
+  : Set where
+  field
+    refl : ∀ {r} -&gt; r ≈ r
+    symm : ∀ {r s} -&gt; r ≈ s -&gt; s ≈ r
+    trans : ∀ {r s t} -&gt; r ≈ s -&gt; s ≈ t -&gt; r ≈ t
+</pre></div>
+</div>
+<p>Note the differences from our earlier data type definition:
+(i) we write “record” instead of “data”,
+(ii) we have moved some of the type parameters into so-called <em>fields</em>
+using the <span class="docutils literal"><span class="pre">field</span></span> keyword,
+(iii) we no longer have to specify a constructor (in fact, we still
+could specify a specifically named constructor if we wanted to).</p>
+<p>The theorem now becomes:</p>
+<div class="highlight-haskell"><div class="highlight"><pre><span class="nf">theorem</span><span class="o">-==-</span><span class="n">is</span><span class="o">-</span><span class="n">equivalence2</span> <span class="kt">:</span> <span class="kt">IsEquivalence2</span> <span class="kr">_</span><span class="o">==</span><span class="kr">_</span>
+<span class="nf">theorem</span><span class="o">-==-</span><span class="n">is</span><span class="o">-</span><span class="n">equivalence2</span> <span class="ow">=</span> <span class="n">record</span> <span class="p">{</span>
+  <span class="n">refl</span> <span class="ow">=</span> <span class="n">natrefl</span><span class="p">;</span>
+  <span class="n">symm</span> <span class="ow">=</span> <span class="n">theorem</span><span class="o">-==-</span><span class="n">symm</span><span class="p">;</span>
+  <span class="n">trans</span> <span class="ow">=</span> <span class="n">theorem</span><span class="o">-==-</span><span class="n">trans</span>
+  <span class="p">}</span>
+</pre></div>
+</div>
+<p>So, records are constructed with the <span class="docutils literal"><span class="pre">record</span> <span class="pre">{...}</span></span> syntax.
+Agda inferred its type from the theorem’s type signature.
+Parameters that are fields can be passed to this constructor
+in a named fashion. In particular, the ordering does not matter.</p>
+<p>Now, the really good news:
+<strong>the type of fields becomes embedded into the type of the record</strong>.
+So, the type signature of our earlier simple theorem
+no longer needs to specify the type of all fields:
+they are no longer type parameters!
+There is also special syntax for accessing any particular field of a record:
+<span class="docutils literal"><span class="pre">&lt;RecordType&gt;.&lt;fieldname&gt;</span> <span class="pre">&lt;instance&gt;</span></span>.
+Our theorem thus becomes:</p>
+<div class="highlight-haskell"><div class="highlight"><pre>theorem-equivalence2-simple :
+  {M : Set} -&gt; {_≈_ : M -&gt; M -&gt; Set} -&gt; IsEquivalence2 _≈_
+  -&gt; ∀ {r s t} -&gt; r ≈ s -&gt; ¬ (s ≈ t) -&gt; ¬ (r ≈ t)
+theorem-equivalence2-simple equiv r≈s ¬s≈t r≈t
+  = ¬s≈t ((IsEquivalence2.trans equiv) ((IsEquivalence2.symm equiv) r≈s) r≈t)
+</pre></div>
+</div>
+<p>This is much simpler, and much more readable, than our earlier theorem.
+The syntax for field access are still somewhat annoying.
+Agda provides us with another trick to simplify this:
+for every instance of a record, <span class="docutils literal"><span class="pre">&lt;RecordType&gt;</span> <span class="pre">&lt;instance&gt;</span></span>
+corresponds to a module which provides direct access
+to the fields of the instance.
+We can thus simply write:</p>
+<div class="highlight-haskell"><div class="highlight"><pre>theorem-equivalence2-simple-alt :
+  {M : Set} -&gt; {_≈_ : M -&gt; M -&gt; Set} -&gt; IsEquivalence2 _≈_
+  -&gt; ∀ {r s t} -&gt; r ≈ s -&gt; ¬ (s ≈ t) -&gt; ¬ (r ≈ t)
+theorem-equivalence2-simple-alt equiv r≈s ¬s≈t r≈t
+    = ¬s≈t (trans (symm r≈s) r≈t)
+      where open IsEquivalence2 equiv
+</pre></div>
+</div>
+<p>The <span class="docutils literal"><span class="pre">open</span></span> command opens a module, that is, brings its declarations
+into the current namespace, so we can use <span class="docutils literal"><span class="pre">trans</span></span> and <span class="docutils literal"><span class="pre">symm</span></span>
+directly without having to specify the record type and the instance.</p>
+<p>The record syntax that we discussed
+is heavily used in Agda’s standard library,
+and it is probably time that we started to pay some more attention to it,
+in a next post.</p>
+</div>
+<div class="section" id="reals-revisited">
+<h2>Reals Revisited</h2>
+<p>To finish this post, here is how our mock real type can be
+reimplemented using record syntax. This is entirely equivalent to our
+earlier simpler data type syntax, but it leads to code that is much
+easier to reuse:</p>
+<div class="highlight-haskell"><div class="highlight"><pre>module Reals where
+
+record IsEquivalence
+  {M : Set}
+  (_==_ : M -&gt; M -&gt; Set)
+  : Set where
+  field
+    refl : ∀ {r} -&gt; r == r
+    symm : ∀ {r s} -&gt; r == s -&gt; s == r
+    trans : ∀ {r s t} -&gt; r == s -&gt; s == t -&gt; r == t
+
+record IsStrictPartialOrder
+  {M : Set}
+  (_==_ : M -&gt; M -&gt; Set)
+  (_&lt;_ : M -&gt; M -&gt; Set)
+  : Set where
+  field
+    trans&lt;&lt;&lt; : ∀ {r s t} -&gt; r &lt; s -&gt; s &lt; t -&gt; r &lt; t
+    trans&lt;=&lt; : ∀ {r s t} -&gt; r &lt; s -&gt; s == t -&gt; r &lt; t
+    trans=&lt;&lt; : ∀ {r s t} -&gt; r == s -&gt; s &lt; t -&gt; r &lt; t
+
+record IsMockReals
+  {ℝ : Set}
+  (_==_ : ℝ -&gt; ℝ -&gt; Set)
+  (_&lt;_ : ℝ -&gt; ℝ -&gt; Set)
+  (_+_ : ℝ -&gt; ℝ -&gt; ℝ)
+  (r0 : ℝ)
+  (r1 : ℝ)
+  : Set where
+  field
+    isEquivalence : IsEquivalence _==_
+    isStrictPartialOrder : IsStrictPartialOrder _==_ _&lt;_
+    r+r0 : ∀ {r} -&gt; (r + r0) == r
+    symm+ : ∀ {r s} -&gt; (r + s) == (s + r)
+    cong+= : ∀ {r s t} -&gt; r == s -&gt; (r + t) == (s + t)
+    cong+&lt; : ∀ {r s t} -&gt; r &lt; s -&gt; (r + t) &lt; (s + t)
+    0&lt;1 : r0 &lt; r1
+
+  open IsEquivalence isEquivalence public
+    renaming (refl to refl==; symm to symm==; trans to trans==)
+
+  open IsStrictPartialOrder isStrictPartialOrder public
+
+  r0+r : {r : ℝ} -&gt; r == (r0 + r)
+  r0+r = symm== (trans== symm+ r+r0)
+
+  thm&lt;+1 : {r : ℝ} -&gt; r &lt; (r + r1)
+  thm&lt;+1 = trans&lt;=&lt; (trans=&lt;&lt; r0+r (cong+&lt; 0&lt;1)) symm+
+</pre></div>
+</div>
+<p>The new bits are: <span class="docutils literal"><span class="pre">public</span></span>, which re-exports all imported declarations,
+<span class="docutils literal"><span class="pre">renaming</span></span> which renames imported declarations,
+and the use of declarations directly inside the record
+We could have used <span class="docutils literal"><span class="pre">where</span> <span class="pre">open</span> <span class="pre">...</span></span> syntax as well in case we did not
+want the theorems to be included as members of the record.
+The Agda standard library seems not to put theorems inside records generally;
+it may also not always be obvious which record a theorem should belongs to.</p>
+<p>An interesting question:
+in an arbitrary record,
+which parameters should be (unnamed) type parameters,
+and which parameters should be (named) field parameters?</p>
+</div>
+</div>
+        <div class="postmeta">
+        <div class="author">
+            <span>Posted by Matthias C. M. Troffaes</span>
+        </div>
+        
+        
+        <div class="comments">
+            <a href="http://mcmtroffaes.github.io/blowyourmindwithhaskell/2014/03/25/using_records_in_agda.html#disqus_thread" data-disqus-identifier="2014/03/25/using_records_in_agda">Leave a comment</a>
+        </div></div><div class="separator post_separator"></div><div class="timestamp postmeta">
             <span>15 January 2014</span>
         </div>
         <div class="section" id="a-first-attempt-at-real-numbers-in-agda">
@@ -107,10 +391,11 @@ Let us focus on a set with just some properties of the reals.</p>
 <div class="section" id="constructing-real-instances">
 <h2>Constructing Real Instances</h2>
 <p>First, we declare the constructors of our mock real type:</p>
-<div class="highlight-haskell"><pre>data ℝ : Set where
+<div class="highlight-haskell"><div class="highlight"><pre>data ℝ : Set where
   r0 : ℝ
   r1 : ℝ
-  _+_ : ℝ -&gt; ℝ -&gt; ℝ</pre>
+  _+_ : ℝ -&gt; ℝ -&gt; ℝ
+</pre></div>
 </div>
 <p>(In emacs, you get <span class="docutils literal"><span class="pre">ℝ</span></span> by typing <span class="docutils literal"><span class="pre">\br</span></span>.)</p>
 <p>This says that we can construct reals in three ways:
@@ -125,13 +410,14 @@ possibly along with substraction, division, negation, and so on.</p>
 How do we go about this?
 Well, for instance, we might like to say that <span class="docutils literal"><span class="pre">r</span> <span class="pre">+</span> <span class="pre">r0</span> <span class="pre">==</span> <span class="pre">r</span></span>.
 We need an equality operator:</p>
-<div class="highlight-haskell"><pre>data _==_ : ℝ -&gt; ℝ -&gt; Set where
+<div class="highlight-haskell"><div class="highlight"><pre>data _==_ : ℝ -&gt; ℝ -&gt; Set where
   AXrefl== : ∀ {r} -&gt; r == r
   AXsymm== : ∀ {r s} -&gt; r == s -&gt; s == r
   AXtrans== : ∀ {r s t} -&gt; r == s -&gt; s == t -&gt; r == t
   AX+0 : ∀ {r} -&gt; (r + r0) == r
   AXsymm+ : ∀ {r s} -&gt; (r + s) == (s + r)
-  AX+== : ∀ {r s t} -&gt; r == s -&gt; (r + t) == (s + t)</pre>
+  AX+== : ∀ {r s t} -&gt; r == s -&gt; (r + t) == (s + t)
+</pre></div>
 </div>
 <p>So, the equality operator <span class="docutils literal"><span class="pre">==</span></span> takes two real numbers,
 and returns a theorem, that is, an instance of <span class="docutils literal"><span class="pre">Set</span></span>.
@@ -147,13 +433,14 @@ In the code above,
 all of the constructors start with “AX” to emphasize that they are axioms.</p>
 <p>There is one bit of new syntax here: the forall operator “∀”.
 The code is fully equivalent to the following more verbose code:</p>
-<div class="highlight-haskell"><pre>data _==_ : ℝ -&gt; ℝ -&gt; Set where
+<div class="highlight-haskell"><div class="highlight"><pre>data _==_ : ℝ -&gt; ℝ -&gt; Set where
   AXrefl== : {r : ℝ} -&gt; r == r
   AXsymm== : {r s : ℝ} -&gt; r == s -&gt; s == r
   AXtrans== : {r s t : ℝ} -&gt; r == s -&gt; s == t -&gt; r == t
   AX+0 : {r : ℝ} -&gt; (r + r0) == r
   AXsymm+ : {r s : ℝ} -&gt; (r + s) == (s + r)
-  AX+== : {r s t : ℝ} -&gt; r == s -&gt; (r + t) == (s + t)</pre>
+  AX+== : {r s t : ℝ} -&gt; r == s -&gt; (r + t) == (s + t)
+</pre></div>
 </div>
 <p>So, <span class="docutils literal"><span class="pre">∀</span> <span class="pre">{r}</span></span> does two things:
 it declares <span class="docutils literal"><span class="pre">r</span></span> to be an optional argument
@@ -172,11 +459,12 @@ so in the expression <span class="docutils literal"><span class="pre">r</span> <
 This follows from  <span class="docutils literal"><span class="pre">AXsymm+</span></span> (<span class="docutils literal"><span class="pre">0</span> <span class="pre">+</span> <span class="pre">r</span> <span class="pre">=</span> <span class="pre">r</span> <span class="pre">+</span> <span class="pre">0</span></span>) and <span class="docutils literal"><span class="pre">AX+0</span></span> (<span class="docutils literal"><span class="pre">r</span> <span class="pre">+</span> <span class="pre">0</span> <span class="pre">=</span> <span class="pre">r</span></span>),
 by transitivity (<span class="docutils literal"><span class="pre">AXtrans</span> <span class="pre">==</span></span>), as well as symmetry (<span class="docutils literal"><span class="pre">AXsymm==</span></span>).</p>
 <p>In Agda, this can be written as follows:</p>
-<div class="highlight-haskell"><pre>THM0+ : {r : ℝ} -&gt; r == (r0 + r)
+<div class="highlight-haskell"><div class="highlight"><pre>THM0+ : {r : ℝ} -&gt; r == (r0 + r)
 THM0+ = AXsymm== (AXtrans== AXsymm+ AX+0)
 -- AXsymm+ AX+0   r0 + r == r + r0 and r + r0 == r
 -- AXtrans==      so r0 + r == r
--- AXsymm==       so r == r0 + r</pre>
+-- AXsymm==       so r == r0 + r
+</pre></div>
 </div>
 <p>Agda resolved all hidden parameters for us.
 This really simplified the notation.
@@ -199,20 +487,22 @@ but it surely is a nice feature of Agda.</p>
 <div class="section" id="another-theorem">
 <h2>Another Theorem</h2>
 <p>Here are some axioms for strict inequality:</p>
-<div class="highlight-haskell"><pre>data _&lt;_ : ℝ -&gt; ℝ -&gt; Set where
+<div class="highlight-haskell"><div class="highlight"><pre>data _&lt;_ : ℝ -&gt; ℝ -&gt; Set where
   AXtrans&lt;&lt;&lt; : ∀ {r s t} -&gt; r &lt; s -&gt; s &lt; t -&gt; r &lt; t
   AX&lt;=&lt; : ∀ {r s t} -&gt; r &lt; s -&gt; s == t -&gt; r &lt; t
   AX=&lt;&lt; : ∀ {r s t} -&gt; r == s -&gt; s &lt; t -&gt; r &lt; t
   AX0&lt;1 : r0 &lt; r1
-  AX+&lt;&lt; : ∀ {r s t} -&gt; r &lt; s -&gt; (r + t) &lt; (s + t)</pre>
+  AX+&lt;&lt; : ∀ {r s t} -&gt; r &lt; s -&gt; (r + t) &lt; (s + t)
+</pre></div>
 </div>
 <p>Let us prove that <span class="docutils literal"><span class="pre">r</span> <span class="pre">&lt;</span> <span class="pre">r</span> <span class="pre">+</span> <span class="pre">1</span></span>.</p>
-<div class="highlight-haskell"><pre>THM&lt;+1 : {r : ℝ} -&gt; r &lt; (r + r1)
+<div class="highlight-haskell"><div class="highlight"><pre>THM&lt;+1 : {r : ℝ} -&gt; r &lt; (r + r1)
 THM&lt;+1 = AX&lt;=&lt; (AX=&lt;&lt; THM0+ (AX+&lt;&lt; AX0&lt;1)) AXsymm+
 -- AX0&lt;1              0 &lt; 1
 -- AX&lt;+ %             so 0 + r &lt; 1 + r
 -- AX=&lt;&lt; THM0+ %      so r &lt; 1 + r
--- AX&lt;=&lt; % AXsymm+    so r &lt; r + 1</pre>
+-- AX&lt;=&lt; % AXsymm+    so r &lt; r + 1
+</pre></div>
 </div>
 <p>Again, to interpret these proofs, it is useful
 to first decipher the ordering in which the axioms and theorems
@@ -914,15 +1204,13 @@ For example, we <strong>cannot</strong> write:</p>
 </pre></div>
 </div>
 <p>This will give you all numbers, less than 15,
-satisfying the conditions of Fermat’s equation <span class="formula"><i>x</i><sup><i>n</i></sup> + <i>y</i><sup><i>n</i></sup> = <i>z</i><sup><i>n</i></sup></span>
-;
+satisfying the conditions of Fermat’s equation <img alt="x^n+y^n=z^n" class="math" src="_images/math/230acb45f71b4261904fb34a56e5cac92a6e5a40.png"/>;
 for the curious, the answer is:</p>
 <div class="highlight-haskell"><div class="highlight"><pre><span class="p">[[</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">],[</span><span class="mi">2</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">5</span><span class="p">],[</span><span class="mi">2</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">12</span><span class="p">,</span><span class="mi">13</span><span class="p">],[</span><span class="mi">2</span><span class="p">,</span><span class="mi">6</span><span class="p">,</span><span class="mi">8</span><span class="p">,</span><span class="mi">10</span><span class="p">],[</span><span class="mi">2</span><span class="p">,</span><span class="mi">8</span><span class="p">,</span><span class="mi">6</span><span class="p">,</span><span class="mi">10</span><span class="p">],</span>
  <span class="p">[</span><span class="mi">2</span><span class="p">,</span><span class="mi">9</span><span class="p">,</span><span class="mi">12</span><span class="p">,</span><span class="mi">15</span><span class="p">],[</span><span class="mi">2</span><span class="p">,</span><span class="mi">12</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">13</span><span class="p">],[</span><span class="mi">2</span><span class="p">,</span><span class="mi">12</span><span class="p">,</span><span class="mi">9</span><span class="p">,</span><span class="mi">15</span><span class="p">]]</span>
 </pre></div>
 </div>
-<p>Note that <span class="formula"><i>n</i></span>
- is never larger than 2,
+<p>Note that <img alt="n" class="math" src="_images/math/413f8a8e40062a9090d9d50b88bc7b551b314c26.png"/> is never larger than 2,
 per <a class="reference external" href="http://en.wikipedia.org/wiki/Fermat%27s_Last_Theorem">Fermat’s famous last theorem</a>.
 Here is how you could ask Haskell to try to prove the theorem:</p>
 <div class="highlight-haskell"><div class="highlight"><pre><span class="nf">null</span> <span class="p">[</span> <span class="p">[</span><span class="n">n</span><span class="p">,</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">,</span><span class="n">z</span><span class="p">]</span> <span class="o">|</span> <span class="n">n</span> <span class="ow">&lt;-</span> <span class="p">[</span><span class="mi">3</span><span class="o">..</span><span class="p">],</span> <span class="n">x</span> <span class="ow">&lt;-</span> <span class="p">[</span><span class="mi">1</span><span class="o">..</span><span class="p">],</span> <span class="n">y</span> <span class="ow">&lt;-</span> <span class="p">[</span><span class="mi">1</span><span class="o">..</span><span class="p">],</span>
@@ -1622,6 +1910,8 @@ Also see:
     </div></article><aside class="sidebar"><section><div class="widget">
     <h1>Recent Posts</h1>
     <ul><li>
+            <a href="2014/03/25/using_records_in_agda.html">Using Records in Agda</a>
+        </li><li>
             <a href="2014/01/15/a_first_attempt_at_real_numbers_in_agda.html">A First Attempt at Real Numbers in Agda</a>
         </li><li>
             <a href="2014/01/13/propositional_logic_in_agda.html">Propositional Logic in Agda</a>

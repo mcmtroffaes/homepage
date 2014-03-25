@@ -30,7 +30,7 @@
         <script>window.jQuery || document.write('<script src="../../../_static/vendor/jquery-1.8.2.min.js"><\/script>')</script>
         <script src="../../../_static/plugins.js"></script>
         <script src="../../../_static/main.js"></script>
-        <link rel="next" title="Propositional Logic in Agda" href="../13/propositional_logic_in_agda.html" /><link rel="alternate" type="application/rss+xml" title="RSS" href="../../../rss.html" /><script type="text/javascript">
+        <link rel="next" title="Propositional Logic in Agda" href="../13/propositional_logic_in_agda.html" /><link rel="prev" title="Using Records in Agda" href="../../03/25/using_records_in_agda.html" /><link rel="alternate" type="application/rss+xml" title="RSS" href="../../../rss.html" /><script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../../',
         VERSION:     '1.2.1',
@@ -62,7 +62,7 @@
               <h1><a href="../../../index.html">Blow Your Mind With Haskell</a></h1><h2>Musings of a Haskell Learner</h2></hgroup>
           </header>
       <div class="main-container"><div class="main wrapper clearfix"><article><ul class="related clearfix">
-            <li class="left"></li>
+            <li class="left"> &laquo; <a href="../../03/25/using_records_in_agda.html">Using Records in Agda</a></li>
             <li class="right"><a href="../13/propositional_logic_in_agda.html">Propositional Logic in Agda</a> &raquo; </li>
         </ul><div class="timestamp postmeta">
             <span>15 January 2014</span>
@@ -110,10 +110,11 @@ Let us focus on a set with just some properties of the reals.</p>
 <div class="section" id="constructing-real-instances">
 <h2>Constructing Real Instances</h2>
 <p>First, we declare the constructors of our mock real type:</p>
-<div class="highlight-haskell"><pre>data ℝ : Set where
+<div class="highlight-haskell"><div class="highlight"><pre>data ℝ : Set where
   r0 : ℝ
   r1 : ℝ
-  _+_ : ℝ -&gt; ℝ -&gt; ℝ</pre>
+  _+_ : ℝ -&gt; ℝ -&gt; ℝ
+</pre></div>
 </div>
 <p>(In emacs, you get <span class="docutils literal"><span class="pre">ℝ</span></span> by typing <span class="docutils literal"><span class="pre">\br</span></span>.)</p>
 <p>This says that we can construct reals in three ways:
@@ -128,13 +129,14 @@ possibly along with substraction, division, negation, and so on.</p>
 How do we go about this?
 Well, for instance, we might like to say that <span class="docutils literal"><span class="pre">r</span> <span class="pre">+</span> <span class="pre">r0</span> <span class="pre">==</span> <span class="pre">r</span></span>.
 We need an equality operator:</p>
-<div class="highlight-haskell"><pre>data _==_ : ℝ -&gt; ℝ -&gt; Set where
+<div class="highlight-haskell"><div class="highlight"><pre>data _==_ : ℝ -&gt; ℝ -&gt; Set where
   AXrefl== : ∀ {r} -&gt; r == r
   AXsymm== : ∀ {r s} -&gt; r == s -&gt; s == r
   AXtrans== : ∀ {r s t} -&gt; r == s -&gt; s == t -&gt; r == t
   AX+0 : ∀ {r} -&gt; (r + r0) == r
   AXsymm+ : ∀ {r s} -&gt; (r + s) == (s + r)
-  AX+== : ∀ {r s t} -&gt; r == s -&gt; (r + t) == (s + t)</pre>
+  AX+== : ∀ {r s t} -&gt; r == s -&gt; (r + t) == (s + t)
+</pre></div>
 </div>
 <p>So, the equality operator <span class="docutils literal"><span class="pre">==</span></span> takes two real numbers,
 and returns a theorem, that is, an instance of <span class="docutils literal"><span class="pre">Set</span></span>.
@@ -150,13 +152,14 @@ In the code above,
 all of the constructors start with &#8220;AX&#8221; to emphasize that they are axioms.</p>
 <p>There is one bit of new syntax here: the forall operator &#8220;∀&#8221;.
 The code is fully equivalent to the following more verbose code:</p>
-<div class="highlight-haskell"><pre>data _==_ : ℝ -&gt; ℝ -&gt; Set where
+<div class="highlight-haskell"><div class="highlight"><pre>data _==_ : ℝ -&gt; ℝ -&gt; Set where
   AXrefl== : {r : ℝ} -&gt; r == r
   AXsymm== : {r s : ℝ} -&gt; r == s -&gt; s == r
   AXtrans== : {r s t : ℝ} -&gt; r == s -&gt; s == t -&gt; r == t
   AX+0 : {r : ℝ} -&gt; (r + r0) == r
   AXsymm+ : {r s : ℝ} -&gt; (r + s) == (s + r)
-  AX+== : {r s t : ℝ} -&gt; r == s -&gt; (r + t) == (s + t)</pre>
+  AX+== : {r s t : ℝ} -&gt; r == s -&gt; (r + t) == (s + t)
+</pre></div>
 </div>
 <p>So, <span class="docutils literal"><span class="pre">∀</span> <span class="pre">{r}</span></span> does two things:
 it declares <span class="docutils literal"><span class="pre">r</span></span> to be an optional argument
@@ -175,11 +178,12 @@ so in the expression <span class="docutils literal"><span class="pre">r</span> <
 This follows from  <span class="docutils literal"><span class="pre">AXsymm+</span></span> (<span class="docutils literal"><span class="pre">0</span> <span class="pre">+</span> <span class="pre">r</span> <span class="pre">=</span> <span class="pre">r</span> <span class="pre">+</span> <span class="pre">0</span></span>) and <span class="docutils literal"><span class="pre">AX+0</span></span> (<span class="docutils literal"><span class="pre">r</span> <span class="pre">+</span> <span class="pre">0</span> <span class="pre">=</span> <span class="pre">r</span></span>),
 by transitivity (<span class="docutils literal"><span class="pre">AXtrans</span> <span class="pre">==</span></span>), as well as symmetry (<span class="docutils literal"><span class="pre">AXsymm==</span></span>).</p>
 <p>In Agda, this can be written as follows:</p>
-<div class="highlight-haskell"><pre>THM0+ : {r : ℝ} -&gt; r == (r0 + r)
+<div class="highlight-haskell"><div class="highlight"><pre>THM0+ : {r : ℝ} -&gt; r == (r0 + r)
 THM0+ = AXsymm== (AXtrans== AXsymm+ AX+0)
 -- AXsymm+ AX+0   r0 + r == r + r0 and r + r0 == r
 -- AXtrans==      so r0 + r == r
--- AXsymm==       so r == r0 + r</pre>
+-- AXsymm==       so r == r0 + r
+</pre></div>
 </div>
 <p>Agda resolved all hidden parameters for us.
 This really simplified the notation.
@@ -202,20 +206,22 @@ but it surely is a nice feature of Agda.</p>
 <div class="section" id="another-theorem">
 <h2>Another Theorem</h2>
 <p>Here are some axioms for strict inequality:</p>
-<div class="highlight-haskell"><pre>data _&lt;_ : ℝ -&gt; ℝ -&gt; Set where
+<div class="highlight-haskell"><div class="highlight"><pre>data _&lt;_ : ℝ -&gt; ℝ -&gt; Set where
   AXtrans&lt;&lt;&lt; : ∀ {r s t} -&gt; r &lt; s -&gt; s &lt; t -&gt; r &lt; t
   AX&lt;=&lt; : ∀ {r s t} -&gt; r &lt; s -&gt; s == t -&gt; r &lt; t
   AX=&lt;&lt; : ∀ {r s t} -&gt; r == s -&gt; s &lt; t -&gt; r &lt; t
   AX0&lt;1 : r0 &lt; r1
-  AX+&lt;&lt; : ∀ {r s t} -&gt; r &lt; s -&gt; (r + t) &lt; (s + t)</pre>
+  AX+&lt;&lt; : ∀ {r s t} -&gt; r &lt; s -&gt; (r + t) &lt; (s + t)
+</pre></div>
 </div>
 <p>Let us prove that <span class="docutils literal"><span class="pre">r</span> <span class="pre">&lt;</span> <span class="pre">r</span> <span class="pre">+</span> <span class="pre">1</span></span>.</p>
-<div class="highlight-haskell"><pre>THM&lt;+1 : {r : ℝ} -&gt; r &lt; (r + r1)
+<div class="highlight-haskell"><div class="highlight"><pre>THM&lt;+1 : {r : ℝ} -&gt; r &lt; (r + r1)
 THM&lt;+1 = AX&lt;=&lt; (AX=&lt;&lt; THM0+ (AX+&lt;&lt; AX0&lt;1)) AXsymm+
 -- AX0&lt;1              0 &lt; 1
 -- AX&lt;+ %             so 0 + r &lt; 1 + r
 -- AX=&lt;&lt; THM0+ %      so r &lt; 1 + r
--- AX&lt;=&lt; % AXsymm+    so r &lt; r + 1</pre>
+-- AX&lt;=&lt; % AXsymm+    so r &lt; r + 1
+</pre></div>
 </div>
 <p>Again, to interpret these proofs, it is useful
 to first decipher the ordering in which the axioms and theorems
@@ -239,11 +245,13 @@ Let us try this in a next post.</p>
         
         </div>
     <div id="disqus_thread"></div><script type="text/javascript">    var disqus_shortname = "blowyourmindwithhaskell";    var disqus_identifier = "2014/01/15/a_first_attempt_at_real_numbers_in_agda";    disqus_thread();</script><noscript>Please enable JavaScript to view the    <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript><ul class="related clearfix">
-            <li class="left"></li>
+            <li class="left"> &laquo; <a href="../../03/25/using_records_in_agda.html">Using Records in Agda</a></li>
             <li class="right"><a href="../13/propositional_logic_in_agda.html">Propositional Logic in Agda</a> &raquo; </li>
         </ul></article><aside class="sidebar"><section><div class="widget">
     <h1>Recent Posts</h1>
     <ul><li>
+            <a href="../../03/25/using_records_in_agda.html">Using Records in Agda</a>
+        </li><li>
             <a href="#">A First Attempt at Real Numbers in Agda</a>
         </li><li>
             <a href="../13/propositional_logic_in_agda.html">Propositional Logic in Agda</a>
