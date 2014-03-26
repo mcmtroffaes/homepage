@@ -1,14 +1,8 @@
-Everything is a Function
-========================
-
-
-
-.. author:: default
-.. categories:: none
-.. tags:: none
-.. comments::
-
-.. highlight:: haskell
+---
+title: Everything is a Function
+author: Matthias C. M. Troffaes
+tags: haskell
+---
 
 Monads and The Magic Blob
 -------------------------
