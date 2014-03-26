@@ -21,7 +21,7 @@ Why functions? Because functions embody implication.
 Specifically, A implies B
 if every proof of A can be transformed into a proof of B.
 
-.. code-block:: haskell
+.. code-block:: agda
 
   _implies_ : Set -> Set -> Set
   A implies B = A -> B
@@ -41,7 +41,7 @@ How do we model logical 'and' and logical 'or'?
 Both operators take two theorems, and return a new theorem,
 so the type signatures should be as follows:
 
-.. code-block:: haskell
+.. code-block:: agda
 
   _and_ : (A B : Set) -> Set
   _or_ : (A B : Set) -> Set
@@ -59,7 +59,7 @@ Agda has no builtin implementation for tuples,
 and it also has no ``Either`` type, but it is easy to roll our own.
 For example:
 
-.. code-block:: haskell
+.. code-block:: agda
 
   data Pair (A B : Set) : Set where
     _,_ : A -> B -> Pair A B
@@ -96,7 +96,7 @@ and then translate it into Agda code.
 Clearly, if ``A and B`` holds, then ``A`` holds.
 But if ``A`` holds, then ``A or B`` holds.
 
-.. code-block:: haskell
+.. code-block:: agda
 
   lemma : (A B : Set) -> (A and B) -> A
   lemma A B (a , b) = a
@@ -123,7 +123,7 @@ In a sense, **constructors are the axioms of our theory**.
 To make this more formal, we could simply get rid of ``Pair`` and ``Either``,
 and directly write:
 
-.. code-block:: haskell
+.. code-block:: agda
 
   data _and_ (A B : Set) : Set where
     _,_ : A -> B -> A and B
@@ -138,7 +138,7 @@ any arguments between curly braces can be omitted
 if they can be unambiguously inferred.
 With this in mind, the proof becomes a little bit more readable:
 
-.. code-block:: haskell
+.. code-block:: agda
 
   lemma : {A B : Set} -> (A and B) -> A
   lemma (a , b) = a
@@ -151,7 +151,7 @@ With this in mind, the proof becomes a little bit more readable:
 Finally, note that we could also have integrated
 the lemma into the proof of the theorem:
 
-.. code-block:: haskell
+.. code-block:: agda
 
   theorem : {A B : Set} -> (A and B) -> (A or B)
   theorem (a , b) = left a
@@ -161,7 +161,7 @@ Using Pattern Matching to Prove Distinct Cases
 
 Let us prove another theorem:
 
-.. code-block:: haskell
+.. code-block:: agda
 
   distributivity : {A B C : Set} -> (A and (B or C)) -> ((A and B) or (A and C))
   distributivity (a , left b) = left (a , b)

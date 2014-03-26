@@ -53,7 +53,7 @@ Constructing Real Instances
 
 First, we declare the constructors of our mock real type:
 
-.. code-block:: haskell
+.. code-block:: agda
 
   data ℝ : Set where
     r0 : ℝ
@@ -76,7 +76,7 @@ How do we go about this?
 Well, for instance, we might like to say that ``r + r0 == r``.
 We need an equality operator: 
 
-.. code-block:: haskell
+.. code-block:: agda
 
   data _==_ : ℝ -> ℝ -> Set where
     AXrefl== : ∀ {r} -> r == r
@@ -102,7 +102,7 @@ all of the constructors start with "AX" to emphasize that they are axioms.
 There is one bit of new syntax here: the forall operator "∀".
 The code is fully equivalent to the following more verbose code:
 
-.. code-block:: haskell
+.. code-block:: agda
 
   data _==_ : ℝ -> ℝ -> Set where
     AXrefl== : {r : ℝ} -> r == r
@@ -133,7 +133,7 @@ by transitivity (``AXtrans ==``), as well as symmetry (``AXsymm==``).
 
 In Agda, this can be written as follows:
 
-.. code-block:: haskell
+.. code-block:: agda
 
   THM0+ : {r : ℝ} -> r == (r0 + r)
   THM0+ = AXsymm== (AXtrans== AXsymm+ AX+0)
@@ -145,7 +145,7 @@ Agda resolved all hidden parameters for us.
 This really simplified the notation.
 Here is how the same proof looks like with all parameters specified:
 
-.. code-block:: haskell
+.. code-block:: agda
 
   THM0+ {r} = AXsymm== {r0 + r} {r} ((AXtrans== {r0 + r} {r + r0} {r}) (AXsymm+ {r0} {r}) (AX+0 {r}))
 
@@ -167,7 +167,7 @@ Another Theorem
 
 Here are some axioms for strict inequality:
 
-.. code-block:: haskell
+.. code-block:: agda
 
   data _<_ : ℝ -> ℝ -> Set where
     AXtrans<<< : ∀ {r s t} -> r < s -> s < t -> r < t
@@ -178,7 +178,7 @@ Here are some axioms for strict inequality:
 
 Let us prove that ``r < r + 1``.
 
-.. code-block:: haskell
+.. code-block:: agda
 
   THM<+1 : {r : ℝ} -> r < (r + r1)
   THM<+1 = AX<=< (AX=<< THM0+ (AX+<< AX0<1)) AXsymm+

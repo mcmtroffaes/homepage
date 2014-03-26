@@ -54,7 +54,7 @@ There is however one crucial difference:
 in Agda, ``Set`` is not an instance of ``Set``,
 whereas ``type`` is an instance of ``type`` in Python:
 
-.. code-block:: haskell
+.. code-block:: agda
 
    x : Set
    x = Set
@@ -69,7 +69,7 @@ will fail to load in Agda, but
 runs just fine in Python.
 Instead, in Agda, ``Set`` is an instance of ``Set1``:
 
-.. code-block:: haskell
+.. code-block:: agda
 
   x : Set1
   x = Set
@@ -91,7 +91,7 @@ What are they?
 Informally, they are types which depend on a value,
 like templates in C++. Here is an example:
 
-.. code-block:: haskell
+.. code-block:: agda
 
   id : (A : Set) -> A -> A
   id _ a = a
@@ -130,7 +130,7 @@ if they can be proven, that is, if the corresponding type has an instance.
 So, we specify that a statement is true simply by stating that it has a value.
 For example, we can declare the following algebraic data types: [#]_
 
-.. code-block:: haskell
+.. code-block:: agda
 
   data False : Set where
 
@@ -157,7 +157,7 @@ which is an instance of the theorem's type.
 How do we produce a new statement from two existing statements?
 We use a function:
 
-.. code-block:: haskell
+.. code-block:: agda
 
   _implies_ : Set -> Set -> Set
 
@@ -165,7 +165,7 @@ We use a function:
 So, the function ``implies`` takes as arguments two statements or theorems,
 and uses them to produce a new statement. What statement?
 
-.. code-block:: haskell
+.. code-block:: agda
 
   A implies B = A -> B
 
@@ -177,7 +177,7 @@ that is if
 
 We can now prove a first theorem:
 
-.. code-block:: haskell
+.. code-block:: agda
 
   thmimpliesisreflexive : (A : Set) -> (A implies A)
   thmimpliesisreflexive A = \a -> a
@@ -195,7 +195,7 @@ Obviously, we can simply return the same proof ``a`` again.
 
 A more tricky case:
 
-.. code-block:: haskell
+.. code-block:: agda
 
   thmfimpt : (False implies True)
   thmfimpt ()
@@ -209,7 +209,7 @@ In Agda, we say that a function is empty by writing empty brackets.
 
 Can we do negation? Easily, in terms of implication:
 
-.. code-block:: haskell
+.. code-block:: agda
 
   not : Set -> Set
   not A = (A implies False)
@@ -232,7 +232,7 @@ which would contradict the type declaration of ``False``.
 
 Here is an example of proving a negation:
 
-.. code-block:: haskell
+.. code-block:: agda
 
   thmntimpf : not (True implies False)
   thmntimpf timpf = timpf tt
@@ -246,14 +246,14 @@ establishing the contradiction.
 
 Let us finish with proving something slightly less trivial:
 
-.. code-block:: haskell
+.. code-block:: agda
 
   thmcontraposition : (A B : Set) -> ((A implies B) implies ((not B) implies (not A)))
   thmcontraposition A B aimpb nb a = nb (aimpb a)
 
 How do we arrive at this proof? In emacs, write the proof definition as
 
-.. code-block:: haskell
+.. code-block:: agda
 
   thmcontraposition A B = {! !}
 
