@@ -24,9 +24,9 @@ module Equivalence where
   theorem-==-trans : ∀ {n m k} -> n == m -> m == k -> n == k
   theorem-==-trans natrefl natrefl = natrefl
 
+  theorem-==-is-equivalence : IsEquivalence _==_
   theorem-==-is-equivalence
-    : IsEquivalence _==_
-  theorem-==-is-equivalence = isEquivalence natrefl theorem-==-symm theorem-==-trans
+    = isEquivalence natrefl theorem-==-symm theorem-==-trans
 
   data ⊥ : Set where
   ¬_ : Set -> Set

@@ -54,7 +54,7 @@ Parametric Data Types in Overdrive
 ----------------------------------
 
 Well, we could specify the relation itself as a parameter,
-along with the axioms it needs to satisfy.
+along with proofs of the properties it needs to satisfy.
 
 Here is one way:
 
@@ -63,12 +63,13 @@ Here is one way:
   data IsEquivalence
     {M : Set}
     (_≈_ : M -> M -> Set)
-    (refl : ∀ {r} -> r ≈ r)
-    (symm : ∀ {r s} -> r ≈ s -> s ≈ r)
-    (trans : ∀ {r s t} -> r ≈ s -> s ≈ t -> r ≈ t)
     : Set where
 
-    isEquivalence : IsEquivalence _≈_ refl symm trans
+    isEquivalence :
+      (refl : ∀ {r} -> r ≈ r)
+      -> (symm : ∀ {r s} -> r ≈ s -> s ≈ r)
+      -> (trans : ∀ {r s t} -> r ≈ s -> s ≈ t -> r ≈ t)
+      -> IsEquivalence _≈_
 
 So, if we can create an instance of the type ``IsEquivalence``
 for some relation ``_≈_``, then ``_≈_`` is an equivalence relation.
@@ -89,9 +90,9 @@ Here is an example of how we might use ``IsEquivalence``:
   theorem-==-trans : ∀ {n m k} -> n == m -> m == k -> n == k
   theorem-==-trans natrefl natrefl = natrefl
 
+  theorem-==-is-equivalence : IsEquivalence _==_
   theorem-==-is-equivalence
-    : IsEquivalence _==_ natrefl theorem-==-symm theorem-==-trans
-    theorem-==-is-equivalence = isEquivalence
+    = isEquivalence natrefl theorem-==-symm theorem-==-trans
 
 Note that in the above example,
 only reflexivity had to be specified as an axiom of ``_==_``, and
@@ -129,23 +130,19 @@ For example:
   theorem-equivalence-simple :
     {M : Set}
     -> {_≈_ : M -> M -> Set}
-    -> {refl : ∀ {r} -> r ≈ r}
-    -> {symm : ∀ {r s} -> r ≈ s -> s ≈ r}
-    -> {trans : ∀ {r s t} -> r ≈ s -> s ≈ t -> r ≈ t}
-    -> IsEquivalence _≈_ refl symm trans
+    -> IsEquivalence _≈_
     -> ∀ {r s t} -> r ≈ s -> ¬ (s ≈ t) -> ¬ (r ≈ t)
   theorem-equivalence-simple
-    {_} {_≈_} {_} {symm} {trans} _
+    (isEquivalence refl symm trans)
     r≈s ¬s≈t r≈t = ¬s≈t (trans (symm r≈s) r≈t)
 
 In order to specify an instance of ``IsEquivalence``
 in the premises of the theorem,
-we need to specify all axioms first anyway.
-In other words, we must replicate the type signature of all axioms
-in every theorem that needs ``IsEquivalence``.
+we can now use our new data type
+instead of having to specify proofs of all axioms.
 
-Nevertheless,
-it does provide some simplification when we have to apply the theorem,
+Similarly, it provides with some simplification
+when we have to apply the theorem,
 say, to prove that it holds for natural numbers:
 
 .. code-block:: haskell
@@ -158,6 +155,9 @@ say, to prove that it holds for natural numbers:
 Record Syntax
 -------------
 
+One downside is that pattern matching will become a bit tedious
+if we have many properties.
+It can be very easy to get the ordering wrong.
 A logical improvement would be to provide named parameters.
 This leads us to record syntax:
 
@@ -174,10 +174,11 @@ This leads us to record syntax:
 
 Note the differences from our earlier data type definition:
 (i) we write "record" instead of "data",
-(ii) we have moved some of the type parameters into so-called *fields*
-using the ``field`` keyword,
-(iii) we no longer have to specify a constructor (in fact, we still
-could specify a specifically named constructor if we wanted to).
+(ii) we have moved the constructor's arguments into so-called fields,
+(iii) we no longer have to specify a constructor.
+(In fact, we still could specify a specifically named constructor
+if we wanted to, which would then work exactly as the constructor
+of our earlier data type, i.e. it might be useful for patter matching.)
 
 The theorem now becomes:
 
@@ -193,13 +194,9 @@ The theorem now becomes:
 So, records are constructed with the ``record {...}`` syntax.
 Agda inferred its type from the theorem's type signature.
 Parameters that are fields can be passed to this constructor
-in a named fashion. In particular, the ordering does not matter.
+in a named fashion. In particular, the ordering does not matter,
+and the intention of the code becomes much clearer.
 
-Now, the really good news:
-**the type of fields becomes embedded into the type of the record**.
-So, the type signature of our earlier simple theorem
-no longer needs to specify the type of all fields:
-they are no longer type parameters!
 There is also special syntax for accessing any particular field of a record:
 ``<RecordType>.<fieldname> <instance>``.
 Our theorem thus becomes:
@@ -212,8 +209,10 @@ Our theorem thus becomes:
   theorem-equivalence2-simple equiv r≈s ¬s≈t r≈t
     = ¬s≈t ((IsEquivalence2.trans equiv) ((IsEquivalence2.symm equiv) r≈s) r≈t)
 
-This is much simpler, and much more readable, than our earlier theorem.
-The syntax for field access are still somewhat annoying.
+This is less error prone than our earlier theorem,
+because we no longer rely on the particular ordering
+of the constructor arguments: we no longer rely on pattern matching.
+The syntax for field access is still somewhat verbose.
 Agda provides us with another trick to simplify this:
 for every instance of a record, ``<RecordType> <instance>``
 corresponds to a module which provides direct access
