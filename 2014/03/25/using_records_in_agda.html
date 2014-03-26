@@ -111,17 +111,18 @@ is an equivalence relation?</p>
 <div class="section" id="parametric-data-types-in-overdrive">
 <h2>Parametric Data Types in Overdrive</h2>
 <p>Well, we could specify the relation itself as a parameter,
-along with the axioms it needs to satisfy.</p>
+along with proofs of the properties it needs to satisfy.</p>
 <p>Here is one way:</p>
 <div class="highlight-haskell"><div class="highlight"><pre>data IsEquivalence
   {M : Set}
   (_≈_ : M -&gt; M -&gt; Set)
-  (refl : ∀ {r} -&gt; r ≈ r)
-  (symm : ∀ {r s} -&gt; r ≈ s -&gt; s ≈ r)
-  (trans : ∀ {r s t} -&gt; r ≈ s -&gt; s ≈ t -&gt; r ≈ t)
   : Set where
 
-  isEquivalence : IsEquivalence _≈_ refl symm trans
+  isEquivalence :
+    (refl : ∀ {r} -&gt; r ≈ r)
+    -&gt; (symm : ∀ {r s} -&gt; r ≈ s -&gt; s ≈ r)
+    -&gt; (trans : ∀ {r s t} -&gt; r ≈ s -&gt; s ≈ t -&gt; r ≈ t)
+    -&gt; IsEquivalence _≈_
 </pre></div>
 </div>
 <p>So, if we can create an instance of the type <span class="docutils literal"><span class="pre">IsEquivalence</span></span>
@@ -140,9 +141,9 @@ theorem-==-symm natrefl = natrefl
 theorem-==-trans : ∀ {n m k} -&gt; n == m -&gt; m == k -&gt; n == k
 theorem-==-trans natrefl natrefl = natrefl
 
+theorem-==-is-equivalence : IsEquivalence _==_
 theorem-==-is-equivalence
-  : IsEquivalence _==_ natrefl theorem-==-symm theorem-==-trans
-  theorem-==-is-equivalence = isEquivalence
+  = isEquivalence natrefl theorem-==-symm theorem-==-trans
 </pre></div>
 </div>
 <p>Note that in the above example,
@@ -175,23 +176,19 @@ For example:</p>
 theorem-equivalence-simple :
   {M : Set}
   -&gt; {_≈_ : M -&gt; M -&gt; Set}
-  -&gt; {refl : ∀ {r} -&gt; r ≈ r}
-  -&gt; {symm : ∀ {r s} -&gt; r ≈ s -&gt; s ≈ r}
-  -&gt; {trans : ∀ {r s t} -&gt; r ≈ s -&gt; s ≈ t -&gt; r ≈ t}
-  -&gt; IsEquivalence _≈_ refl symm trans
+  -&gt; IsEquivalence _≈_
   -&gt; ∀ {r s t} -&gt; r ≈ s -&gt; ¬ (s ≈ t) -&gt; ¬ (r ≈ t)
 theorem-equivalence-simple
-  {_} {_≈_} {_} {symm} {trans} _
+  (isEquivalence refl symm trans)
   r≈s ¬s≈t r≈t = ¬s≈t (trans (symm r≈s) r≈t)
 </pre></div>
 </div>
 <p>In order to specify an instance of <span class="docutils literal"><span class="pre">IsEquivalence</span></span>
 in the premises of the theorem,
-we need to specify all axioms first anyway.
-In other words, we must replicate the type signature of all axioms
-in every theorem that needs <span class="docutils literal"><span class="pre">IsEquivalence</span></span>.</p>
-<p>Nevertheless,
-it does provide some simplification when we have to apply the theorem,
+we can now use our new data type
+instead of having to specify proofs of all axioms.</p>
+<p>Similarly, it provides with some simplification
+when we have to apply the theorem,
 say, to prove that it holds for natural numbers:</p>
 <div class="highlight-haskell"><div class="highlight"><pre>theorem-==-equivalence-simple :
   ∀ {r s t} -&gt; r == s -&gt; ¬ (s == t) -&gt; ¬ (r == t)
@@ -202,7 +199,10 @@ theorem-==-equivalence-simple
 </div>
 <div class="section" id="record-syntax">
 <h2>Record Syntax</h2>
-<p>A logical improvement would be to provide named parameters.
+<p>One downside is that pattern matching will become a bit tedious
+if we have many properties.
+It can be very easy to get the ordering wrong.
+A logical improvement would be to provide named parameters.
 This leads us to record syntax:</p>
 <div class="highlight-haskell"><div class="highlight"><pre>record IsEquivalence2
   {M : Set}
@@ -216,10 +216,11 @@ This leads us to record syntax:</p>
 </div>
 <p>Note the differences from our earlier data type definition:
 (i) we write &#8220;record&#8221; instead of &#8220;data&#8221;,
-(ii) we have moved some of the type parameters into so-called <em>fields</em>
-using the <span class="docutils literal"><span class="pre">field</span></span> keyword,
-(iii) we no longer have to specify a constructor (in fact, we still
-could specify a specifically named constructor if we wanted to).</p>
+(ii) we have moved the constructor&#8217;s arguments into so-called fields,
+(iii) we no longer have to specify a constructor.
+(In fact, we still could specify a specifically named constructor
+if we wanted to, which would then work exactly as the constructor
+of our earlier data type, i.e. it might be useful for patter matching.)</p>
 <p>The theorem now becomes:</p>
 <div class="highlight-haskell"><div class="highlight"><pre><span class="nf">theorem</span><span class="o">-==-</span><span class="n">is</span><span class="o">-</span><span class="n">equivalence2</span> <span class="kt">:</span> <span class="kt">IsEquivalence2</span> <span class="kr">_</span><span class="o">==</span><span class="kr">_</span>
 <span class="nf">theorem</span><span class="o">-==-</span><span class="n">is</span><span class="o">-</span><span class="n">equivalence2</span> <span class="ow">=</span> <span class="n">record</span> <span class="p">{</span>
@@ -232,13 +233,9 @@ could specify a specifically named constructor if we wanted to).</p>
 <p>So, records are constructed with the <span class="docutils literal"><span class="pre">record</span> <span class="pre">{...}</span></span> syntax.
 Agda inferred its type from the theorem&#8217;s type signature.
 Parameters that are fields can be passed to this constructor
-in a named fashion. In particular, the ordering does not matter.</p>
-<p>Now, the really good news:
-<strong>the type of fields becomes embedded into the type of the record</strong>.
-So, the type signature of our earlier simple theorem
-no longer needs to specify the type of all fields:
-they are no longer type parameters!
-There is also special syntax for accessing any particular field of a record:
+in a named fashion. In particular, the ordering does not matter,
+and the intention of the code becomes much clearer.</p>
+<p>There is also special syntax for accessing any particular field of a record:
 <span class="docutils literal"><span class="pre">&lt;RecordType&gt;.&lt;fieldname&gt;</span> <span class="pre">&lt;instance&gt;</span></span>.
 Our theorem thus becomes:</p>
 <div class="highlight-haskell"><div class="highlight"><pre>theorem-equivalence2-simple :
@@ -248,8 +245,10 @@ theorem-equivalence2-simple equiv r≈s ¬s≈t r≈t
   = ¬s≈t ((IsEquivalence2.trans equiv) ((IsEquivalence2.symm equiv) r≈s) r≈t)
 </pre></div>
 </div>
-<p>This is much simpler, and much more readable, than our earlier theorem.
-The syntax for field access are still somewhat annoying.
+<p>This is less error prone than our earlier theorem,
+because we no longer rely on the particular ordering
+of the constructor arguments: we no longer rely on pattern matching.
+The syntax for field access is still somewhat verbose.
 Agda provides us with another trick to simplify this:
 for every instance of a record, <span class="docutils literal"><span class="pre">&lt;RecordType&gt;</span> <span class="pre">&lt;instance&gt;</span></span>
 corresponds to a module which provides direct access
