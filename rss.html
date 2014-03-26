@@ -28,18 +28,18 @@ Glorified in two ways:
 In this post, we will only discuss the first point, fields.</p>
 <p>For example, let us revisit the mock real type that we declared in our
 earlier post:</p>
-<div class="highlight-haskell"><div class="highlight"><pre>data ℝ : Set where
-  r0 : ℝ
-  r1 : ℝ
-  _+_ : ℝ -&gt; ℝ -&gt; ℝ
+<div class="highlight-agda"><div class="highlight"><pre><span class="kr">data</span> ℝ <span class="ow">:</span> <span class="kt">Set</span> <span class="kr">where</span>
+  <span class="nf">r0</span> <span class="ow">:</span> ℝ
+  <span class="nf">r1</span> <span class="ow">:</span> ℝ
+  <span class="nf">_+_</span> <span class="ow">:</span> ℝ <span class="ow">-&gt;</span> ℝ <span class="ow">-&gt;</span> ℝ
 
-data _==_ : ℝ -&gt; ℝ -&gt; Set where
-  AXrefl== : ∀ {r} -&gt; r == r
-  AXsymm== : ∀ {r s} -&gt; r == s -&gt; s == r
-  AXtrans== : ∀ {r s t} -&gt; r == s -&gt; s == t -&gt; r == t
-  AX+0 : ∀ {r} -&gt; (r + r0) == r
-  AXsymm+ : ∀ {r s} -&gt; (r + s) == (s + r)
-  AX+== : ∀ {r s t} -&gt; r == s -&gt; (r + t) == (s + t)
+<span class="kr">data</span> _==_ <span class="ow">:</span> ℝ <span class="ow">-&gt;</span> ℝ <span class="ow">-&gt;</span> <span class="kt">Set</span> <span class="kr">where</span>
+  <span class="nf">AXrefl==</span> <span class="ow">:</span> <span class="ow">∀</span> <span class="o">{</span>r<span class="o">}</span> <span class="ow">-&gt;</span> r <span class="ow">==</span> r
+  <span class="nf">AXsymm==</span> <span class="ow">:</span> <span class="ow">∀</span> <span class="o">{</span>r s<span class="o">}</span> <span class="ow">-&gt;</span> r <span class="ow">==</span> s <span class="ow">-&gt;</span> s <span class="ow">==</span> r
+  <span class="nf">AXtrans==</span> <span class="ow">:</span> <span class="ow">∀</span> <span class="o">{</span>r s t<span class="o">}</span> <span class="ow">-&gt;</span> r <span class="ow">==</span> s <span class="ow">-&gt;</span> s <span class="ow">==</span> t <span class="ow">-&gt;</span> r <span class="ow">==</span> t
+  <span class="nf">AX+0</span> <span class="ow">:</span> <span class="ow">∀</span> <span class="o">{</span>r<span class="o">}</span> <span class="ow">-&gt;</span> <span class="o">(</span>r + r0<span class="o">)</span> <span class="ow">==</span> r
+  <span class="nf">AXsymm+</span> <span class="ow">:</span> <span class="ow">∀</span> <span class="o">{</span>r s<span class="o">}</span> <span class="ow">-&gt;</span> <span class="o">(</span>r + s<span class="o">)</span> <span class="ow">==</span> <span class="o">(</span>s + r<span class="o">)</span>
+  <span class="nf">AX+==</span> <span class="ow">:</span> <span class="ow">∀</span> <span class="o">{</span>r s t<span class="o">}</span> <span class="ow">-&gt;</span> r <span class="ow">==</span> s <span class="ow">-&gt;</span> <span class="o">(</span>r + t<span class="o">)</span> <span class="ow">==</span> <span class="o">(</span>s + t<span class="o">)</span>
 </pre></div>
 </div>
 <p>How can we make this nicer?
@@ -57,37 +57,37 @@ is an equivalence relation?</p>
 <p>Well, we could specify the relation itself as a parameter,
 along with proofs of the properties it needs to satisfy.</p>
 <p>Here is one way:</p>
-<div class="highlight-haskell"><div class="highlight"><pre>data IsEquivalence
-  {M : Set}
-  (_≈_ : M -&gt; M -&gt; Set)
-  : Set where
+<div class="highlight-agda"><div class="highlight"><pre><span class="kr">data</span> IsEquivalence
+  <span class="o">{</span>M <span class="ow">:</span> <span class="kt">Set</span><span class="o">}</span>
+  <span class="o">(</span>_≈_ <span class="ow">:</span> M <span class="ow">-&gt;</span> M <span class="ow">-&gt;</span> <span class="kt">Set</span><span class="o">)</span>
+  <span class="ow">:</span> <span class="kt">Set</span> <span class="kr">where</span>
 
-  isEquivalence :
-    (refl : ∀ {r} -&gt; r ≈ r)
-    -&gt; (symm : ∀ {r s} -&gt; r ≈ s -&gt; s ≈ r)
-    -&gt; (trans : ∀ {r s t} -&gt; r ≈ s -&gt; s ≈ t -&gt; r ≈ t)
-    -&gt; IsEquivalence _≈_
+  <span class="nf">isEquivalence</span> <span class="ow">:</span>
+    <span class="o">(</span>refl <span class="ow">:</span> <span class="ow">∀</span> <span class="o">{</span>r<span class="o">}</span> <span class="ow">-&gt;</span> r ≈ r<span class="o">)</span>
+    <span class="ow">-&gt;</span> <span class="o">(</span>symm <span class="ow">:</span> <span class="ow">∀</span> <span class="o">{</span>r s<span class="o">}</span> <span class="ow">-&gt;</span> r ≈ s <span class="ow">-&gt;</span> s ≈ r<span class="o">)</span>
+    <span class="ow">-&gt;</span> <span class="o">(</span>trans <span class="ow">:</span> <span class="ow">∀</span> <span class="o">{</span>r s t<span class="o">}</span> <span class="ow">-&gt;</span> r ≈ s <span class="ow">-&gt;</span> s ≈ t <span class="ow">-&gt;</span> r ≈ t<span class="o">)</span>
+    <span class="ow">-&gt;</span> IsEquivalence _≈_
 </pre></div>
 </div>
 <p>So, if we can create an instance of the type <span class="docutils literal"><span class="pre">IsEquivalence</span></span>
 for some relation <span class="docutils literal"><span class="pre">_≈_</span></span>, then <span class="docutils literal"><span class="pre">_≈_</span></span> is an equivalence relation.
 Here is an example of how we might use <span class="docutils literal"><span class="pre">IsEquivalence</span></span>:</p>
-<div class="highlight-haskell"><div class="highlight"><pre>data ℕ : Set where
-  zero : ℕ
-  suc : ℕ -&gt; ℕ
+<div class="highlight-agda"><div class="highlight"><pre><span class="kr">data</span> ℕ <span class="ow">:</span> <span class="kt">Set</span> <span class="kr">where</span>
+  <span class="nf">zero</span> <span class="ow">:</span> ℕ
+  <span class="nf">suc</span> <span class="ow">:</span> ℕ <span class="ow">-&gt;</span> ℕ
 
-data _==_ : ℕ -&gt; ℕ -&gt; Set where
-  natrefl : ∀ {n} -&gt; n == n
+<span class="kr">data</span> _==_ <span class="ow">:</span> ℕ <span class="ow">-&gt;</span> ℕ <span class="ow">-&gt;</span> <span class="kt">Set</span> <span class="kr">where</span>
+  <span class="nf">natrefl</span> <span class="ow">:</span> <span class="ow">∀</span> <span class="o">{</span>n<span class="o">}</span> <span class="ow">-&gt;</span> n <span class="ow">==</span> n
 
-theorem-==-symm : ∀ {n m} -&gt; n == m -&gt; m == n
-theorem-==-symm natrefl = natrefl
+<span class="nf">theorem-==-symm</span> <span class="ow">:</span> <span class="ow">∀</span> <span class="o">{</span>n m<span class="o">}</span> <span class="ow">-&gt;</span> n <span class="ow">==</span> m <span class="ow">-&gt;</span> m <span class="ow">==</span> n
+theorem-==-symm natrefl <span class="ow">=</span> natrefl
 
-theorem-==-trans : ∀ {n m k} -&gt; n == m -&gt; m == k -&gt; n == k
-theorem-==-trans natrefl natrefl = natrefl
+<span class="nf">theorem-==-trans</span> <span class="ow">:</span> <span class="ow">∀</span> <span class="o">{</span>n m k<span class="o">}</span> <span class="ow">-&gt;</span> n <span class="ow">==</span> m <span class="ow">-&gt;</span> m <span class="ow">==</span> k <span class="ow">-&gt;</span> n <span class="ow">==</span> k
+theorem-==-trans natrefl natrefl <span class="ow">=</span> natrefl
 
-theorem-==-is-equivalence : IsEquivalence _==_
+<span class="nf">theorem-==-is-equivalence</span> <span class="ow">:</span> IsEquivalence _==_
 theorem-==-is-equivalence
-  = isEquivalence natrefl theorem-==-symm theorem-==-trans
+  <span class="ow">=</span> isEquivalence natrefl theorem-==-symm theorem-==-trans
 </pre></div>
 </div>
 <p>Note that in the above example,
@@ -106,17 +106,17 @@ we might get the ordering of arguments wrong.</p>
 <p>The same issue occurs when we want to use <span class="docutils literal"><span class="pre">IsEquivalence</span></span>
 as a premise of a theorem.
 For example:</p>
-<div class="highlight-haskell"><div class="highlight"><pre>data ⊥ : Set where
-¬_ : Set -&gt; Set
-¬ A = A -&gt; ⊥
-theorem-equivalence-simple :
-  {M : Set}
-  -&gt; {_≈_ : M -&gt; M -&gt; Set}
-  -&gt; IsEquivalence _≈_
-  -&gt; ∀ {r s t} -&gt; r ≈ s -&gt; ¬ (s ≈ t) -&gt; ¬ (r ≈ t)
+<div class="highlight-agda"><div class="highlight"><pre><span class="kr">data</span> ⊥ <span class="ow">:</span> <span class="kt">Set</span> <span class="kr">where</span>
+<span class="nf">¬_</span> <span class="ow">:</span> <span class="kt">Set</span> <span class="ow">-&gt;</span> <span class="kt">Set</span>
+¬ A <span class="ow">=</span> A <span class="ow">-&gt;</span> ⊥
+<span class="nf">theorem-equivalence-simple</span> <span class="ow">:</span>
+  <span class="o">{</span>M <span class="ow">:</span> <span class="kt">Set</span><span class="o">}</span>
+  <span class="ow">-&gt;</span> <span class="o">{</span>_≈_ <span class="ow">:</span> M <span class="ow">-&gt;</span> M <span class="ow">-&gt;</span> <span class="kt">Set</span><span class="o">}</span>
+  <span class="ow">-&gt;</span> IsEquivalence _≈_
+  <span class="ow">-&gt;</span> <span class="ow">∀</span> <span class="o">{</span>r s t<span class="o">}</span> <span class="ow">-&gt;</span> r ≈ s <span class="ow">-&gt;</span> ¬ <span class="o">(</span>s ≈ t<span class="o">)</span> <span class="ow">-&gt;</span> ¬ <span class="o">(</span>r ≈ t<span class="o">)</span>
 theorem-equivalence-simple
-  (isEquivalence refl symm trans)
-  r≈s ¬s≈t r≈t = ¬s≈t (trans (symm r≈s) r≈t)
+  <span class="o">(</span>isEquivalence refl symm trans<span class="o">)</span>
+  r≈s ¬s≈t r≈t <span class="ow">=</span> ¬s≈t <span class="o">(</span>trans <span class="o">(</span>symm r≈s<span class="o">)</span> r≈t<span class="o">)</span>
 </pre></div>
 </div>
 <p>In order to specify an instance of <span class="docutils literal"><span class="pre">IsEquivalence</span></span>
@@ -126,10 +126,10 @@ extracting the proofs of each of the properties by pattern matching.</p>
 <p>When we have to apply the theorem,
 say, to prove that it holds for natural numbers,
 things become particularly simple:</p>
-<div class="highlight-haskell"><div class="highlight"><pre>theorem-==-equivalence-simple :
-  ∀ {r s t} -&gt; r == s -&gt; ¬ (s == t) -&gt; ¬ (r == t)
+<div class="highlight-agda"><div class="highlight"><pre><span class="nf">theorem-==-equivalence-simple</span> <span class="ow">:</span>
+  <span class="ow">∀</span> <span class="o">{</span>r s t<span class="o">}</span> <span class="ow">-&gt;</span> r <span class="ow">==</span> s <span class="ow">-&gt;</span> ¬ <span class="o">(</span>s <span class="ow">==</span> t<span class="o">)</span> <span class="ow">-&gt;</span> ¬ <span class="o">(</span>r <span class="ow">==</span> t<span class="o">)</span>
 theorem-==-equivalence-simple
-  = theorem-equivalence-simple theorem-==-is-equivalence
+  <span class="ow">=</span> theorem-equivalence-simple theorem-==-is-equivalence
 </pre></div>
 </div>
 </div>
@@ -141,14 +141,14 @@ if we have many properties.
 It can be very easy to get the ordering wrong.
 A logical improvement would be to provide named parameters.
 This leads us to record syntax:</p>
-<div class="highlight-haskell"><div class="highlight"><pre>record IsEquivalence2
-  {M : Set}
-  (_≈_ : M -&gt; M -&gt; Set)
-  : Set where
-  field
-    refl : ∀ {r} -&gt; r ≈ r
-    symm : ∀ {r s} -&gt; r ≈ s -&gt; s ≈ r
-    trans : ∀ {r s t} -&gt; r ≈ s -&gt; s ≈ t -&gt; r ≈ t
+<div class="highlight-agda"><div class="highlight"><pre><span class="kr">record</span> IsEquivalence2
+  <span class="o">{</span>M <span class="ow">:</span> <span class="kt">Set</span><span class="o">}</span>
+  <span class="o">(</span>_≈_ <span class="ow">:</span> M <span class="ow">-&gt;</span> M <span class="ow">-&gt;</span> <span class="kt">Set</span><span class="o">)</span>
+  <span class="ow">:</span> <span class="kt">Set</span> <span class="kr">where</span>
+  <span class="kr">field</span>
+    <span class="nf">refl</span> <span class="ow">:</span> <span class="ow">∀</span> <span class="o">{</span>r<span class="o">}</span> <span class="ow">-&gt;</span> r ≈ r
+    <span class="nf">symm</span> <span class="ow">:</span> <span class="ow">∀</span> <span class="o">{</span>r s<span class="o">}</span> <span class="ow">-&gt;</span> r ≈ s <span class="ow">-&gt;</span> s ≈ r
+    <span class="nf">trans</span> <span class="ow">:</span> <span class="ow">∀</span> <span class="o">{</span>r s t<span class="o">}</span> <span class="ow">-&gt;</span> r ≈ s <span class="ow">-&gt;</span> s ≈ t <span class="ow">-&gt;</span> r ≈ t
 </pre></div>
 </div>
 <p>Note the differences from our earlier data type definition:
@@ -159,12 +159,12 @@ This leads us to record syntax:</p>
 if we wanted to, which would then work exactly as the constructor
 of our earlier data type, i.e. it might be useful for patter matching.)</p>
 <p>The theorem now becomes:</p>
-<div class="highlight-haskell"><div class="highlight"><pre><span class="nf">theorem</span><span class="o">-==-</span><span class="n">is</span><span class="o">-</span><span class="n">equivalence2</span> <span class="kt">:</span> <span class="kt">IsEquivalence2</span> <span class="kr">_</span><span class="o">==</span><span class="kr">_</span>
-<span class="nf">theorem</span><span class="o">-==-</span><span class="n">is</span><span class="o">-</span><span class="n">equivalence2</span> <span class="ow">=</span> <span class="n">record</span> <span class="p">{</span>
-  <span class="n">refl</span> <span class="ow">=</span> <span class="n">natrefl</span><span class="p">;</span>
-  <span class="n">symm</span> <span class="ow">=</span> <span class="n">theorem</span><span class="o">-==-</span><span class="n">symm</span><span class="p">;</span>
-  <span class="n">trans</span> <span class="ow">=</span> <span class="n">theorem</span><span class="o">-==-</span><span class="n">trans</span>
-  <span class="p">}</span>
+<div class="highlight-agda"><div class="highlight"><pre><span class="nf">theorem-==-is-equivalence2</span> <span class="ow">:</span> IsEquivalence2 _==_
+theorem-==-is-equivalence2 <span class="ow">=</span> <span class="kr">record</span> <span class="o">{</span>
+  refl <span class="ow">=</span> natrefl;
+  symm <span class="ow">=</span> theorem-==-symm;
+  trans <span class="ow">=</span> theorem-==-trans
+  <span class="o">}</span>
 </pre></div>
 </div>
 <p>So, records are constructed with the <span class="docutils literal"><span class="pre">record</span> <span class="pre">{...}</span></span> syntax.
@@ -175,11 +175,11 @@ and the intention of the code becomes much clearer.</p>
 <p>There is also special syntax for accessing any particular field of a record:
 <span class="docutils literal"><span class="pre">&lt;RecordType&gt;.&lt;fieldname&gt;</span> <span class="pre">&lt;instance&gt;</span></span>.
 Our theorem thus becomes:</p>
-<div class="highlight-haskell"><div class="highlight"><pre>theorem-equivalence2-simple :
-  {M : Set} -&gt; {_≈_ : M -&gt; M -&gt; Set} -&gt; IsEquivalence2 _≈_
-  -&gt; ∀ {r s t} -&gt; r ≈ s -&gt; ¬ (s ≈ t) -&gt; ¬ (r ≈ t)
+<div class="highlight-agda"><div class="highlight"><pre><span class="nf">theorem-equivalence2-simple</span> <span class="ow">:</span>
+  <span class="o">{</span>M <span class="ow">:</span> <span class="kt">Set</span><span class="o">}</span> <span class="ow">-&gt;</span> <span class="o">{</span>_≈_ <span class="ow">:</span> M <span class="ow">-&gt;</span> M <span class="ow">-&gt;</span> <span class="kt">Set</span><span class="o">}</span> <span class="ow">-&gt;</span> IsEquivalence2 _≈_
+  <span class="ow">-&gt;</span> <span class="ow">∀</span> <span class="o">{</span>r s t<span class="o">}</span> <span class="ow">-&gt;</span> r ≈ s <span class="ow">-&gt;</span> ¬ <span class="o">(</span>s ≈ t<span class="o">)</span> <span class="ow">-&gt;</span> ¬ <span class="o">(</span>r ≈ t<span class="o">)</span>
 theorem-equivalence2-simple equiv r≈s ¬s≈t r≈t
-  = ¬s≈t ((IsEquivalence2.trans equiv) ((IsEquivalence2.symm equiv) r≈s) r≈t)
+  <span class="ow">=</span> ¬s≈t <span class="o">((</span>IsEquivalence2.trans equiv<span class="o">)</span> <span class="o">((</span>IsEquivalence2.symm equiv<span class="o">)</span> r≈s<span class="o">)</span> r≈t<span class="o">)</span>
 </pre></div>
 </div>
 <p>This is less error prone than our earlier theorem,
@@ -191,12 +191,12 @@ for every instance of a record, <span class="docutils literal"><span class="pre"
 corresponds to a module which provides direct access
 to the fields of the instance.
 We can thus simply write:</p>
-<div class="highlight-haskell"><div class="highlight"><pre>theorem-equivalence2-simple-alt :
-  {M : Set} -&gt; {_≈_ : M -&gt; M -&gt; Set} -&gt; IsEquivalence2 _≈_
-  -&gt; ∀ {r s t} -&gt; r ≈ s -&gt; ¬ (s ≈ t) -&gt; ¬ (r ≈ t)
+<div class="highlight-agda"><div class="highlight"><pre><span class="nf">theorem-equivalence2-simple-alt</span> <span class="ow">:</span>
+  <span class="o">{</span>M <span class="ow">:</span> <span class="kt">Set</span><span class="o">}</span> <span class="ow">-&gt;</span> <span class="o">{</span>_≈_ <span class="ow">:</span> M <span class="ow">-&gt;</span> M <span class="ow">-&gt;</span> <span class="kt">Set</span><span class="o">}</span> <span class="ow">-&gt;</span> IsEquivalence2 _≈_
+  <span class="ow">-&gt;</span> <span class="ow">∀</span> <span class="o">{</span>r s t<span class="o">}</span> <span class="ow">-&gt;</span> r ≈ s <span class="ow">-&gt;</span> ¬ <span class="o">(</span>s ≈ t<span class="o">)</span> <span class="ow">-&gt;</span> ¬ <span class="o">(</span>r ≈ t<span class="o">)</span>
 theorem-equivalence2-simple-alt equiv r≈s ¬s≈t r≈t
-    = ¬s≈t (trans (symm r≈s) r≈t)
-      where open IsEquivalence2 equiv
+    <span class="ow">=</span> ¬s≈t <span class="o">(</span>trans <span class="o">(</span>symm r≈s<span class="o">)</span> r≈t<span class="o">)</span>
+      <span class="kr">where</span> <span class="kr">open</span> IsEquivalence2 equiv
 </pre></div>
 </div>
 <p>The <span class="docutils literal"><span class="pre">open</span></span> command opens a module, that is, brings its declarations
@@ -213,54 +213,54 @@ in a next post.</p>
 reimplemented using record syntax. This is entirely equivalent to our
 earlier simpler data type syntax, but it leads to code that is much
 easier to reuse:</p>
-<div class="highlight-haskell"><div class="highlight"><pre>module Reals where
+<div class="highlight-agda"><div class="highlight"><pre><span class="kr">module</span> <span class="n">Reals</span> <span class="kr">where</span>
 
-record IsEquivalence
-  {M : Set}
-  (_==_ : M -&gt; M -&gt; Set)
-  : Set where
-  field
-    refl : ∀ {r} -&gt; r == r
-    symm : ∀ {r s} -&gt; r == s -&gt; s == r
-    trans : ∀ {r s t} -&gt; r == s -&gt; s == t -&gt; r == t
+<span class="kr">record</span> IsEquivalence
+  <span class="o">{</span>M <span class="ow">:</span> <span class="kt">Set</span><span class="o">}</span>
+  <span class="o">(</span>_==_ <span class="ow">:</span> M <span class="ow">-&gt;</span> M <span class="ow">-&gt;</span> <span class="kt">Set</span><span class="o">)</span>
+  <span class="ow">:</span> <span class="kt">Set</span> <span class="kr">where</span>
+  <span class="kr">field</span>
+    <span class="nf">refl</span> <span class="ow">:</span> <span class="ow">∀</span> <span class="o">{</span>r<span class="o">}</span> <span class="ow">-&gt;</span> r <span class="ow">==</span> r
+    <span class="nf">symm</span> <span class="ow">:</span> <span class="ow">∀</span> <span class="o">{</span>r s<span class="o">}</span> <span class="ow">-&gt;</span> r <span class="ow">==</span> s <span class="ow">-&gt;</span> s <span class="ow">==</span> r
+    <span class="nf">trans</span> <span class="ow">:</span> <span class="ow">∀</span> <span class="o">{</span>r s t<span class="o">}</span> <span class="ow">-&gt;</span> r <span class="ow">==</span> s <span class="ow">-&gt;</span> s <span class="ow">==</span> t <span class="ow">-&gt;</span> r <span class="ow">==</span> t
 
-record IsStrictPartialOrder
-  {M : Set}
-  (_==_ : M -&gt; M -&gt; Set)
-  (_&lt;_ : M -&gt; M -&gt; Set)
-  : Set where
-  field
-    trans&lt;&lt;&lt; : ∀ {r s t} -&gt; r &lt; s -&gt; s &lt; t -&gt; r &lt; t
-    trans&lt;=&lt; : ∀ {r s t} -&gt; r &lt; s -&gt; s == t -&gt; r &lt; t
-    trans=&lt;&lt; : ∀ {r s t} -&gt; r == s -&gt; s &lt; t -&gt; r &lt; t
+<span class="kr">record</span> IsStrictPartialOrder
+  <span class="o">{</span>M <span class="ow">:</span> <span class="kt">Set</span><span class="o">}</span>
+  <span class="o">(</span>_==_ <span class="ow">:</span> M <span class="ow">-&gt;</span> M <span class="ow">-&gt;</span> <span class="kt">Set</span><span class="o">)</span>
+  <span class="o">(</span>_&lt;_ <span class="ow">:</span> M <span class="ow">-&gt;</span> M <span class="ow">-&gt;</span> <span class="kt">Set</span><span class="o">)</span>
+  <span class="ow">:</span> <span class="kt">Set</span> <span class="kr">where</span>
+  <span class="kr">field</span>
+    <span class="nf">trans&lt;&lt;&lt;</span> <span class="ow">:</span> <span class="ow">∀</span> <span class="o">{</span>r s t<span class="o">}</span> <span class="ow">-&gt;</span> r &lt; s <span class="ow">-&gt;</span> s &lt; t <span class="ow">-&gt;</span> r &lt; t
+    <span class="nf">trans&lt;=&lt;</span> <span class="ow">:</span> <span class="ow">∀</span> <span class="o">{</span>r s t<span class="o">}</span> <span class="ow">-&gt;</span> r &lt; s <span class="ow">-&gt;</span> s <span class="ow">==</span> t <span class="ow">-&gt;</span> r &lt; t
+    <span class="nf">trans=&lt;&lt;</span> <span class="ow">:</span> <span class="ow">∀</span> <span class="o">{</span>r s t<span class="o">}</span> <span class="ow">-&gt;</span> r <span class="ow">==</span> s <span class="ow">-&gt;</span> s &lt; t <span class="ow">-&gt;</span> r &lt; t
 
-record IsMockReals
-  {ℝ : Set}
-  (_==_ : ℝ -&gt; ℝ -&gt; Set)
-  (_&lt;_ : ℝ -&gt; ℝ -&gt; Set)
-  (_+_ : ℝ -&gt; ℝ -&gt; ℝ)
-  (r0 : ℝ)
-  (r1 : ℝ)
-  : Set where
-  field
-    isEquivalence : IsEquivalence _==_
-    isStrictPartialOrder : IsStrictPartialOrder _==_ _&lt;_
-    r+r0 : ∀ {r} -&gt; (r + r0) == r
-    symm+ : ∀ {r s} -&gt; (r + s) == (s + r)
-    cong+= : ∀ {r s t} -&gt; r == s -&gt; (r + t) == (s + t)
-    cong+&lt; : ∀ {r s t} -&gt; r &lt; s -&gt; (r + t) &lt; (s + t)
-    0&lt;1 : r0 &lt; r1
+<span class="kr">record</span> IsMockReals
+  <span class="o">{</span>ℝ <span class="ow">:</span> <span class="kt">Set</span><span class="o">}</span>
+  <span class="o">(</span>_==_ <span class="ow">:</span> ℝ <span class="ow">-&gt;</span> ℝ <span class="ow">-&gt;</span> <span class="kt">Set</span><span class="o">)</span>
+  <span class="o">(</span>_&lt;_ <span class="ow">:</span> ℝ <span class="ow">-&gt;</span> ℝ <span class="ow">-&gt;</span> <span class="kt">Set</span><span class="o">)</span>
+  <span class="o">(</span>_+_ <span class="ow">:</span> ℝ <span class="ow">-&gt;</span> ℝ <span class="ow">-&gt;</span> ℝ<span class="o">)</span>
+  <span class="o">(</span>r0 <span class="ow">:</span> ℝ<span class="o">)</span>
+  <span class="o">(</span>r1 <span class="ow">:</span> ℝ<span class="o">)</span>
+  <span class="ow">:</span> <span class="kt">Set</span> <span class="kr">where</span>
+  <span class="kr">field</span>
+    <span class="nf">isEquivalence</span> <span class="ow">:</span> IsEquivalence _==_
+    <span class="nf">isStrictPartialOrder</span> <span class="ow">:</span> IsStrictPartialOrder _==_ _&lt;_
+    <span class="nf">r+r0</span> <span class="ow">:</span> <span class="ow">∀</span> <span class="o">{</span>r<span class="o">}</span> <span class="ow">-&gt;</span> <span class="o">(</span>r + r0<span class="o">)</span> <span class="ow">==</span> r
+    <span class="nf">symm+</span> <span class="ow">:</span> <span class="ow">∀</span> <span class="o">{</span>r s<span class="o">}</span> <span class="ow">-&gt;</span> <span class="o">(</span>r + s<span class="o">)</span> <span class="ow">==</span> <span class="o">(</span>s + r<span class="o">)</span>
+    <span class="nf">cong+=</span> <span class="ow">:</span> <span class="ow">∀</span> <span class="o">{</span>r s t<span class="o">}</span> <span class="ow">-&gt;</span> r <span class="ow">==</span> s <span class="ow">-&gt;</span> <span class="o">(</span>r + t<span class="o">)</span> <span class="ow">==</span> <span class="o">(</span>s + t<span class="o">)</span>
+    <span class="nf">cong+&lt;</span> <span class="ow">:</span> <span class="ow">∀</span> <span class="o">{</span>r s t<span class="o">}</span> <span class="ow">-&gt;</span> r &lt; s <span class="ow">-&gt;</span> <span class="o">(</span>r + t<span class="o">)</span> &lt; <span class="o">(</span>s + t<span class="o">)</span>
+    <span class="nf">0&lt;1</span> <span class="ow">:</span> r0 &lt; r1
 
-  open IsEquivalence isEquivalence public
-    renaming (refl to refl==; symm to symm==; trans to trans==)
+  <span class="kr">open</span> IsEquivalence isEquivalence public
+    renaming <span class="o">(</span>refl to refl==; symm to symm==; trans to trans==<span class="o">)</span>
 
-  open IsStrictPartialOrder isStrictPartialOrder public
+  <span class="kr">open</span> IsStrictPartialOrder isStrictPartialOrder public
 
-  r0+r : {r : ℝ} -&gt; r == (r0 + r)
-  r0+r = symm== (trans== symm+ r+r0)
+  <span class="nf">r0+r</span> <span class="ow">:</span> <span class="o">{</span>r <span class="ow">:</span> ℝ<span class="o">}</span> <span class="ow">-&gt;</span> r <span class="ow">==</span> <span class="o">(</span>r0 + r<span class="o">)</span>
+  r0+r <span class="ow">=</span> symm== <span class="o">(</span>trans== symm+ r+r0<span class="o">)</span>
 
-  thm&lt;+1 : {r : ℝ} -&gt; r &lt; (r + r1)
-  thm&lt;+1 = trans&lt;=&lt; (trans=&lt;&lt; r0+r (cong+&lt; 0&lt;1)) symm+
+  <span class="nf">thm&lt;+1</span> <span class="ow">:</span> <span class="o">{</span>r <span class="ow">:</span> ℝ<span class="o">}</span> <span class="ow">-&gt;</span> r &lt; <span class="o">(</span>r + r1<span class="o">)</span>
+  thm&lt;+1 <span class="ow">=</span> trans&lt;=&lt; <span class="o">(</span>trans=&lt;&lt; r0+r <span class="o">(</span>cong+&lt; <span class="mi">0</span>&lt;1<span class="o">))</span> symm+
 </pre></div>
 </div>
 <p>The new bits are: <span class="docutils literal"><span class="pre">public</span></span>, which re-exports all imported declarations,
@@ -326,10 +326,10 @@ Let us focus on a set with just some properties of the reals.</p>
 <div class="section" id="constructing-real-instances">
 <h2>Constructing Real Instances</h2>
 <p>First, we declare the constructors of our mock real type:</p>
-<div class="highlight-haskell"><div class="highlight"><pre>data ℝ : Set where
-  r0 : ℝ
-  r1 : ℝ
-  _+_ : ℝ -&gt; ℝ -&gt; ℝ
+<div class="highlight-agda"><div class="highlight"><pre><span class="kr">data</span> ℝ <span class="ow">:</span> <span class="kt">Set</span> <span class="kr">where</span>
+  <span class="nf">r0</span> <span class="ow">:</span> ℝ
+  <span class="nf">r1</span> <span class="ow">:</span> ℝ
+  <span class="nf">_+_</span> <span class="ow">:</span> ℝ <span class="ow">-&gt;</span> ℝ <span class="ow">-&gt;</span> ℝ
 </pre></div>
 </div>
 <p>(In emacs, you get <span class="docutils literal"><span class="pre">ℝ</span></span> by typing <span class="docutils literal"><span class="pre">\br</span></span>.)</p>
@@ -345,13 +345,13 @@ possibly along with substraction, division, negation, and so on.</p>
 How do we go about this?
 Well, for instance, we might like to say that <span class="docutils literal"><span class="pre">r</span> <span class="pre">+</span> <span class="pre">r0</span> <span class="pre">==</span> <span class="pre">r</span></span>.
 We need an equality operator:</p>
-<div class="highlight-haskell"><div class="highlight"><pre>data _==_ : ℝ -&gt; ℝ -&gt; Set where
-  AXrefl== : ∀ {r} -&gt; r == r
-  AXsymm== : ∀ {r s} -&gt; r == s -&gt; s == r
-  AXtrans== : ∀ {r s t} -&gt; r == s -&gt; s == t -&gt; r == t
-  AX+0 : ∀ {r} -&gt; (r + r0) == r
-  AXsymm+ : ∀ {r s} -&gt; (r + s) == (s + r)
-  AX+== : ∀ {r s t} -&gt; r == s -&gt; (r + t) == (s + t)
+<div class="highlight-agda"><div class="highlight"><pre><span class="kr">data</span> _==_ <span class="ow">:</span> ℝ <span class="ow">-&gt;</span> ℝ <span class="ow">-&gt;</span> <span class="kt">Set</span> <span class="kr">where</span>
+  <span class="nf">AXrefl==</span> <span class="ow">:</span> <span class="ow">∀</span> <span class="o">{</span>r<span class="o">}</span> <span class="ow">-&gt;</span> r <span class="ow">==</span> r
+  <span class="nf">AXsymm==</span> <span class="ow">:</span> <span class="ow">∀</span> <span class="o">{</span>r s<span class="o">}</span> <span class="ow">-&gt;</span> r <span class="ow">==</span> s <span class="ow">-&gt;</span> s <span class="ow">==</span> r
+  <span class="nf">AXtrans==</span> <span class="ow">:</span> <span class="ow">∀</span> <span class="o">{</span>r s t<span class="o">}</span> <span class="ow">-&gt;</span> r <span class="ow">==</span> s <span class="ow">-&gt;</span> s <span class="ow">==</span> t <span class="ow">-&gt;</span> r <span class="ow">==</span> t
+  <span class="nf">AX+0</span> <span class="ow">:</span> <span class="ow">∀</span> <span class="o">{</span>r<span class="o">}</span> <span class="ow">-&gt;</span> <span class="o">(</span>r + r0<span class="o">)</span> <span class="ow">==</span> r
+  <span class="nf">AXsymm+</span> <span class="ow">:</span> <span class="ow">∀</span> <span class="o">{</span>r s<span class="o">}</span> <span class="ow">-&gt;</span> <span class="o">(</span>r + s<span class="o">)</span> <span class="ow">==</span> <span class="o">(</span>s + r<span class="o">)</span>
+  <span class="nf">AX+==</span> <span class="ow">:</span> <span class="ow">∀</span> <span class="o">{</span>r s t<span class="o">}</span> <span class="ow">-&gt;</span> r <span class="ow">==</span> s <span class="ow">-&gt;</span> <span class="o">(</span>r + t<span class="o">)</span> <span class="ow">==</span> <span class="o">(</span>s + t<span class="o">)</span>
 </pre></div>
 </div>
 <p>So, the equality operator <span class="docutils literal"><span class="pre">==</span></span> takes two real numbers,
@@ -368,13 +368,13 @@ In the code above,
 all of the constructors start with “AX” to emphasize that they are axioms.</p>
 <p>There is one bit of new syntax here: the forall operator “∀”.
 The code is fully equivalent to the following more verbose code:</p>
-<div class="highlight-haskell"><div class="highlight"><pre>data _==_ : ℝ -&gt; ℝ -&gt; Set where
-  AXrefl== : {r : ℝ} -&gt; r == r
-  AXsymm== : {r s : ℝ} -&gt; r == s -&gt; s == r
-  AXtrans== : {r s t : ℝ} -&gt; r == s -&gt; s == t -&gt; r == t
-  AX+0 : {r : ℝ} -&gt; (r + r0) == r
-  AXsymm+ : {r s : ℝ} -&gt; (r + s) == (s + r)
-  AX+== : {r s t : ℝ} -&gt; r == s -&gt; (r + t) == (s + t)
+<div class="highlight-agda"><div class="highlight"><pre><span class="kr">data</span> _==_ <span class="ow">:</span> ℝ <span class="ow">-&gt;</span> ℝ <span class="ow">-&gt;</span> <span class="kt">Set</span> <span class="kr">where</span>
+  <span class="nf">AXrefl==</span> <span class="ow">:</span> <span class="o">{</span>r <span class="ow">:</span> ℝ<span class="o">}</span> <span class="ow">-&gt;</span> r <span class="ow">==</span> r
+  <span class="nf">AXsymm==</span> <span class="ow">:</span> <span class="o">{</span>r s <span class="ow">:</span> ℝ<span class="o">}</span> <span class="ow">-&gt;</span> r <span class="ow">==</span> s <span class="ow">-&gt;</span> s <span class="ow">==</span> r
+  <span class="nf">AXtrans==</span> <span class="ow">:</span> <span class="o">{</span>r s t <span class="ow">:</span> ℝ<span class="o">}</span> <span class="ow">-&gt;</span> r <span class="ow">==</span> s <span class="ow">-&gt;</span> s <span class="ow">==</span> t <span class="ow">-&gt;</span> r <span class="ow">==</span> t
+  <span class="nf">AX+0</span> <span class="ow">:</span> <span class="o">{</span>r <span class="ow">:</span> ℝ<span class="o">}</span> <span class="ow">-&gt;</span> <span class="o">(</span>r + r0<span class="o">)</span> <span class="ow">==</span> r
+  <span class="nf">AXsymm+</span> <span class="ow">:</span> <span class="o">{</span>r s <span class="ow">:</span> ℝ<span class="o">}</span> <span class="ow">-&gt;</span> <span class="o">(</span>r + s<span class="o">)</span> <span class="ow">==</span> <span class="o">(</span>s + r<span class="o">)</span>
+  <span class="nf">AX+==</span> <span class="ow">:</span> <span class="o">{</span>r s t <span class="ow">:</span> ℝ<span class="o">}</span> <span class="ow">-&gt;</span> r <span class="ow">==</span> s <span class="ow">-&gt;</span> <span class="o">(</span>r + t<span class="o">)</span> <span class="ow">==</span> <span class="o">(</span>s + t<span class="o">)</span>
 </pre></div>
 </div>
 <p>So, <span class="docutils literal"><span class="pre">∀</span> <span class="pre">{r}</span></span> does two things:
@@ -394,17 +394,17 @@ so in the expression <span class="docutils literal"><span class="pre">r</span> <
 This follows from  <span class="docutils literal"><span class="pre">AXsymm+</span></span> (<span class="docutils literal"><span class="pre">0</span> <span class="pre">+</span> <span class="pre">r</span> <span class="pre">=</span> <span class="pre">r</span> <span class="pre">+</span> <span class="pre">0</span></span>) and <span class="docutils literal"><span class="pre">AX+0</span></span> (<span class="docutils literal"><span class="pre">r</span> <span class="pre">+</span> <span class="pre">0</span> <span class="pre">=</span> <span class="pre">r</span></span>),
 by transitivity (<span class="docutils literal"><span class="pre">AXtrans</span> <span class="pre">==</span></span>), as well as symmetry (<span class="docutils literal"><span class="pre">AXsymm==</span></span>).</p>
 <p>In Agda, this can be written as follows:</p>
-<div class="highlight-haskell"><div class="highlight"><pre>THM0+ : {r : ℝ} -&gt; r == (r0 + r)
-THM0+ = AXsymm== (AXtrans== AXsymm+ AX+0)
--- AXsymm+ AX+0   r0 + r == r + r0 and r + r0 == r
--- AXtrans==      so r0 + r == r
--- AXsymm==       so r == r0 + r
+<div class="highlight-agda"><div class="highlight"><pre><span class="nf">THM0+</span> <span class="ow">:</span> <span class="o">{</span>r <span class="ow">:</span> ℝ<span class="o">}</span> <span class="ow">-&gt;</span> r <span class="ow">==</span> <span class="o">(</span>r0 + r<span class="o">)</span>
+THM0+ <span class="ow">=</span> AXsymm== <span class="o">(</span>AXtrans== AXsymm+ AX+0<span class="o">)</span>
+<span class="c1">-- AXsymm+ AX+0   r0 + r == r + r0 and r + r0 == r</span>
+<span class="c1">-- AXtrans==      so r0 + r == r</span>
+<span class="c1">-- AXsymm==       so r == r0 + r</span>
 </pre></div>
 </div>
 <p>Agda resolved all hidden parameters for us.
 This really simplified the notation.
 Here is how the same proof looks like with all parameters specified:</p>
-<div class="highlight-haskell"><div class="highlight"><pre><span class="kt">THM0</span><span class="o">+</span> <span class="p">{</span><span class="n">r</span><span class="p">}</span> <span class="ow">=</span> <span class="kt">AXsymm</span><span class="o">==</span> <span class="p">{</span><span class="n">r0</span> <span class="o">+</span> <span class="n">r</span><span class="p">}</span> <span class="p">{</span><span class="n">r</span><span class="p">}</span> <span class="p">((</span><span class="kt">AXtrans</span><span class="o">==</span> <span class="p">{</span><span class="n">r0</span> <span class="o">+</span> <span class="n">r</span><span class="p">}</span> <span class="p">{</span><span class="n">r</span> <span class="o">+</span> <span class="n">r0</span><span class="p">}</span> <span class="p">{</span><span class="n">r</span><span class="p">})</span> <span class="p">(</span><span class="kt">AXsymm</span><span class="o">+</span> <span class="p">{</span><span class="n">r0</span><span class="p">}</span> <span class="p">{</span><span class="n">r</span><span class="p">})</span> <span class="p">(</span><span class="kt">AX</span><span class="o">+</span><span class="mi">0</span> <span class="p">{</span><span class="n">r</span><span class="p">}))</span>
+<div class="highlight-agda"><div class="highlight"><pre>THM0+ <span class="o">{</span>r<span class="o">}</span> <span class="ow">=</span> AXsymm== <span class="o">{</span>r0 + r<span class="o">}</span> <span class="o">{</span>r<span class="o">}</span> <span class="o">((</span>AXtrans== <span class="o">{</span>r0 + r<span class="o">}</span> <span class="o">{</span>r + r0<span class="o">}</span> <span class="o">{</span>r<span class="o">})</span> <span class="o">(</span>AXsymm+ <span class="o">{</span>r0<span class="o">}</span> <span class="o">{</span>r<span class="o">})</span> <span class="o">(</span>AX+0 <span class="o">{</span>r<span class="o">}))</span>
 </pre></div>
 </div>
 <p>This kind of symplicity really helps readability,
@@ -422,21 +422,21 @@ but it surely is a nice feature of Agda.</p>
 <div class="section" id="another-theorem">
 <h2>Another Theorem</h2>
 <p>Here are some axioms for strict inequality:</p>
-<div class="highlight-haskell"><div class="highlight"><pre>data _&lt;_ : ℝ -&gt; ℝ -&gt; Set where
-  AXtrans&lt;&lt;&lt; : ∀ {r s t} -&gt; r &lt; s -&gt; s &lt; t -&gt; r &lt; t
-  AX&lt;=&lt; : ∀ {r s t} -&gt; r &lt; s -&gt; s == t -&gt; r &lt; t
-  AX=&lt;&lt; : ∀ {r s t} -&gt; r == s -&gt; s &lt; t -&gt; r &lt; t
-  AX0&lt;1 : r0 &lt; r1
-  AX+&lt;&lt; : ∀ {r s t} -&gt; r &lt; s -&gt; (r + t) &lt; (s + t)
+<div class="highlight-agda"><div class="highlight"><pre><span class="kr">data</span> _&lt;_ <span class="ow">:</span> ℝ <span class="ow">-&gt;</span> ℝ <span class="ow">-&gt;</span> <span class="kt">Set</span> <span class="kr">where</span>
+  <span class="nf">AXtrans&lt;&lt;&lt;</span> <span class="ow">:</span> <span class="ow">∀</span> <span class="o">{</span>r s t<span class="o">}</span> <span class="ow">-&gt;</span> r &lt; s <span class="ow">-&gt;</span> s &lt; t <span class="ow">-&gt;</span> r &lt; t
+  <span class="nf">AX&lt;=&lt;</span> <span class="ow">:</span> <span class="ow">∀</span> <span class="o">{</span>r s t<span class="o">}</span> <span class="ow">-&gt;</span> r &lt; s <span class="ow">-&gt;</span> s <span class="ow">==</span> t <span class="ow">-&gt;</span> r &lt; t
+  <span class="nf">AX=&lt;&lt;</span> <span class="ow">:</span> <span class="ow">∀</span> <span class="o">{</span>r s t<span class="o">}</span> <span class="ow">-&gt;</span> r <span class="ow">==</span> s <span class="ow">-&gt;</span> s &lt; t <span class="ow">-&gt;</span> r &lt; t
+  <span class="nf">AX0&lt;1</span> <span class="ow">:</span> r0 &lt; r1
+  <span class="nf">AX+&lt;&lt;</span> <span class="ow">:</span> <span class="ow">∀</span> <span class="o">{</span>r s t<span class="o">}</span> <span class="ow">-&gt;</span> r &lt; s <span class="ow">-&gt;</span> <span class="o">(</span>r + t<span class="o">)</span> &lt; <span class="o">(</span>s + t<span class="o">)</span>
 </pre></div>
 </div>
 <p>Let us prove that <span class="docutils literal"><span class="pre">r</span> <span class="pre">&lt;</span> <span class="pre">r</span> <span class="pre">+</span> <span class="pre">1</span></span>.</p>
-<div class="highlight-haskell"><div class="highlight"><pre>THM&lt;+1 : {r : ℝ} -&gt; r &lt; (r + r1)
-THM&lt;+1 = AX&lt;=&lt; (AX=&lt;&lt; THM0+ (AX+&lt;&lt; AX0&lt;1)) AXsymm+
--- AX0&lt;1              0 &lt; 1
--- AX&lt;+ %             so 0 + r &lt; 1 + r
--- AX=&lt;&lt; THM0+ %      so r &lt; 1 + r
--- AX&lt;=&lt; % AXsymm+    so r &lt; r + 1
+<div class="highlight-agda"><div class="highlight"><pre><span class="nf">THM&lt;+1</span> <span class="ow">:</span> <span class="o">{</span>r <span class="ow">:</span> ℝ<span class="o">}</span> <span class="ow">-&gt;</span> r &lt; <span class="o">(</span>r + r1<span class="o">)</span>
+THM&lt;+1 <span class="ow">=</span> AX&lt;=&lt; <span class="o">(</span>AX=&lt;&lt; THM0+ <span class="o">(</span>AX+&lt;&lt; AX0&lt;1<span class="o">))</span> AXsymm+
+<span class="c1">-- AX0&lt;1              0 &lt; 1</span>
+<span class="c1">-- AX&lt;+ %             so 0 + r &lt; 1 + r</span>
+<span class="c1">-- AX=&lt;&lt; THM0+ %      so r &lt; 1 + r</span>
+<span class="c1">-- AX&lt;=&lt; % AXsymm+    so r &lt; r + 1</span>
 </pre></div>
 </div>
 <p>Again, to interpret these proofs, it is useful
@@ -473,8 +473,8 @@ and whose implementation is an instance of that type, namely, the proof.</p>
 <p>Why functions? Because functions embody implication.
 Specifically, A implies B
 if every proof of A can be transformed into a proof of B.</p>
-<div class="highlight-haskell"><div class="highlight"><pre><span class="nf">_implies_</span> <span class="kt">:</span> <span class="kt">Set</span> <span class="ow">-&gt;</span> <span class="kt">Set</span> <span class="ow">-&gt;</span> <span class="kt">Set</span>
-<span class="kt">A</span> <span class="n">implies</span> <span class="kt">B</span> <span class="ow">=</span> <span class="kt">A</span> <span class="ow">-&gt;</span> <span class="kt">B</span>
+<div class="highlight-agda"><div class="highlight"><pre><span class="nf">_implies_</span> <span class="ow">:</span> <span class="kt">Set</span> <span class="ow">-&gt;</span> <span class="kt">Set</span> <span class="ow">-&gt;</span> <span class="kt">Set</span>
+A implies B <span class="ow">=</span> A <span class="ow">-&gt;</span> B
 </pre></div>
 </div>
 <p>So, in Agda, we essentially reason by transforming proofs.
@@ -489,8 +489,8 @@ and instead directly write <span class="docutils literal"><span class="pre">-&gt
 <p>How do we model logical ‘and’ and logical ‘or’?
 Both operators take two theorems, and return a new theorem,
 so the type signatures should be as follows:</p>
-<div class="highlight-haskell"><div class="highlight"><pre><span class="nf">_and_</span> <span class="kt">:</span> <span class="p">(</span><span class="kt">A</span> <span class="kt">B</span> <span class="kt">:</span> <span class="kt">Set</span><span class="p">)</span> <span class="ow">-&gt;</span> <span class="kt">Set</span>
-<span class="nf">_or_</span> <span class="kt">:</span> <span class="p">(</span><span class="kt">A</span> <span class="kt">B</span> <span class="kt">:</span> <span class="kt">Set</span><span class="p">)</span> <span class="ow">-&gt;</span> <span class="kt">Set</span>
+<div class="highlight-agda"><div class="highlight"><pre><span class="nf">_and_</span> <span class="ow">:</span> <span class="o">(</span>A B <span class="ow">:</span> <span class="kt">Set</span><span class="o">)</span> <span class="ow">-&gt;</span> <span class="kt">Set</span>
+<span class="nf">_or_</span> <span class="ow">:</span> <span class="o">(</span>A B <span class="ow">:</span> <span class="kt">Set</span><span class="o">)</span> <span class="ow">-&gt;</span> <span class="kt">Set</span>
 </pre></div>
 </div>
 <p>The implementations are also reasonably obvious:
@@ -504,18 +504,18 @@ we could use Haskell’s <span class="docutils literal"><span class="pre">Either
 Agda has no builtin implementation for tuples,
 and it also has no <span class="docutils literal"><span class="pre">Either</span></span> type, but it is easy to roll our own.
 For example:</p>
-<div class="highlight-haskell"><div class="highlight"><pre><span class="kr">data</span> <span class="kt">Pair</span> <span class="p">(</span><span class="kt">A</span> <span class="kt">B</span> <span class="kt">:</span> <span class="kt">Set</span><span class="p">)</span> <span class="kt">:</span> <span class="kt">Set</span> <span class="kr">where</span>
-  <span class="kr">_</span><span class="p">,</span><span class="kr">_</span> <span class="kt">:</span> <span class="kt">A</span> <span class="ow">-&gt;</span> <span class="kt">B</span> <span class="ow">-&gt;</span> <span class="kt">Pair</span> <span class="kt">A</span> <span class="kt">B</span>
+<div class="highlight-agda"><div class="highlight"><pre><span class="kr">data</span> Pair <span class="o">(</span>A B <span class="ow">:</span> <span class="kt">Set</span><span class="o">)</span> <span class="ow">:</span> <span class="kt">Set</span> <span class="kr">where</span>
+  <span class="nf">_,_</span> <span class="ow">:</span> A <span class="ow">-&gt;</span> B <span class="ow">-&gt;</span> Pair A B
 
-<span class="kr">data</span> <span class="kt">Either</span> <span class="p">(</span><span class="kt">A</span> <span class="kt">B</span> <span class="kt">:</span> <span class="kt">Set</span><span class="p">)</span> <span class="kt">:</span> <span class="kt">Set</span> <span class="kr">where</span>
-  <span class="n">left</span> <span class="kt">:</span> <span class="kt">A</span> <span class="ow">-&gt;</span> <span class="kt">Either</span> <span class="kt">A</span> <span class="kt">B</span>
-  <span class="n">right</span> <span class="kt">:</span> <span class="kt">B</span> <span class="ow">-&gt;</span> <span class="kt">Either</span> <span class="kt">A</span> <span class="kt">B</span>
+<span class="kr">data</span> Either <span class="o">(</span>A B <span class="ow">:</span> <span class="kt">Set</span><span class="o">)</span> <span class="ow">:</span> <span class="kt">Set</span> <span class="kr">where</span>
+  <span class="nf">left</span> <span class="ow">:</span> A <span class="ow">-&gt;</span> Either A B
+  <span class="nf">right</span> <span class="ow">:</span> B <span class="ow">-&gt;</span> Either A B
 
-<span class="nf">_and_</span> <span class="kt">:</span> <span class="p">(</span><span class="kt">A</span> <span class="kt">B</span> <span class="kt">:</span> <span class="kt">Set</span><span class="p">)</span> <span class="ow">-&gt;</span> <span class="kt">Set</span>
-<span class="kt">A</span> <span class="n">and</span> <span class="kt">B</span> <span class="ow">=</span> <span class="kt">Pair</span> <span class="kt">A</span> <span class="kt">B</span>
+<span class="nf">_and_</span> <span class="ow">:</span> <span class="o">(</span>A B <span class="ow">:</span> <span class="kt">Set</span><span class="o">)</span> <span class="ow">-&gt;</span> <span class="kt">Set</span>
+A and B <span class="ow">=</span> Pair A B
 
-<span class="nf">_or_</span> <span class="kt">:</span> <span class="p">(</span><span class="kt">A</span> <span class="kt">B</span> <span class="kt">:</span> <span class="kt">Set</span><span class="p">)</span> <span class="ow">-&gt;</span> <span class="kt">Set</span>
-<span class="kt">A</span> <span class="n">or</span> <span class="kt">B</span> <span class="ow">=</span> <span class="kt">Either</span> <span class="kt">A</span> <span class="kt">B</span>
+<span class="nf">_or_</span> <span class="ow">:</span> <span class="o">(</span>A B <span class="ow">:</span> <span class="kt">Set</span><span class="o">)</span> <span class="ow">-&gt;</span> <span class="kt">Set</span>
+A or B <span class="ow">=</span> Either A B
 </pre></div>
 </div>
 <p>The syntax for declaring data types is slightly different from Haskell’s,
@@ -538,11 +538,11 @@ How does this work? Let us first do the proof in words,
 and then translate it into Agda code.
 Clearly, if <span class="docutils literal"><span class="pre">A</span> <span class="pre">and</span> <span class="pre">B</span></span> holds, then <span class="docutils literal"><span class="pre">A</span></span> holds.
 But if <span class="docutils literal"><span class="pre">A</span></span> holds, then <span class="docutils literal"><span class="pre">A</span> <span class="pre">or</span> <span class="pre">B</span></span> holds.</p>
-<div class="highlight-haskell"><div class="highlight"><pre><span class="nf">lemma</span> <span class="kt">:</span> <span class="p">(</span><span class="kt">A</span> <span class="kt">B</span> <span class="kt">:</span> <span class="kt">Set</span><span class="p">)</span> <span class="ow">-&gt;</span> <span class="p">(</span><span class="kt">A</span> <span class="n">and</span> <span class="kt">B</span><span class="p">)</span> <span class="ow">-&gt;</span> <span class="kt">A</span>
-<span class="nf">lemma</span> <span class="kt">A</span> <span class="kt">B</span> <span class="p">(</span><span class="n">a</span> <span class="p">,</span> <span class="n">b</span><span class="p">)</span> <span class="ow">=</span> <span class="n">a</span>
+<div class="highlight-agda"><div class="highlight"><pre><span class="nf">lemma</span> <span class="ow">:</span> <span class="o">(</span>A B <span class="ow">:</span> <span class="kt">Set</span><span class="o">)</span> <span class="ow">-&gt;</span> <span class="o">(</span>A and B<span class="o">)</span> <span class="ow">-&gt;</span> A
+lemma A B <span class="o">(</span>a , b<span class="o">)</span> <span class="ow">=</span> a
 
-<span class="nf">theorem</span> <span class="kt">:</span> <span class="p">(</span><span class="kt">A</span> <span class="kt">B</span> <span class="kt">:</span> <span class="kt">Set</span><span class="p">)</span> <span class="ow">-&gt;</span> <span class="p">(</span><span class="kt">A</span> <span class="n">and</span> <span class="kt">B</span><span class="p">)</span> <span class="ow">-&gt;</span> <span class="p">(</span><span class="kt">A</span> <span class="n">or</span> <span class="kt">B</span><span class="p">)</span>
-<span class="nf">theorem</span> <span class="kt">A</span> <span class="kt">B</span> <span class="n">ab</span> <span class="ow">=</span> <span class="n">left</span> <span class="p">(</span><span class="n">lemma</span> <span class="kt">A</span> <span class="kt">B</span> <span class="n">ab</span><span class="p">)</span>
+<span class="nf">theorem</span> <span class="ow">:</span> <span class="o">(</span>A B <span class="ow">:</span> <span class="kt">Set</span><span class="o">)</span> <span class="ow">-&gt;</span> <span class="o">(</span>A and B<span class="o">)</span> <span class="ow">-&gt;</span> <span class="o">(</span>A or B<span class="o">)</span>
+theorem A B ab <span class="ow">=</span> left <span class="o">(</span>lemma A B ab<span class="o">)</span>
 </pre></div>
 </div>
 <p>Here, <span class="docutils literal"><span class="pre">lemma</span></span> proves that if <span class="docutils literal"><span class="pre">A</span> <span class="pre">and</span> <span class="pre">B</span></span> holds, then <span class="docutils literal"><span class="pre">A</span></span> holds.
@@ -561,12 +561,12 @@ which is the same as <span class="docutils literal"><span class="pre">A</span> <
 In a sense, <strong>constructors are the axioms of our theory</strong>.</p>
 <p>To make this more formal, we could simply get rid of <span class="docutils literal"><span class="pre">Pair</span></span> and <span class="docutils literal"><span class="pre">Either</span></span>,
 and directly write:</p>
-<div class="highlight-haskell"><div class="highlight"><pre><span class="kr">data</span> <span class="n">_and_</span> <span class="p">(</span><span class="kt">A</span> <span class="kt">B</span> <span class="kt">:</span> <span class="kt">Set</span><span class="p">)</span> <span class="kt">:</span> <span class="kt">Set</span> <span class="kr">where</span>
-  <span class="kr">_</span><span class="p">,</span><span class="kr">_</span> <span class="kt">:</span> <span class="kt">A</span> <span class="ow">-&gt;</span> <span class="kt">B</span> <span class="ow">-&gt;</span> <span class="kt">A</span> <span class="n">and</span> <span class="kt">B</span>
+<div class="highlight-agda"><div class="highlight"><pre><span class="kr">data</span> _and_ <span class="o">(</span>A B <span class="ow">:</span> <span class="kt">Set</span><span class="o">)</span> <span class="ow">:</span> <span class="kt">Set</span> <span class="kr">where</span>
+  <span class="nf">_,_</span> <span class="ow">:</span> A <span class="ow">-&gt;</span> B <span class="ow">-&gt;</span> A and B
 
-<span class="kr">data</span> <span class="n">_or_</span> <span class="p">(</span><span class="kt">A</span> <span class="kt">B</span> <span class="kt">:</span> <span class="kt">Set</span><span class="p">)</span> <span class="kt">:</span> <span class="kt">Set</span> <span class="kr">where</span>
-  <span class="n">left</span> <span class="kt">:</span> <span class="kt">A</span> <span class="ow">-&gt;</span> <span class="kt">A</span> <span class="n">or</span> <span class="kt">B</span>
-  <span class="n">right</span> <span class="kt">:</span> <span class="kt">B</span> <span class="ow">-&gt;</span> <span class="kt">A</span> <span class="n">or</span> <span class="kt">B</span>
+<span class="kr">data</span> _or_ <span class="o">(</span>A B <span class="ow">:</span> <span class="kt">Set</span><span class="o">)</span> <span class="ow">:</span> <span class="kt">Set</span> <span class="kr">where</span>
+  <span class="nf">left</span> <span class="ow">:</span> A <span class="ow">-&gt;</span> A or B
+  <span class="nf">right</span> <span class="ow">:</span> B <span class="ow">-&gt;</span> A or B
 </pre></div>
 </div>
 <p>Agda has some useful syntax
@@ -574,27 +574,27 @@ that saves us from having to write all arguments:
 any arguments between curly braces can be omitted
 if they can be unambiguously inferred.
 With this in mind, the proof becomes a little bit more readable:</p>
-<div class="highlight-haskell"><div class="highlight"><pre><span class="nf">lemma</span> <span class="kt">:</span> <span class="p">{</span><span class="kt">A</span> <span class="kt">B</span> <span class="kt">:</span> <span class="kt">Set</span><span class="p">}</span> <span class="ow">-&gt;</span> <span class="p">(</span><span class="kt">A</span> <span class="n">and</span> <span class="kt">B</span><span class="p">)</span> <span class="ow">-&gt;</span> <span class="kt">A</span>
-<span class="nf">lemma</span> <span class="p">(</span><span class="n">a</span> <span class="p">,</span> <span class="n">b</span><span class="p">)</span> <span class="ow">=</span> <span class="n">a</span>
+<div class="highlight-agda"><div class="highlight"><pre><span class="nf">lemma</span> <span class="ow">:</span> <span class="o">{</span>A B <span class="ow">:</span> <span class="kt">Set</span><span class="o">}</span> <span class="ow">-&gt;</span> <span class="o">(</span>A and B<span class="o">)</span> <span class="ow">-&gt;</span> A
+lemma <span class="o">(</span>a , b<span class="o">)</span> <span class="ow">=</span> a
 
-<span class="nf">theorem</span> <span class="kt">:</span> <span class="p">{</span><span class="kt">A</span> <span class="kt">B</span> <span class="kt">:</span> <span class="kt">Set</span><span class="p">}</span> <span class="ow">-&gt;</span> <span class="p">(</span><span class="kt">A</span> <span class="n">and</span> <span class="kt">B</span><span class="p">)</span> <span class="ow">-&gt;</span> <span class="p">(</span><span class="kt">A</span> <span class="n">or</span> <span class="kt">B</span><span class="p">)</span>
-<span class="nf">theorem</span> <span class="n">ab</span> <span class="ow">=</span> <span class="n">left</span> <span class="p">(</span><span class="n">lemma</span> <span class="n">ab</span><span class="p">)</span>
+<span class="nf">theorem</span> <span class="ow">:</span> <span class="o">{</span>A B <span class="ow">:</span> <span class="kt">Set</span><span class="o">}</span> <span class="ow">-&gt;</span> <span class="o">(</span>A and B<span class="o">)</span> <span class="ow">-&gt;</span> <span class="o">(</span>A or B<span class="o">)</span>
+theorem ab <span class="ow">=</span> left <span class="o">(</span>lemma ab<span class="o">)</span>
 </pre></div>
 </div>
 <p>(So, <span class="docutils literal"><span class="pre">lemma</span></span> is simply Haskell’s <span class="docutils literal"><span class="pre">fst</span></span>!)</p>
 <p>Finally, note that we could also have integrated
 the lemma into the proof of the theorem:</p>
-<div class="highlight-haskell"><div class="highlight"><pre><span class="nf">theorem</span> <span class="kt">:</span> <span class="p">{</span><span class="kt">A</span> <span class="kt">B</span> <span class="kt">:</span> <span class="kt">Set</span><span class="p">}</span> <span class="ow">-&gt;</span> <span class="p">(</span><span class="kt">A</span> <span class="n">and</span> <span class="kt">B</span><span class="p">)</span> <span class="ow">-&gt;</span> <span class="p">(</span><span class="kt">A</span> <span class="n">or</span> <span class="kt">B</span><span class="p">)</span>
-<span class="nf">theorem</span> <span class="p">(</span><span class="n">a</span> <span class="p">,</span> <span class="n">b</span><span class="p">)</span> <span class="ow">=</span> <span class="n">left</span> <span class="n">a</span>
+<div class="highlight-agda"><div class="highlight"><pre><span class="nf">theorem</span> <span class="ow">:</span> <span class="o">{</span>A B <span class="ow">:</span> <span class="kt">Set</span><span class="o">}</span> <span class="ow">-&gt;</span> <span class="o">(</span>A and B<span class="o">)</span> <span class="ow">-&gt;</span> <span class="o">(</span>A or B<span class="o">)</span>
+theorem <span class="o">(</span>a , b<span class="o">)</span> <span class="ow">=</span> left a
 </pre></div>
 </div>
 </div>
 <div class="section" id="using-pattern-matching-to-prove-distinct-cases">
 <h2>Using Pattern Matching to Prove Distinct Cases</h2>
 <p>Let us prove another theorem:</p>
-<div class="highlight-haskell"><div class="highlight"><pre><span class="nf">distributivity</span> <span class="kt">:</span> <span class="p">{</span><span class="kt">A</span> <span class="kt">B</span> <span class="kt">C</span> <span class="kt">:</span> <span class="kt">Set</span><span class="p">}</span> <span class="ow">-&gt;</span> <span class="p">(</span><span class="kt">A</span> <span class="n">and</span> <span class="p">(</span><span class="kt">B</span> <span class="n">or</span> <span class="kt">C</span><span class="p">))</span> <span class="ow">-&gt;</span> <span class="p">((</span><span class="kt">A</span> <span class="n">and</span> <span class="kt">B</span><span class="p">)</span> <span class="n">or</span> <span class="p">(</span><span class="kt">A</span> <span class="n">and</span> <span class="kt">C</span><span class="p">))</span>
-<span class="nf">distributivity</span> <span class="p">(</span><span class="n">a</span> <span class="p">,</span> <span class="n">left</span> <span class="n">b</span><span class="p">)</span> <span class="ow">=</span> <span class="n">left</span> <span class="p">(</span><span class="n">a</span> <span class="p">,</span> <span class="n">b</span><span class="p">)</span>
-<span class="nf">distributivity</span> <span class="p">(</span><span class="n">a</span> <span class="p">,</span> <span class="n">right</span> <span class="n">c</span><span class="p">)</span> <span class="ow">=</span> <span class="n">right</span> <span class="p">(</span><span class="n">a</span> <span class="p">,</span> <span class="n">c</span><span class="p">)</span>
+<div class="highlight-agda"><div class="highlight"><pre><span class="nf">distributivity</span> <span class="ow">:</span> <span class="o">{</span>A B C <span class="ow">:</span> <span class="kt">Set</span><span class="o">}</span> <span class="ow">-&gt;</span> <span class="o">(</span>A and <span class="o">(</span>B or C<span class="o">))</span> <span class="ow">-&gt;</span> <span class="o">((</span>A and B<span class="o">)</span> or <span class="o">(</span>A and C<span class="o">))</span>
+distributivity <span class="o">(</span>a , left b<span class="o">)</span> <span class="ow">=</span> left <span class="o">(</span>a , b<span class="o">)</span>
+distributivity <span class="o">(</span>a , right c<span class="o">)</span> <span class="ow">=</span> right <span class="o">(</span>a , c<span class="o">)</span>
 </pre></div>
 </div>
 <p>Here, we exploited pattern matching to prove two cases separately.
@@ -657,8 +657,8 @@ So, one could think of Agda’s <span class="docutils literal"><span class="pre"
 <p>There is however one crucial difference:
 in Agda, <span class="docutils literal"><span class="pre">Set</span></span> is not an instance of <span class="docutils literal"><span class="pre">Set</span></span>,
 whereas <span class="docutils literal"><span class="pre">type</span></span> is an instance of <span class="docutils literal"><span class="pre">type</span></span> in Python:</p>
-<div class="highlight-haskell"><div class="highlight"><pre><span class="nf">x</span> <span class="kt">:</span> <span class="kt">Set</span>
-<span class="nf">x</span> <span class="ow">=</span> <span class="kt">Set</span>
+<div class="highlight-agda"><div class="highlight"><pre><span class="nf">x</span> <span class="ow">:</span> <span class="kt">Set</span>
+x <span class="ow">=</span> <span class="kt">Set</span>
 </pre></div>
 </div>
 <p>will fail to load in Agda, but</p>
@@ -668,8 +668,8 @@ whereas <span class="docutils literal"><span class="pre">type</span></span> is a
 </div>
 <p>runs just fine in Python.
 Instead, in Agda, <span class="docutils literal"><span class="pre">Set</span></span> is an instance of <span class="docutils literal"><span class="pre">Set1</span></span>:</p>
-<div class="highlight-haskell"><div class="highlight"><pre><span class="nf">x</span> <span class="kt">:</span> <span class="kt">Set1</span>
-<span class="nf">x</span> <span class="ow">=</span> <span class="kt">Set</span>
+<div class="highlight-agda"><div class="highlight"><pre><span class="nf">x</span> <span class="ow">:</span> Set1
+x <span class="ow">=</span> <span class="kt">Set</span>
 </pre></div>
 </div>
 <p>loads just fine in Agda.
@@ -687,8 +687,8 @@ as an <cite>is an element of’ operator `</cite> ∈``.</p>
 <p>What are they?
 Informally, they are types which depend on a value,
 like templates in C++. Here is an example:</p>
-<div class="highlight-haskell"><div class="highlight"><pre><span class="nf">id</span> <span class="kt">:</span> <span class="p">(</span><span class="kt">A</span> <span class="kt">:</span> <span class="kt">Set</span><span class="p">)</span> <span class="ow">-&gt;</span> <span class="kt">A</span> <span class="ow">-&gt;</span> <span class="kt">A</span>
-<span class="nf">id</span> <span class="kr">_</span> <span class="n">a</span> <span class="ow">=</span> <span class="n">a</span>
+<div class="highlight-agda"><div class="highlight"><pre><span class="nf">id</span> <span class="ow">:</span> <span class="o">(</span>A <span class="ow">:</span> <span class="kt">Set</span><span class="o">)</span> <span class="ow">-&gt;</span> A <span class="ow">-&gt;</span> A
+id _ a <span class="ow">=</span> a
 </pre></div>
 </div>
 <p>The type signature declares a function, which takes
@@ -720,10 +720,10 @@ Well, theorems are statements, and theorems are true
 if they can be proven, that is, if the corresponding type has an instance.
 So, we specify that a statement is true simply by stating that it has a value.
 For example, we can declare the following algebraic data types: <a class="footnote-reference" href="#id2" id="id1">[1]</a></p>
-<div class="highlight-haskell"><div class="highlight"><pre><span class="kr">data</span> <span class="kt">False</span> <span class="kt">:</span> <span class="kt">Set</span> <span class="kr">where</span>
+<div class="highlight-agda"><div class="highlight"><pre><span class="kr">data</span> False <span class="ow">:</span> <span class="kt">Set</span> <span class="kr">where</span>
 
-<span class="kr">data</span> <span class="kt">True</span> <span class="kt">:</span> <span class="kt">Set</span> <span class="kr">where</span>
-  <span class="n">tt</span> <span class="kt">:</span> <span class="kt">True</span>
+<span class="kr">data</span> True <span class="ow">:</span> <span class="kt">Set</span> <span class="kr">where</span>
+  <span class="nf">tt</span> <span class="ow">:</span> True
 </pre></div>
 </div>
 <p>Here, <span class="docutils literal"><span class="pre">False</span></span> is a proposition which has no instances,
@@ -742,13 +742,13 @@ and an actual proof of A implying B,
 which is an instance of the theorem’s type.</p>
 <p>How do we produce a new statement from two existing statements?
 We use a function:</p>
-<div class="highlight-haskell"><div class="highlight"><pre><span class="nf">_implies_</span> <span class="kt">:</span> <span class="kt">Set</span> <span class="ow">-&gt;</span> <span class="kt">Set</span> <span class="ow">-&gt;</span> <span class="kt">Set</span>
+<div class="highlight-agda"><div class="highlight"><pre><span class="nf">_implies_</span> <span class="ow">:</span> <span class="kt">Set</span> <span class="ow">-&gt;</span> <span class="kt">Set</span> <span class="ow">-&gt;</span> <span class="kt">Set</span>
 </pre></div>
 </div>
 <p>(The underscores make this an infix function, which will read better.)
 So, the function <span class="docutils literal"><span class="pre">implies</span></span> takes as arguments two statements or theorems,
 and uses them to produce a new statement. What statement?</p>
-<div class="highlight-haskell"><div class="highlight"><pre><span class="kt">A</span> <span class="n">implies</span> <span class="kt">B</span> <span class="ow">=</span> <span class="kt">A</span> <span class="ow">-&gt;</span> <span class="kt">B</span>
+<div class="highlight-agda"><div class="highlight"><pre>A implies B <span class="ow">=</span> A <span class="ow">-&gt;</span> B
 </pre></div>
 </div>
 <p>The set of functions from A to B? What does this mean?
@@ -757,8 +757,8 @@ if there is an instance of <span class="docutils literal"><span class="pre">A</s
 that is if
 <strong>there is a function that transforms any proof of A into a proof of B</strong>.</p>
 <p>We can now prove a first theorem:</p>
-<div class="highlight-haskell"><div class="highlight"><pre><span class="nf">thmimpliesisreflexive</span> <span class="kt">:</span> <span class="p">(</span><span class="kt">A</span> <span class="kt">:</span> <span class="kt">Set</span><span class="p">)</span> <span class="ow">-&gt;</span> <span class="p">(</span><span class="kt">A</span> <span class="n">implies</span> <span class="kt">A</span><span class="p">)</span>
-<span class="nf">thmimpliesisreflexive</span> <span class="kt">A</span> <span class="ow">=</span> <span class="nf">\</span><span class="n">a</span> <span class="ow">-&gt;</span> <span class="n">a</span>
+<div class="highlight-agda"><div class="highlight"><pre><span class="nf">thmimpliesisreflexive</span> <span class="ow">:</span> <span class="o">(</span>A <span class="ow">:</span> <span class="kt">Set</span><span class="o">)</span> <span class="ow">-&gt;</span> <span class="o">(</span>A implies A<span class="o">)</span>
+thmimpliesisreflexive A <span class="ow">=</span> \a <span class="ow">-&gt;</span> a
 </pre></div>
 </div>
 <p>The definition of the proof reads as follows.
@@ -772,8 +772,8 @@ The function needs to produce
 a proof for the right hand side of the implication, which is also <span class="docutils literal"><span class="pre">A</span></span>.
 Obviously, we can simply return the same proof <span class="docutils literal"><span class="pre">a</span></span> again.</p>
 <p>A more tricky case:</p>
-<div class="highlight-haskell"><div class="highlight"><pre><span class="nf">thmfimpt</span> <span class="kt">:</span> <span class="p">(</span><span class="kt">False</span> <span class="n">implies</span> <span class="kt">True</span><span class="p">)</span>
-<span class="nf">thmfimpt</span> <span class="nb">()</span>
+<div class="highlight-agda"><div class="highlight"><pre><span class="nf">thmfimpt</span> <span class="ow">:</span> <span class="o">(</span>False implies True<span class="o">)</span>
+thmfimpt <span class="o">()</span>
 </pre></div>
 </div>
 <p>The type <span class="docutils literal"><span class="pre">False</span> <span class="pre">implies</span> <span class="pre">True</span></span> simply maps proofs of <span class="docutils literal"><span class="pre">False</span></span>
@@ -783,8 +783,8 @@ Consequently, <span class="docutils literal"><span class="pre">thmfimpt</span></
 mapping nothing to nothing.
 In Agda, we say that a function is empty by writing empty brackets.</p>
 <p>Can we do negation? Easily, in terms of implication:</p>
-<div class="highlight-haskell"><div class="highlight"><pre><span class="nf">not</span> <span class="kt">:</span> <span class="kt">Set</span> <span class="ow">-&gt;</span> <span class="kt">Set</span>
-<span class="nf">not</span> <span class="kt">A</span> <span class="ow">=</span> <span class="p">(</span><span class="kt">A</span> <span class="n">implies</span> <span class="kt">False</span><span class="p">)</span>
+<div class="highlight-agda"><div class="highlight"><pre><span class="nf">not</span> <span class="ow">:</span> <span class="kt">Set</span> <span class="ow">-&gt;</span> <span class="kt">Set</span>
+not A <span class="ow">=</span> <span class="o">(</span>A implies False<span class="o">)</span>
 </pre></div>
 </div>
 <p>So, <span class="docutils literal"><span class="pre">not</span> <span class="pre">A</span></span> is true if we can map every proof of <span class="docutils literal"><span class="pre">A</span></span>
@@ -802,8 +802,8 @@ Agda’s typechecker will figure out from this that <span class="docutils litera
 if it had, it would have a proof of <span class="docutils literal"><span class="pre">False</span></span>,
 which would contradict the type declaration of <span class="docutils literal"><span class="pre">False</span></span>.</p>
 <p>Here is an example of proving a negation:</p>
-<div class="highlight-haskell"><div class="highlight"><pre><span class="nf">thmntimpf</span> <span class="kt">:</span> <span class="n">not</span> <span class="p">(</span><span class="kt">True</span> <span class="n">implies</span> <span class="kt">False</span><span class="p">)</span>
-<span class="nf">thmntimpf</span> <span class="n">timpf</span> <span class="ow">=</span> <span class="n">timpf</span> <span class="n">tt</span>
+<div class="highlight-agda"><div class="highlight"><pre><span class="nf">thmntimpf</span> <span class="ow">:</span> not <span class="o">(</span>True implies False<span class="o">)</span>
+thmntimpf timpf <span class="ow">=</span> timpf tt
 </pre></div>
 </div>
 <p>How do we interpret this proof?
@@ -813,12 +813,12 @@ Applying this function to our proof of truth, <span class="docutils literal"><sp
 we get a proof of <span class="docutils literal"><span class="pre">False</span></span>,
 establishing the contradiction.</p>
 <p>Let us finish with proving something slightly less trivial:</p>
-<div class="highlight-haskell"><div class="highlight"><pre><span class="nf">thmcontraposition</span> <span class="kt">:</span> <span class="p">(</span><span class="kt">A</span> <span class="kt">B</span> <span class="kt">:</span> <span class="kt">Set</span><span class="p">)</span> <span class="ow">-&gt;</span> <span class="p">((</span><span class="kt">A</span> <span class="n">implies</span> <span class="kt">B</span><span class="p">)</span> <span class="n">implies</span> <span class="p">((</span><span class="n">not</span> <span class="kt">B</span><span class="p">)</span> <span class="n">implies</span> <span class="p">(</span><span class="n">not</span> <span class="kt">A</span><span class="p">)))</span>
-<span class="nf">thmcontraposition</span> <span class="kt">A</span> <span class="kt">B</span> <span class="n">aimpb</span> <span class="n">nb</span> <span class="n">a</span> <span class="ow">=</span> <span class="n">nb</span> <span class="p">(</span><span class="n">aimpb</span> <span class="n">a</span><span class="p">)</span>
+<div class="highlight-agda"><div class="highlight"><pre><span class="nf">thmcontraposition</span> <span class="ow">:</span> <span class="o">(</span>A B <span class="ow">:</span> <span class="kt">Set</span><span class="o">)</span> <span class="ow">-&gt;</span> <span class="o">((</span>A implies B<span class="o">)</span> implies <span class="o">((</span>not B<span class="o">)</span> implies <span class="o">(</span>not A<span class="o">)))</span>
+thmcontraposition A B aimpb nb a <span class="ow">=</span> nb <span class="o">(</span>aimpb a<span class="o">)</span>
 </pre></div>
 </div>
 <p>How do we arrive at this proof? In emacs, write the proof definition as</p>
-<div class="highlight-haskell"><div class="highlight"><pre><span class="nf">thmcontraposition</span> <span class="kt">A</span> <span class="kt">B</span> <span class="ow">=</span> <span class="p">{</span><span class="o">!</span> <span class="o">!</span><span class="p">}</span>
+<div class="highlight-agda"><div class="highlight"><pre>thmcontraposition A B <span class="ow">=</span> <span class="c-Directive">{! !}</span>
 </pre></div>
 </div>
 <p>and use C-c C-l to load the file. This will tell you that

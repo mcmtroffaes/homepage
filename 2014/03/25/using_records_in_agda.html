@@ -84,18 +84,18 @@ Glorified in two ways:
 In this post, we will only discuss the first point, fields.</p>
 <p>For example, let us revisit the mock real type that we declared in our
 earlier post:</p>
-<div class="highlight-haskell"><div class="highlight"><pre>data ℝ : Set where
-  r0 : ℝ
-  r1 : ℝ
-  _+_ : ℝ -&gt; ℝ -&gt; ℝ
+<div class="highlight-agda"><div class="highlight"><pre><span class="kr">data</span> ℝ <span class="ow">:</span> <span class="kt">Set</span> <span class="kr">where</span>
+  <span class="nf">r0</span> <span class="ow">:</span> ℝ
+  <span class="nf">r1</span> <span class="ow">:</span> ℝ
+  <span class="nf">_+_</span> <span class="ow">:</span> ℝ <span class="ow">-&gt;</span> ℝ <span class="ow">-&gt;</span> ℝ
 
-data _==_ : ℝ -&gt; ℝ -&gt; Set where
-  AXrefl== : ∀ {r} -&gt; r == r
-  AXsymm== : ∀ {r s} -&gt; r == s -&gt; s == r
-  AXtrans== : ∀ {r s t} -&gt; r == s -&gt; s == t -&gt; r == t
-  AX+0 : ∀ {r} -&gt; (r + r0) == r
-  AXsymm+ : ∀ {r s} -&gt; (r + s) == (s + r)
-  AX+== : ∀ {r s t} -&gt; r == s -&gt; (r + t) == (s + t)
+<span class="kr">data</span> _==_ <span class="ow">:</span> ℝ <span class="ow">-&gt;</span> ℝ <span class="ow">-&gt;</span> <span class="kt">Set</span> <span class="kr">where</span>
+  <span class="nf">AXrefl==</span> <span class="ow">:</span> <span class="ow">∀</span> <span class="o">{</span>r<span class="o">}</span> <span class="ow">-&gt;</span> r <span class="ow">==</span> r
+  <span class="nf">AXsymm==</span> <span class="ow">:</span> <span class="ow">∀</span> <span class="o">{</span>r s<span class="o">}</span> <span class="ow">-&gt;</span> r <span class="ow">==</span> s <span class="ow">-&gt;</span> s <span class="ow">==</span> r
+  <span class="nf">AXtrans==</span> <span class="ow">:</span> <span class="ow">∀</span> <span class="o">{</span>r s t<span class="o">}</span> <span class="ow">-&gt;</span> r <span class="ow">==</span> s <span class="ow">-&gt;</span> s <span class="ow">==</span> t <span class="ow">-&gt;</span> r <span class="ow">==</span> t
+  <span class="nf">AX+0</span> <span class="ow">:</span> <span class="ow">∀</span> <span class="o">{</span>r<span class="o">}</span> <span class="ow">-&gt;</span> <span class="o">(</span>r + r0<span class="o">)</span> <span class="ow">==</span> r
+  <span class="nf">AXsymm+</span> <span class="ow">:</span> <span class="ow">∀</span> <span class="o">{</span>r s<span class="o">}</span> <span class="ow">-&gt;</span> <span class="o">(</span>r + s<span class="o">)</span> <span class="ow">==</span> <span class="o">(</span>s + r<span class="o">)</span>
+  <span class="nf">AX+==</span> <span class="ow">:</span> <span class="ow">∀</span> <span class="o">{</span>r s t<span class="o">}</span> <span class="ow">-&gt;</span> r <span class="ow">==</span> s <span class="ow">-&gt;</span> <span class="o">(</span>r + t<span class="o">)</span> <span class="ow">==</span> <span class="o">(</span>s + t<span class="o">)</span>
 </pre></div>
 </div>
 <p>How can we make this nicer?
@@ -113,37 +113,37 @@ is an equivalence relation?</p>
 <p>Well, we could specify the relation itself as a parameter,
 along with proofs of the properties it needs to satisfy.</p>
 <p>Here is one way:</p>
-<div class="highlight-haskell"><div class="highlight"><pre>data IsEquivalence
-  {M : Set}
-  (_≈_ : M -&gt; M -&gt; Set)
-  : Set where
+<div class="highlight-agda"><div class="highlight"><pre><span class="kr">data</span> IsEquivalence
+  <span class="o">{</span>M <span class="ow">:</span> <span class="kt">Set</span><span class="o">}</span>
+  <span class="o">(</span>_≈_ <span class="ow">:</span> M <span class="ow">-&gt;</span> M <span class="ow">-&gt;</span> <span class="kt">Set</span><span class="o">)</span>
+  <span class="ow">:</span> <span class="kt">Set</span> <span class="kr">where</span>
 
-  isEquivalence :
-    (refl : ∀ {r} -&gt; r ≈ r)
-    -&gt; (symm : ∀ {r s} -&gt; r ≈ s -&gt; s ≈ r)
-    -&gt; (trans : ∀ {r s t} -&gt; r ≈ s -&gt; s ≈ t -&gt; r ≈ t)
-    -&gt; IsEquivalence _≈_
+  <span class="nf">isEquivalence</span> <span class="ow">:</span>
+    <span class="o">(</span>refl <span class="ow">:</span> <span class="ow">∀</span> <span class="o">{</span>r<span class="o">}</span> <span class="ow">-&gt;</span> r ≈ r<span class="o">)</span>
+    <span class="ow">-&gt;</span> <span class="o">(</span>symm <span class="ow">:</span> <span class="ow">∀</span> <span class="o">{</span>r s<span class="o">}</span> <span class="ow">-&gt;</span> r ≈ s <span class="ow">-&gt;</span> s ≈ r<span class="o">)</span>
+    <span class="ow">-&gt;</span> <span class="o">(</span>trans <span class="ow">:</span> <span class="ow">∀</span> <span class="o">{</span>r s t<span class="o">}</span> <span class="ow">-&gt;</span> r ≈ s <span class="ow">-&gt;</span> s ≈ t <span class="ow">-&gt;</span> r ≈ t<span class="o">)</span>
+    <span class="ow">-&gt;</span> IsEquivalence _≈_
 </pre></div>
 </div>
 <p>So, if we can create an instance of the type <span class="docutils literal"><span class="pre">IsEquivalence</span></span>
 for some relation <span class="docutils literal"><span class="pre">_≈_</span></span>, then <span class="docutils literal"><span class="pre">_≈_</span></span> is an equivalence relation.
 Here is an example of how we might use <span class="docutils literal"><span class="pre">IsEquivalence</span></span>:</p>
-<div class="highlight-haskell"><div class="highlight"><pre>data ℕ : Set where
-  zero : ℕ
-  suc : ℕ -&gt; ℕ
+<div class="highlight-agda"><div class="highlight"><pre><span class="kr">data</span> ℕ <span class="ow">:</span> <span class="kt">Set</span> <span class="kr">where</span>
+  <span class="nf">zero</span> <span class="ow">:</span> ℕ
+  <span class="nf">suc</span> <span class="ow">:</span> ℕ <span class="ow">-&gt;</span> ℕ
 
-data _==_ : ℕ -&gt; ℕ -&gt; Set where
-  natrefl : ∀ {n} -&gt; n == n
+<span class="kr">data</span> _==_ <span class="ow">:</span> ℕ <span class="ow">-&gt;</span> ℕ <span class="ow">-&gt;</span> <span class="kt">Set</span> <span class="kr">where</span>
+  <span class="nf">natrefl</span> <span class="ow">:</span> <span class="ow">∀</span> <span class="o">{</span>n<span class="o">}</span> <span class="ow">-&gt;</span> n <span class="ow">==</span> n
 
-theorem-==-symm : ∀ {n m} -&gt; n == m -&gt; m == n
-theorem-==-symm natrefl = natrefl
+<span class="nf">theorem-==-symm</span> <span class="ow">:</span> <span class="ow">∀</span> <span class="o">{</span>n m<span class="o">}</span> <span class="ow">-&gt;</span> n <span class="ow">==</span> m <span class="ow">-&gt;</span> m <span class="ow">==</span> n
+theorem-==-symm natrefl <span class="ow">=</span> natrefl
 
-theorem-==-trans : ∀ {n m k} -&gt; n == m -&gt; m == k -&gt; n == k
-theorem-==-trans natrefl natrefl = natrefl
+<span class="nf">theorem-==-trans</span> <span class="ow">:</span> <span class="ow">∀</span> <span class="o">{</span>n m k<span class="o">}</span> <span class="ow">-&gt;</span> n <span class="ow">==</span> m <span class="ow">-&gt;</span> m <span class="ow">==</span> k <span class="ow">-&gt;</span> n <span class="ow">==</span> k
+theorem-==-trans natrefl natrefl <span class="ow">=</span> natrefl
 
-theorem-==-is-equivalence : IsEquivalence _==_
+<span class="nf">theorem-==-is-equivalence</span> <span class="ow">:</span> IsEquivalence _==_
 theorem-==-is-equivalence
-  = isEquivalence natrefl theorem-==-symm theorem-==-trans
+  <span class="ow">=</span> isEquivalence natrefl theorem-==-symm theorem-==-trans
 </pre></div>
 </div>
 <p>Note that in the above example,
@@ -162,17 +162,17 @@ we might get the ordering of arguments wrong.</p>
 <p>The same issue occurs when we want to use <span class="docutils literal"><span class="pre">IsEquivalence</span></span>
 as a premise of a theorem.
 For example:</p>
-<div class="highlight-haskell"><div class="highlight"><pre>data ⊥ : Set where
-¬_ : Set -&gt; Set
-¬ A = A -&gt; ⊥
-theorem-equivalence-simple :
-  {M : Set}
-  -&gt; {_≈_ : M -&gt; M -&gt; Set}
-  -&gt; IsEquivalence _≈_
-  -&gt; ∀ {r s t} -&gt; r ≈ s -&gt; ¬ (s ≈ t) -&gt; ¬ (r ≈ t)
+<div class="highlight-agda"><div class="highlight"><pre><span class="kr">data</span> ⊥ <span class="ow">:</span> <span class="kt">Set</span> <span class="kr">where</span>
+<span class="nf">¬_</span> <span class="ow">:</span> <span class="kt">Set</span> <span class="ow">-&gt;</span> <span class="kt">Set</span>
+¬ A <span class="ow">=</span> A <span class="ow">-&gt;</span> ⊥
+<span class="nf">theorem-equivalence-simple</span> <span class="ow">:</span>
+  <span class="o">{</span>M <span class="ow">:</span> <span class="kt">Set</span><span class="o">}</span>
+  <span class="ow">-&gt;</span> <span class="o">{</span>_≈_ <span class="ow">:</span> M <span class="ow">-&gt;</span> M <span class="ow">-&gt;</span> <span class="kt">Set</span><span class="o">}</span>
+  <span class="ow">-&gt;</span> IsEquivalence _≈_
+  <span class="ow">-&gt;</span> <span class="ow">∀</span> <span class="o">{</span>r s t<span class="o">}</span> <span class="ow">-&gt;</span> r ≈ s <span class="ow">-&gt;</span> ¬ <span class="o">(</span>s ≈ t<span class="o">)</span> <span class="ow">-&gt;</span> ¬ <span class="o">(</span>r ≈ t<span class="o">)</span>
 theorem-equivalence-simple
-  (isEquivalence refl symm trans)
-  r≈s ¬s≈t r≈t = ¬s≈t (trans (symm r≈s) r≈t)
+  <span class="o">(</span>isEquivalence refl symm trans<span class="o">)</span>
+  r≈s ¬s≈t r≈t <span class="ow">=</span> ¬s≈t <span class="o">(</span>trans <span class="o">(</span>symm r≈s<span class="o">)</span> r≈t<span class="o">)</span>
 </pre></div>
 </div>
 <p>In order to specify an instance of <span class="docutils literal"><span class="pre">IsEquivalence</span></span>
@@ -182,10 +182,10 @@ extracting the proofs of each of the properties by pattern matching.</p>
 <p>When we have to apply the theorem,
 say, to prove that it holds for natural numbers,
 things become particularly simple:</p>
-<div class="highlight-haskell"><div class="highlight"><pre>theorem-==-equivalence-simple :
-  ∀ {r s t} -&gt; r == s -&gt; ¬ (s == t) -&gt; ¬ (r == t)
+<div class="highlight-agda"><div class="highlight"><pre><span class="nf">theorem-==-equivalence-simple</span> <span class="ow">:</span>
+  <span class="ow">∀</span> <span class="o">{</span>r s t<span class="o">}</span> <span class="ow">-&gt;</span> r <span class="ow">==</span> s <span class="ow">-&gt;</span> ¬ <span class="o">(</span>s <span class="ow">==</span> t<span class="o">)</span> <span class="ow">-&gt;</span> ¬ <span class="o">(</span>r <span class="ow">==</span> t<span class="o">)</span>
 theorem-==-equivalence-simple
-  = theorem-equivalence-simple theorem-==-is-equivalence
+  <span class="ow">=</span> theorem-equivalence-simple theorem-==-is-equivalence
 </pre></div>
 </div>
 </div>
@@ -197,14 +197,14 @@ if we have many properties.
 It can be very easy to get the ordering wrong.
 A logical improvement would be to provide named parameters.
 This leads us to record syntax:</p>
-<div class="highlight-haskell"><div class="highlight"><pre>record IsEquivalence2
-  {M : Set}
-  (_≈_ : M -&gt; M -&gt; Set)
-  : Set where
-  field
-    refl : ∀ {r} -&gt; r ≈ r
-    symm : ∀ {r s} -&gt; r ≈ s -&gt; s ≈ r
-    trans : ∀ {r s t} -&gt; r ≈ s -&gt; s ≈ t -&gt; r ≈ t
+<div class="highlight-agda"><div class="highlight"><pre><span class="kr">record</span> IsEquivalence2
+  <span class="o">{</span>M <span class="ow">:</span> <span class="kt">Set</span><span class="o">}</span>
+  <span class="o">(</span>_≈_ <span class="ow">:</span> M <span class="ow">-&gt;</span> M <span class="ow">-&gt;</span> <span class="kt">Set</span><span class="o">)</span>
+  <span class="ow">:</span> <span class="kt">Set</span> <span class="kr">where</span>
+  <span class="kr">field</span>
+    <span class="nf">refl</span> <span class="ow">:</span> <span class="ow">∀</span> <span class="o">{</span>r<span class="o">}</span> <span class="ow">-&gt;</span> r ≈ r
+    <span class="nf">symm</span> <span class="ow">:</span> <span class="ow">∀</span> <span class="o">{</span>r s<span class="o">}</span> <span class="ow">-&gt;</span> r ≈ s <span class="ow">-&gt;</span> s ≈ r
+    <span class="nf">trans</span> <span class="ow">:</span> <span class="ow">∀</span> <span class="o">{</span>r s t<span class="o">}</span> <span class="ow">-&gt;</span> r ≈ s <span class="ow">-&gt;</span> s ≈ t <span class="ow">-&gt;</span> r ≈ t
 </pre></div>
 </div>
 <p>Note the differences from our earlier data type definition:
@@ -215,12 +215,12 @@ This leads us to record syntax:</p>
 if we wanted to, which would then work exactly as the constructor
 of our earlier data type, i.e. it might be useful for patter matching.)</p>
 <p>The theorem now becomes:</p>
-<div class="highlight-haskell"><div class="highlight"><pre><span class="nf">theorem</span><span class="o">-==-</span><span class="n">is</span><span class="o">-</span><span class="n">equivalence2</span> <span class="kt">:</span> <span class="kt">IsEquivalence2</span> <span class="kr">_</span><span class="o">==</span><span class="kr">_</span>
-<span class="nf">theorem</span><span class="o">-==-</span><span class="n">is</span><span class="o">-</span><span class="n">equivalence2</span> <span class="ow">=</span> <span class="n">record</span> <span class="p">{</span>
-  <span class="n">refl</span> <span class="ow">=</span> <span class="n">natrefl</span><span class="p">;</span>
-  <span class="n">symm</span> <span class="ow">=</span> <span class="n">theorem</span><span class="o">-==-</span><span class="n">symm</span><span class="p">;</span>
-  <span class="n">trans</span> <span class="ow">=</span> <span class="n">theorem</span><span class="o">-==-</span><span class="n">trans</span>
-  <span class="p">}</span>
+<div class="highlight-agda"><div class="highlight"><pre><span class="nf">theorem-==-is-equivalence2</span> <span class="ow">:</span> IsEquivalence2 _==_
+theorem-==-is-equivalence2 <span class="ow">=</span> <span class="kr">record</span> <span class="o">{</span>
+  refl <span class="ow">=</span> natrefl;
+  symm <span class="ow">=</span> theorem-==-symm;
+  trans <span class="ow">=</span> theorem-==-trans
+  <span class="o">}</span>
 </pre></div>
 </div>
 <p>So, records are constructed with the <span class="docutils literal"><span class="pre">record</span> <span class="pre">{...}</span></span> syntax.
@@ -231,11 +231,11 @@ and the intention of the code becomes much clearer.</p>
 <p>There is also special syntax for accessing any particular field of a record:
 <span class="docutils literal"><span class="pre">&lt;RecordType&gt;.&lt;fieldname&gt;</span> <span class="pre">&lt;instance&gt;</span></span>.
 Our theorem thus becomes:</p>
-<div class="highlight-haskell"><div class="highlight"><pre>theorem-equivalence2-simple :
-  {M : Set} -&gt; {_≈_ : M -&gt; M -&gt; Set} -&gt; IsEquivalence2 _≈_
-  -&gt; ∀ {r s t} -&gt; r ≈ s -&gt; ¬ (s ≈ t) -&gt; ¬ (r ≈ t)
+<div class="highlight-agda"><div class="highlight"><pre><span class="nf">theorem-equivalence2-simple</span> <span class="ow">:</span>
+  <span class="o">{</span>M <span class="ow">:</span> <span class="kt">Set</span><span class="o">}</span> <span class="ow">-&gt;</span> <span class="o">{</span>_≈_ <span class="ow">:</span> M <span class="ow">-&gt;</span> M <span class="ow">-&gt;</span> <span class="kt">Set</span><span class="o">}</span> <span class="ow">-&gt;</span> IsEquivalence2 _≈_
+  <span class="ow">-&gt;</span> <span class="ow">∀</span> <span class="o">{</span>r s t<span class="o">}</span> <span class="ow">-&gt;</span> r ≈ s <span class="ow">-&gt;</span> ¬ <span class="o">(</span>s ≈ t<span class="o">)</span> <span class="ow">-&gt;</span> ¬ <span class="o">(</span>r ≈ t<span class="o">)</span>
 theorem-equivalence2-simple equiv r≈s ¬s≈t r≈t
-  = ¬s≈t ((IsEquivalence2.trans equiv) ((IsEquivalence2.symm equiv) r≈s) r≈t)
+  <span class="ow">=</span> ¬s≈t <span class="o">((</span>IsEquivalence2.trans equiv<span class="o">)</span> <span class="o">((</span>IsEquivalence2.symm equiv<span class="o">)</span> r≈s<span class="o">)</span> r≈t<span class="o">)</span>
 </pre></div>
 </div>
 <p>This is less error prone than our earlier theorem,
@@ -247,12 +247,12 @@ for every instance of a record, <span class="docutils literal"><span class="pre"
 corresponds to a module which provides direct access
 to the fields of the instance.
 We can thus simply write:</p>
-<div class="highlight-haskell"><div class="highlight"><pre>theorem-equivalence2-simple-alt :
-  {M : Set} -&gt; {_≈_ : M -&gt; M -&gt; Set} -&gt; IsEquivalence2 _≈_
-  -&gt; ∀ {r s t} -&gt; r ≈ s -&gt; ¬ (s ≈ t) -&gt; ¬ (r ≈ t)
+<div class="highlight-agda"><div class="highlight"><pre><span class="nf">theorem-equivalence2-simple-alt</span> <span class="ow">:</span>
+  <span class="o">{</span>M <span class="ow">:</span> <span class="kt">Set</span><span class="o">}</span> <span class="ow">-&gt;</span> <span class="o">{</span>_≈_ <span class="ow">:</span> M <span class="ow">-&gt;</span> M <span class="ow">-&gt;</span> <span class="kt">Set</span><span class="o">}</span> <span class="ow">-&gt;</span> IsEquivalence2 _≈_
+  <span class="ow">-&gt;</span> <span class="ow">∀</span> <span class="o">{</span>r s t<span class="o">}</span> <span class="ow">-&gt;</span> r ≈ s <span class="ow">-&gt;</span> ¬ <span class="o">(</span>s ≈ t<span class="o">)</span> <span class="ow">-&gt;</span> ¬ <span class="o">(</span>r ≈ t<span class="o">)</span>
 theorem-equivalence2-simple-alt equiv r≈s ¬s≈t r≈t
-    = ¬s≈t (trans (symm r≈s) r≈t)
-      where open IsEquivalence2 equiv
+    <span class="ow">=</span> ¬s≈t <span class="o">(</span>trans <span class="o">(</span>symm r≈s<span class="o">)</span> r≈t<span class="o">)</span>
+      <span class="kr">where</span> <span class="kr">open</span> IsEquivalence2 equiv
 </pre></div>
 </div>
 <p>The <span class="docutils literal"><span class="pre">open</span></span> command opens a module, that is, brings its declarations
@@ -269,54 +269,54 @@ in a next post.</p>
 reimplemented using record syntax. This is entirely equivalent to our
 earlier simpler data type syntax, but it leads to code that is much
 easier to reuse:</p>
-<div class="highlight-haskell"><div class="highlight"><pre>module Reals where
+<div class="highlight-agda"><div class="highlight"><pre><span class="kr">module</span> <span class="n">Reals</span> <span class="kr">where</span>
 
-record IsEquivalence
-  {M : Set}
-  (_==_ : M -&gt; M -&gt; Set)
-  : Set where
-  field
-    refl : ∀ {r} -&gt; r == r
-    symm : ∀ {r s} -&gt; r == s -&gt; s == r
-    trans : ∀ {r s t} -&gt; r == s -&gt; s == t -&gt; r == t
+<span class="kr">record</span> IsEquivalence
+  <span class="o">{</span>M <span class="ow">:</span> <span class="kt">Set</span><span class="o">}</span>
+  <span class="o">(</span>_==_ <span class="ow">:</span> M <span class="ow">-&gt;</span> M <span class="ow">-&gt;</span> <span class="kt">Set</span><span class="o">)</span>
+  <span class="ow">:</span> <span class="kt">Set</span> <span class="kr">where</span>
+  <span class="kr">field</span>
+    <span class="nf">refl</span> <span class="ow">:</span> <span class="ow">∀</span> <span class="o">{</span>r<span class="o">}</span> <span class="ow">-&gt;</span> r <span class="ow">==</span> r
+    <span class="nf">symm</span> <span class="ow">:</span> <span class="ow">∀</span> <span class="o">{</span>r s<span class="o">}</span> <span class="ow">-&gt;</span> r <span class="ow">==</span> s <span class="ow">-&gt;</span> s <span class="ow">==</span> r
+    <span class="nf">trans</span> <span class="ow">:</span> <span class="ow">∀</span> <span class="o">{</span>r s t<span class="o">}</span> <span class="ow">-&gt;</span> r <span class="ow">==</span> s <span class="ow">-&gt;</span> s <span class="ow">==</span> t <span class="ow">-&gt;</span> r <span class="ow">==</span> t
 
-record IsStrictPartialOrder
-  {M : Set}
-  (_==_ : M -&gt; M -&gt; Set)
-  (_&lt;_ : M -&gt; M -&gt; Set)
-  : Set where
-  field
-    trans&lt;&lt;&lt; : ∀ {r s t} -&gt; r &lt; s -&gt; s &lt; t -&gt; r &lt; t
-    trans&lt;=&lt; : ∀ {r s t} -&gt; r &lt; s -&gt; s == t -&gt; r &lt; t
-    trans=&lt;&lt; : ∀ {r s t} -&gt; r == s -&gt; s &lt; t -&gt; r &lt; t
+<span class="kr">record</span> IsStrictPartialOrder
+  <span class="o">{</span>M <span class="ow">:</span> <span class="kt">Set</span><span class="o">}</span>
+  <span class="o">(</span>_==_ <span class="ow">:</span> M <span class="ow">-&gt;</span> M <span class="ow">-&gt;</span> <span class="kt">Set</span><span class="o">)</span>
+  <span class="o">(</span>_&lt;_ <span class="ow">:</span> M <span class="ow">-&gt;</span> M <span class="ow">-&gt;</span> <span class="kt">Set</span><span class="o">)</span>
+  <span class="ow">:</span> <span class="kt">Set</span> <span class="kr">where</span>
+  <span class="kr">field</span>
+    <span class="nf">trans&lt;&lt;&lt;</span> <span class="ow">:</span> <span class="ow">∀</span> <span class="o">{</span>r s t<span class="o">}</span> <span class="ow">-&gt;</span> r &lt; s <span class="ow">-&gt;</span> s &lt; t <span class="ow">-&gt;</span> r &lt; t
+    <span class="nf">trans&lt;=&lt;</span> <span class="ow">:</span> <span class="ow">∀</span> <span class="o">{</span>r s t<span class="o">}</span> <span class="ow">-&gt;</span> r &lt; s <span class="ow">-&gt;</span> s <span class="ow">==</span> t <span class="ow">-&gt;</span> r &lt; t
+    <span class="nf">trans=&lt;&lt;</span> <span class="ow">:</span> <span class="ow">∀</span> <span class="o">{</span>r s t<span class="o">}</span> <span class="ow">-&gt;</span> r <span class="ow">==</span> s <span class="ow">-&gt;</span> s &lt; t <span class="ow">-&gt;</span> r &lt; t
 
-record IsMockReals
-  {ℝ : Set}
-  (_==_ : ℝ -&gt; ℝ -&gt; Set)
-  (_&lt;_ : ℝ -&gt; ℝ -&gt; Set)
-  (_+_ : ℝ -&gt; ℝ -&gt; ℝ)
-  (r0 : ℝ)
-  (r1 : ℝ)
-  : Set where
-  field
-    isEquivalence : IsEquivalence _==_
-    isStrictPartialOrder : IsStrictPartialOrder _==_ _&lt;_
-    r+r0 : ∀ {r} -&gt; (r + r0) == r
-    symm+ : ∀ {r s} -&gt; (r + s) == (s + r)
-    cong+= : ∀ {r s t} -&gt; r == s -&gt; (r + t) == (s + t)
-    cong+&lt; : ∀ {r s t} -&gt; r &lt; s -&gt; (r + t) &lt; (s + t)
-    0&lt;1 : r0 &lt; r1
+<span class="kr">record</span> IsMockReals
+  <span class="o">{</span>ℝ <span class="ow">:</span> <span class="kt">Set</span><span class="o">}</span>
+  <span class="o">(</span>_==_ <span class="ow">:</span> ℝ <span class="ow">-&gt;</span> ℝ <span class="ow">-&gt;</span> <span class="kt">Set</span><span class="o">)</span>
+  <span class="o">(</span>_&lt;_ <span class="ow">:</span> ℝ <span class="ow">-&gt;</span> ℝ <span class="ow">-&gt;</span> <span class="kt">Set</span><span class="o">)</span>
+  <span class="o">(</span>_+_ <span class="ow">:</span> ℝ <span class="ow">-&gt;</span> ℝ <span class="ow">-&gt;</span> ℝ<span class="o">)</span>
+  <span class="o">(</span>r0 <span class="ow">:</span> ℝ<span class="o">)</span>
+  <span class="o">(</span>r1 <span class="ow">:</span> ℝ<span class="o">)</span>
+  <span class="ow">:</span> <span class="kt">Set</span> <span class="kr">where</span>
+  <span class="kr">field</span>
+    <span class="nf">isEquivalence</span> <span class="ow">:</span> IsEquivalence _==_
+    <span class="nf">isStrictPartialOrder</span> <span class="ow">:</span> IsStrictPartialOrder _==_ _&lt;_
+    <span class="nf">r+r0</span> <span class="ow">:</span> <span class="ow">∀</span> <span class="o">{</span>r<span class="o">}</span> <span class="ow">-&gt;</span> <span class="o">(</span>r + r0<span class="o">)</span> <span class="ow">==</span> r
+    <span class="nf">symm+</span> <span class="ow">:</span> <span class="ow">∀</span> <span class="o">{</span>r s<span class="o">}</span> <span class="ow">-&gt;</span> <span class="o">(</span>r + s<span class="o">)</span> <span class="ow">==</span> <span class="o">(</span>s + r<span class="o">)</span>
+    <span class="nf">cong+=</span> <span class="ow">:</span> <span class="ow">∀</span> <span class="o">{</span>r s t<span class="o">}</span> <span class="ow">-&gt;</span> r <span class="ow">==</span> s <span class="ow">-&gt;</span> <span class="o">(</span>r + t<span class="o">)</span> <span class="ow">==</span> <span class="o">(</span>s + t<span class="o">)</span>
+    <span class="nf">cong+&lt;</span> <span class="ow">:</span> <span class="ow">∀</span> <span class="o">{</span>r s t<span class="o">}</span> <span class="ow">-&gt;</span> r &lt; s <span class="ow">-&gt;</span> <span class="o">(</span>r + t<span class="o">)</span> &lt; <span class="o">(</span>s + t<span class="o">)</span>
+    <span class="nf">0&lt;1</span> <span class="ow">:</span> r0 &lt; r1
 
-  open IsEquivalence isEquivalence public
-    renaming (refl to refl==; symm to symm==; trans to trans==)
+  <span class="kr">open</span> IsEquivalence isEquivalence public
+    renaming <span class="o">(</span>refl to refl==; symm to symm==; trans to trans==<span class="o">)</span>
 
-  open IsStrictPartialOrder isStrictPartialOrder public
+  <span class="kr">open</span> IsStrictPartialOrder isStrictPartialOrder public
 
-  r0+r : {r : ℝ} -&gt; r == (r0 + r)
-  r0+r = symm== (trans== symm+ r+r0)
+  <span class="nf">r0+r</span> <span class="ow">:</span> <span class="o">{</span>r <span class="ow">:</span> ℝ<span class="o">}</span> <span class="ow">-&gt;</span> r <span class="ow">==</span> <span class="o">(</span>r0 + r<span class="o">)</span>
+  r0+r <span class="ow">=</span> symm== <span class="o">(</span>trans== symm+ r+r0<span class="o">)</span>
 
-  thm&lt;+1 : {r : ℝ} -&gt; r &lt; (r + r1)
-  thm&lt;+1 = trans&lt;=&lt; (trans=&lt;&lt; r0+r (cong+&lt; 0&lt;1)) symm+
+  <span class="nf">thm&lt;+1</span> <span class="ow">:</span> <span class="o">{</span>r <span class="ow">:</span> ℝ<span class="o">}</span> <span class="ow">-&gt;</span> r &lt; <span class="o">(</span>r + r1<span class="o">)</span>
+  thm&lt;+1 <span class="ow">=</span> trans&lt;=&lt; <span class="o">(</span>trans=&lt;&lt; r0+r <span class="o">(</span>cong+&lt; <span class="mi">0</span>&lt;1<span class="o">))</span> symm+
 </pre></div>
 </div>
 <p>The new bits are: <span class="docutils literal"><span class="pre">public</span></span>, which re-exports all imported declarations,

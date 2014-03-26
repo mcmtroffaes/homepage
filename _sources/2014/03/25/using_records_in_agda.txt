@@ -25,7 +25,7 @@ In this post, we will only discuss the first point, fields.
 For example, let us revisit the mock real type that we declared in our
 earlier post:
 
-.. code-block:: haskell
+.. code-block:: agda
 
   data ℝ : Set where
     r0 : ℝ
@@ -58,7 +58,7 @@ along with proofs of the properties it needs to satisfy.
 
 Here is one way:
 
-.. code-block:: haskell
+.. code-block:: agda
 
   data IsEquivalence
     {M : Set}
@@ -75,7 +75,7 @@ So, if we can create an instance of the type ``IsEquivalence``
 for some relation ``_≈_``, then ``_≈_`` is an equivalence relation.
 Here is an example of how we might use ``IsEquivalence``:
 
-.. code-block:: haskell
+.. code-block:: agda
 
   data ℕ : Set where
     zero : ℕ
@@ -114,7 +114,7 @@ The same issue occurs when we want to use ``IsEquivalence``
 as a premise of a theorem.
 For example:
 
-.. code-block:: haskell
+.. code-block:: agda
 
   data ⊥ : Set where
   ¬_ : Set -> Set
@@ -137,7 +137,7 @@ When we have to apply the theorem,
 say, to prove that it holds for natural numbers,
 things become particularly simple:
 
-.. code-block:: haskell
+.. code-block:: agda
 
   theorem-==-equivalence-simple :
     ∀ {r s t} -> r == s -> ¬ (s == t) -> ¬ (r == t)
@@ -154,7 +154,7 @@ It can be very easy to get the ordering wrong.
 A logical improvement would be to provide named parameters.
 This leads us to record syntax:
 
-.. code-block:: haskell
+.. code-block:: agda
 
   record IsEquivalence2
     {M : Set}
@@ -175,7 +175,7 @@ of our earlier data type, i.e. it might be useful for patter matching.)
 
 The theorem now becomes:
 
-.. code-block:: haskell
+.. code-block:: agda
 
   theorem-==-is-equivalence2 : IsEquivalence2 _==_
   theorem-==-is-equivalence2 = record {
@@ -194,7 +194,7 @@ There is also special syntax for accessing any particular field of a record:
 ``<RecordType>.<fieldname> <instance>``.
 Our theorem thus becomes:
 
-.. code-block:: haskell
+.. code-block:: agda
 
   theorem-equivalence2-simple :
     {M : Set} -> {_≈_ : M -> M -> Set} -> IsEquivalence2 _≈_
@@ -212,7 +212,7 @@ corresponds to a module which provides direct access
 to the fields of the instance.
 We can thus simply write:
 
-.. code-block:: haskell
+.. code-block:: agda
 
   theorem-equivalence2-simple-alt :
     {M : Set} -> {_≈_ : M -> M -> Set} -> IsEquivalence2 _≈_
@@ -238,7 +238,7 @@ reimplemented using record syntax. This is entirely equivalent to our
 earlier simpler data type syntax, but it leads to code that is much
 easier to reuse:
 
-.. code-block:: haskell
+.. code-block:: agda
 
   module Reals where
 

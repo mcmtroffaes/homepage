@@ -110,8 +110,8 @@ So, one could think of Agda&#8217;s <span class="docutils literal"><span class="
 <p>There is however one crucial difference:
 in Agda, <span class="docutils literal"><span class="pre">Set</span></span> is not an instance of <span class="docutils literal"><span class="pre">Set</span></span>,
 whereas <span class="docutils literal"><span class="pre">type</span></span> is an instance of <span class="docutils literal"><span class="pre">type</span></span> in Python:</p>
-<div class="highlight-haskell"><div class="highlight"><pre><span class="nf">x</span> <span class="kt">:</span> <span class="kt">Set</span>
-<span class="nf">x</span> <span class="ow">=</span> <span class="kt">Set</span>
+<div class="highlight-agda"><div class="highlight"><pre><span class="nf">x</span> <span class="ow">:</span> <span class="kt">Set</span>
+x <span class="ow">=</span> <span class="kt">Set</span>
 </pre></div>
 </div>
 <p>will fail to load in Agda, but</p>
@@ -121,8 +121,8 @@ whereas <span class="docutils literal"><span class="pre">type</span></span> is a
 </div>
 <p>runs just fine in Python.
 Instead, in Agda, <span class="docutils literal"><span class="pre">Set</span></span> is an instance of <span class="docutils literal"><span class="pre">Set1</span></span>:</p>
-<div class="highlight-haskell"><div class="highlight"><pre><span class="nf">x</span> <span class="kt">:</span> <span class="kt">Set1</span>
-<span class="nf">x</span> <span class="ow">=</span> <span class="kt">Set</span>
+<div class="highlight-agda"><div class="highlight"><pre><span class="nf">x</span> <span class="ow">:</span> Set1
+x <span class="ow">=</span> <span class="kt">Set</span>
 </pre></div>
 </div>
 <p>loads just fine in Agda.
@@ -140,8 +140,8 @@ as an <cite>is an element of&#8217; operator `</cite> ∈``.</p>
 <p>What are they?
 Informally, they are types which depend on a value,
 like templates in C++. Here is an example:</p>
-<div class="highlight-haskell"><div class="highlight"><pre><span class="nf">id</span> <span class="kt">:</span> <span class="p">(</span><span class="kt">A</span> <span class="kt">:</span> <span class="kt">Set</span><span class="p">)</span> <span class="ow">-&gt;</span> <span class="kt">A</span> <span class="ow">-&gt;</span> <span class="kt">A</span>
-<span class="nf">id</span> <span class="kr">_</span> <span class="n">a</span> <span class="ow">=</span> <span class="n">a</span>
+<div class="highlight-agda"><div class="highlight"><pre><span class="nf">id</span> <span class="ow">:</span> <span class="o">(</span>A <span class="ow">:</span> <span class="kt">Set</span><span class="o">)</span> <span class="ow">-&gt;</span> A <span class="ow">-&gt;</span> A
+id _ a <span class="ow">=</span> a
 </pre></div>
 </div>
 <p>The type signature declares a function, which takes
@@ -173,10 +173,10 @@ Well, theorems are statements, and theorems are true
 if they can be proven, that is, if the corresponding type has an instance.
 So, we specify that a statement is true simply by stating that it has a value.
 For example, we can declare the following algebraic data types: <a class="footnote-reference" href="#id2" id="id1">[1]</a></p>
-<div class="highlight-haskell"><div class="highlight"><pre><span class="kr">data</span> <span class="kt">False</span> <span class="kt">:</span> <span class="kt">Set</span> <span class="kr">where</span>
+<div class="highlight-agda"><div class="highlight"><pre><span class="kr">data</span> False <span class="ow">:</span> <span class="kt">Set</span> <span class="kr">where</span>
 
-<span class="kr">data</span> <span class="kt">True</span> <span class="kt">:</span> <span class="kt">Set</span> <span class="kr">where</span>
-  <span class="n">tt</span> <span class="kt">:</span> <span class="kt">True</span>
+<span class="kr">data</span> True <span class="ow">:</span> <span class="kt">Set</span> <span class="kr">where</span>
+  <span class="nf">tt</span> <span class="ow">:</span> True
 </pre></div>
 </div>
 <p>Here, <span class="docutils literal"><span class="pre">False</span></span> is a proposition which has no instances,
@@ -195,13 +195,13 @@ and an actual proof of A implying B,
 which is an instance of the theorem&#8217;s type.</p>
 <p>How do we produce a new statement from two existing statements?
 We use a function:</p>
-<div class="highlight-haskell"><div class="highlight"><pre><span class="nf">_implies_</span> <span class="kt">:</span> <span class="kt">Set</span> <span class="ow">-&gt;</span> <span class="kt">Set</span> <span class="ow">-&gt;</span> <span class="kt">Set</span>
+<div class="highlight-agda"><div class="highlight"><pre><span class="nf">_implies_</span> <span class="ow">:</span> <span class="kt">Set</span> <span class="ow">-&gt;</span> <span class="kt">Set</span> <span class="ow">-&gt;</span> <span class="kt">Set</span>
 </pre></div>
 </div>
 <p>(The underscores make this an infix function, which will read better.)
 So, the function <span class="docutils literal"><span class="pre">implies</span></span> takes as arguments two statements or theorems,
 and uses them to produce a new statement. What statement?</p>
-<div class="highlight-haskell"><div class="highlight"><pre><span class="kt">A</span> <span class="n">implies</span> <span class="kt">B</span> <span class="ow">=</span> <span class="kt">A</span> <span class="ow">-&gt;</span> <span class="kt">B</span>
+<div class="highlight-agda"><div class="highlight"><pre>A implies B <span class="ow">=</span> A <span class="ow">-&gt;</span> B
 </pre></div>
 </div>
 <p>The set of functions from A to B? What does this mean?
@@ -210,8 +210,8 @@ if there is an instance of <span class="docutils literal"><span class="pre">A</s
 that is if
 <strong>there is a function that transforms any proof of A into a proof of B</strong>.</p>
 <p>We can now prove a first theorem:</p>
-<div class="highlight-haskell"><div class="highlight"><pre><span class="nf">thmimpliesisreflexive</span> <span class="kt">:</span> <span class="p">(</span><span class="kt">A</span> <span class="kt">:</span> <span class="kt">Set</span><span class="p">)</span> <span class="ow">-&gt;</span> <span class="p">(</span><span class="kt">A</span> <span class="n">implies</span> <span class="kt">A</span><span class="p">)</span>
-<span class="nf">thmimpliesisreflexive</span> <span class="kt">A</span> <span class="ow">=</span> <span class="nf">\</span><span class="n">a</span> <span class="ow">-&gt;</span> <span class="n">a</span>
+<div class="highlight-agda"><div class="highlight"><pre><span class="nf">thmimpliesisreflexive</span> <span class="ow">:</span> <span class="o">(</span>A <span class="ow">:</span> <span class="kt">Set</span><span class="o">)</span> <span class="ow">-&gt;</span> <span class="o">(</span>A implies A<span class="o">)</span>
+thmimpliesisreflexive A <span class="ow">=</span> \a <span class="ow">-&gt;</span> a
 </pre></div>
 </div>
 <p>The definition of the proof reads as follows.
@@ -225,8 +225,8 @@ The function needs to produce
 a proof for the right hand side of the implication, which is also <span class="docutils literal"><span class="pre">A</span></span>.
 Obviously, we can simply return the same proof <span class="docutils literal"><span class="pre">a</span></span> again.</p>
 <p>A more tricky case:</p>
-<div class="highlight-haskell"><div class="highlight"><pre><span class="nf">thmfimpt</span> <span class="kt">:</span> <span class="p">(</span><span class="kt">False</span> <span class="n">implies</span> <span class="kt">True</span><span class="p">)</span>
-<span class="nf">thmfimpt</span> <span class="nb">()</span>
+<div class="highlight-agda"><div class="highlight"><pre><span class="nf">thmfimpt</span> <span class="ow">:</span> <span class="o">(</span>False implies True<span class="o">)</span>
+thmfimpt <span class="o">()</span>
 </pre></div>
 </div>
 <p>The type <span class="docutils literal"><span class="pre">False</span> <span class="pre">implies</span> <span class="pre">True</span></span> simply maps proofs of <span class="docutils literal"><span class="pre">False</span></span>
@@ -236,8 +236,8 @@ Consequently, <span class="docutils literal"><span class="pre">thmfimpt</span></
 mapping nothing to nothing.
 In Agda, we say that a function is empty by writing empty brackets.</p>
 <p>Can we do negation? Easily, in terms of implication:</p>
-<div class="highlight-haskell"><div class="highlight"><pre><span class="nf">not</span> <span class="kt">:</span> <span class="kt">Set</span> <span class="ow">-&gt;</span> <span class="kt">Set</span>
-<span class="nf">not</span> <span class="kt">A</span> <span class="ow">=</span> <span class="p">(</span><span class="kt">A</span> <span class="n">implies</span> <span class="kt">False</span><span class="p">)</span>
+<div class="highlight-agda"><div class="highlight"><pre><span class="nf">not</span> <span class="ow">:</span> <span class="kt">Set</span> <span class="ow">-&gt;</span> <span class="kt">Set</span>
+not A <span class="ow">=</span> <span class="o">(</span>A implies False<span class="o">)</span>
 </pre></div>
 </div>
 <p>So, <span class="docutils literal"><span class="pre">not</span> <span class="pre">A</span></span> is true if we can map every proof of <span class="docutils literal"><span class="pre">A</span></span>
@@ -255,8 +255,8 @@ Agda&#8217;s typechecker will figure out from this that <span class="docutils li
 if it had, it would have a proof of <span class="docutils literal"><span class="pre">False</span></span>,
 which would contradict the type declaration of <span class="docutils literal"><span class="pre">False</span></span>.</p>
 <p>Here is an example of proving a negation:</p>
-<div class="highlight-haskell"><div class="highlight"><pre><span class="nf">thmntimpf</span> <span class="kt">:</span> <span class="n">not</span> <span class="p">(</span><span class="kt">True</span> <span class="n">implies</span> <span class="kt">False</span><span class="p">)</span>
-<span class="nf">thmntimpf</span> <span class="n">timpf</span> <span class="ow">=</span> <span class="n">timpf</span> <span class="n">tt</span>
+<div class="highlight-agda"><div class="highlight"><pre><span class="nf">thmntimpf</span> <span class="ow">:</span> not <span class="o">(</span>True implies False<span class="o">)</span>
+thmntimpf timpf <span class="ow">=</span> timpf tt
 </pre></div>
 </div>
 <p>How do we interpret this proof?
@@ -266,12 +266,12 @@ Applying this function to our proof of truth, <span class="docutils literal"><sp
 we get a proof of <span class="docutils literal"><span class="pre">False</span></span>,
 establishing the contradiction.</p>
 <p>Let us finish with proving something slightly less trivial:</p>
-<div class="highlight-haskell"><div class="highlight"><pre><span class="nf">thmcontraposition</span> <span class="kt">:</span> <span class="p">(</span><span class="kt">A</span> <span class="kt">B</span> <span class="kt">:</span> <span class="kt">Set</span><span class="p">)</span> <span class="ow">-&gt;</span> <span class="p">((</span><span class="kt">A</span> <span class="n">implies</span> <span class="kt">B</span><span class="p">)</span> <span class="n">implies</span> <span class="p">((</span><span class="n">not</span> <span class="kt">B</span><span class="p">)</span> <span class="n">implies</span> <span class="p">(</span><span class="n">not</span> <span class="kt">A</span><span class="p">)))</span>
-<span class="nf">thmcontraposition</span> <span class="kt">A</span> <span class="kt">B</span> <span class="n">aimpb</span> <span class="n">nb</span> <span class="n">a</span> <span class="ow">=</span> <span class="n">nb</span> <span class="p">(</span><span class="n">aimpb</span> <span class="n">a</span><span class="p">)</span>
+<div class="highlight-agda"><div class="highlight"><pre><span class="nf">thmcontraposition</span> <span class="ow">:</span> <span class="o">(</span>A B <span class="ow">:</span> <span class="kt">Set</span><span class="o">)</span> <span class="ow">-&gt;</span> <span class="o">((</span>A implies B<span class="o">)</span> implies <span class="o">((</span>not B<span class="o">)</span> implies <span class="o">(</span>not A<span class="o">)))</span>
+thmcontraposition A B aimpb nb a <span class="ow">=</span> nb <span class="o">(</span>aimpb a<span class="o">)</span>
 </pre></div>
 </div>
 <p>How do we arrive at this proof? In emacs, write the proof definition as</p>
-<div class="highlight-haskell"><div class="highlight"><pre><span class="nf">thmcontraposition</span> <span class="kt">A</span> <span class="kt">B</span> <span class="ow">=</span> <span class="p">{</span><span class="o">!</span> <span class="o">!</span><span class="p">}</span>
+<div class="highlight-agda"><div class="highlight"><pre>thmcontraposition A B <span class="ow">=</span> <span class="c-Directive">{! !}</span>
 </pre></div>
 </div>
 <p>and use C-c C-l to load the file. This will tell you that

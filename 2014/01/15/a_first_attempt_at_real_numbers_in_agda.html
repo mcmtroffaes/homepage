@@ -110,10 +110,10 @@ Let us focus on a set with just some properties of the reals.</p>
 <div class="section" id="constructing-real-instances">
 <h2>Constructing Real Instances</h2>
 <p>First, we declare the constructors of our mock real type:</p>
-<div class="highlight-haskell"><div class="highlight"><pre>data ℝ : Set where
-  r0 : ℝ
-  r1 : ℝ
-  _+_ : ℝ -&gt; ℝ -&gt; ℝ
+<div class="highlight-agda"><div class="highlight"><pre><span class="kr">data</span> ℝ <span class="ow">:</span> <span class="kt">Set</span> <span class="kr">where</span>
+  <span class="nf">r0</span> <span class="ow">:</span> ℝ
+  <span class="nf">r1</span> <span class="ow">:</span> ℝ
+  <span class="nf">_+_</span> <span class="ow">:</span> ℝ <span class="ow">-&gt;</span> ℝ <span class="ow">-&gt;</span> ℝ
 </pre></div>
 </div>
 <p>(In emacs, you get <span class="docutils literal"><span class="pre">ℝ</span></span> by typing <span class="docutils literal"><span class="pre">\br</span></span>.)</p>
@@ -129,13 +129,13 @@ possibly along with substraction, division, negation, and so on.</p>
 How do we go about this?
 Well, for instance, we might like to say that <span class="docutils literal"><span class="pre">r</span> <span class="pre">+</span> <span class="pre">r0</span> <span class="pre">==</span> <span class="pre">r</span></span>.
 We need an equality operator:</p>
-<div class="highlight-haskell"><div class="highlight"><pre>data _==_ : ℝ -&gt; ℝ -&gt; Set where
-  AXrefl== : ∀ {r} -&gt; r == r
-  AXsymm== : ∀ {r s} -&gt; r == s -&gt; s == r
-  AXtrans== : ∀ {r s t} -&gt; r == s -&gt; s == t -&gt; r == t
-  AX+0 : ∀ {r} -&gt; (r + r0) == r
-  AXsymm+ : ∀ {r s} -&gt; (r + s) == (s + r)
-  AX+== : ∀ {r s t} -&gt; r == s -&gt; (r + t) == (s + t)
+<div class="highlight-agda"><div class="highlight"><pre><span class="kr">data</span> _==_ <span class="ow">:</span> ℝ <span class="ow">-&gt;</span> ℝ <span class="ow">-&gt;</span> <span class="kt">Set</span> <span class="kr">where</span>
+  <span class="nf">AXrefl==</span> <span class="ow">:</span> <span class="ow">∀</span> <span class="o">{</span>r<span class="o">}</span> <span class="ow">-&gt;</span> r <span class="ow">==</span> r
+  <span class="nf">AXsymm==</span> <span class="ow">:</span> <span class="ow">∀</span> <span class="o">{</span>r s<span class="o">}</span> <span class="ow">-&gt;</span> r <span class="ow">==</span> s <span class="ow">-&gt;</span> s <span class="ow">==</span> r
+  <span class="nf">AXtrans==</span> <span class="ow">:</span> <span class="ow">∀</span> <span class="o">{</span>r s t<span class="o">}</span> <span class="ow">-&gt;</span> r <span class="ow">==</span> s <span class="ow">-&gt;</span> s <span class="ow">==</span> t <span class="ow">-&gt;</span> r <span class="ow">==</span> t
+  <span class="nf">AX+0</span> <span class="ow">:</span> <span class="ow">∀</span> <span class="o">{</span>r<span class="o">}</span> <span class="ow">-&gt;</span> <span class="o">(</span>r + r0<span class="o">)</span> <span class="ow">==</span> r
+  <span class="nf">AXsymm+</span> <span class="ow">:</span> <span class="ow">∀</span> <span class="o">{</span>r s<span class="o">}</span> <span class="ow">-&gt;</span> <span class="o">(</span>r + s<span class="o">)</span> <span class="ow">==</span> <span class="o">(</span>s + r<span class="o">)</span>
+  <span class="nf">AX+==</span> <span class="ow">:</span> <span class="ow">∀</span> <span class="o">{</span>r s t<span class="o">}</span> <span class="ow">-&gt;</span> r <span class="ow">==</span> s <span class="ow">-&gt;</span> <span class="o">(</span>r + t<span class="o">)</span> <span class="ow">==</span> <span class="o">(</span>s + t<span class="o">)</span>
 </pre></div>
 </div>
 <p>So, the equality operator <span class="docutils literal"><span class="pre">==</span></span> takes two real numbers,
@@ -152,13 +152,13 @@ In the code above,
 all of the constructors start with &#8220;AX&#8221; to emphasize that they are axioms.</p>
 <p>There is one bit of new syntax here: the forall operator &#8220;∀&#8221;.
 The code is fully equivalent to the following more verbose code:</p>
-<div class="highlight-haskell"><div class="highlight"><pre>data _==_ : ℝ -&gt; ℝ -&gt; Set where
-  AXrefl== : {r : ℝ} -&gt; r == r
-  AXsymm== : {r s : ℝ} -&gt; r == s -&gt; s == r
-  AXtrans== : {r s t : ℝ} -&gt; r == s -&gt; s == t -&gt; r == t
-  AX+0 : {r : ℝ} -&gt; (r + r0) == r
-  AXsymm+ : {r s : ℝ} -&gt; (r + s) == (s + r)
-  AX+== : {r s t : ℝ} -&gt; r == s -&gt; (r + t) == (s + t)
+<div class="highlight-agda"><div class="highlight"><pre><span class="kr">data</span> _==_ <span class="ow">:</span> ℝ <span class="ow">-&gt;</span> ℝ <span class="ow">-&gt;</span> <span class="kt">Set</span> <span class="kr">where</span>
+  <span class="nf">AXrefl==</span> <span class="ow">:</span> <span class="o">{</span>r <span class="ow">:</span> ℝ<span class="o">}</span> <span class="ow">-&gt;</span> r <span class="ow">==</span> r
+  <span class="nf">AXsymm==</span> <span class="ow">:</span> <span class="o">{</span>r s <span class="ow">:</span> ℝ<span class="o">}</span> <span class="ow">-&gt;</span> r <span class="ow">==</span> s <span class="ow">-&gt;</span> s <span class="ow">==</span> r
+  <span class="nf">AXtrans==</span> <span class="ow">:</span> <span class="o">{</span>r s t <span class="ow">:</span> ℝ<span class="o">}</span> <span class="ow">-&gt;</span> r <span class="ow">==</span> s <span class="ow">-&gt;</span> s <span class="ow">==</span> t <span class="ow">-&gt;</span> r <span class="ow">==</span> t
+  <span class="nf">AX+0</span> <span class="ow">:</span> <span class="o">{</span>r <span class="ow">:</span> ℝ<span class="o">}</span> <span class="ow">-&gt;</span> <span class="o">(</span>r + r0<span class="o">)</span> <span class="ow">==</span> r
+  <span class="nf">AXsymm+</span> <span class="ow">:</span> <span class="o">{</span>r s <span class="ow">:</span> ℝ<span class="o">}</span> <span class="ow">-&gt;</span> <span class="o">(</span>r + s<span class="o">)</span> <span class="ow">==</span> <span class="o">(</span>s + r<span class="o">)</span>
+  <span class="nf">AX+==</span> <span class="ow">:</span> <span class="o">{</span>r s t <span class="ow">:</span> ℝ<span class="o">}</span> <span class="ow">-&gt;</span> r <span class="ow">==</span> s <span class="ow">-&gt;</span> <span class="o">(</span>r + t<span class="o">)</span> <span class="ow">==</span> <span class="o">(</span>s + t<span class="o">)</span>
 </pre></div>
 </div>
 <p>So, <span class="docutils literal"><span class="pre">∀</span> <span class="pre">{r}</span></span> does two things:
@@ -178,17 +178,17 @@ so in the expression <span class="docutils literal"><span class="pre">r</span> <
 This follows from  <span class="docutils literal"><span class="pre">AXsymm+</span></span> (<span class="docutils literal"><span class="pre">0</span> <span class="pre">+</span> <span class="pre">r</span> <span class="pre">=</span> <span class="pre">r</span> <span class="pre">+</span> <span class="pre">0</span></span>) and <span class="docutils literal"><span class="pre">AX+0</span></span> (<span class="docutils literal"><span class="pre">r</span> <span class="pre">+</span> <span class="pre">0</span> <span class="pre">=</span> <span class="pre">r</span></span>),
 by transitivity (<span class="docutils literal"><span class="pre">AXtrans</span> <span class="pre">==</span></span>), as well as symmetry (<span class="docutils literal"><span class="pre">AXsymm==</span></span>).</p>
 <p>In Agda, this can be written as follows:</p>
-<div class="highlight-haskell"><div class="highlight"><pre>THM0+ : {r : ℝ} -&gt; r == (r0 + r)
-THM0+ = AXsymm== (AXtrans== AXsymm+ AX+0)
--- AXsymm+ AX+0   r0 + r == r + r0 and r + r0 == r
--- AXtrans==      so r0 + r == r
--- AXsymm==       so r == r0 + r
+<div class="highlight-agda"><div class="highlight"><pre><span class="nf">THM0+</span> <span class="ow">:</span> <span class="o">{</span>r <span class="ow">:</span> ℝ<span class="o">}</span> <span class="ow">-&gt;</span> r <span class="ow">==</span> <span class="o">(</span>r0 + r<span class="o">)</span>
+THM0+ <span class="ow">=</span> AXsymm== <span class="o">(</span>AXtrans== AXsymm+ AX+0<span class="o">)</span>
+<span class="c1">-- AXsymm+ AX+0   r0 + r == r + r0 and r + r0 == r</span>
+<span class="c1">-- AXtrans==      so r0 + r == r</span>
+<span class="c1">-- AXsymm==       so r == r0 + r</span>
 </pre></div>
 </div>
 <p>Agda resolved all hidden parameters for us.
 This really simplified the notation.
 Here is how the same proof looks like with all parameters specified:</p>
-<div class="highlight-haskell"><div class="highlight"><pre><span class="kt">THM0</span><span class="o">+</span> <span class="p">{</span><span class="n">r</span><span class="p">}</span> <span class="ow">=</span> <span class="kt">AXsymm</span><span class="o">==</span> <span class="p">{</span><span class="n">r0</span> <span class="o">+</span> <span class="n">r</span><span class="p">}</span> <span class="p">{</span><span class="n">r</span><span class="p">}</span> <span class="p">((</span><span class="kt">AXtrans</span><span class="o">==</span> <span class="p">{</span><span class="n">r0</span> <span class="o">+</span> <span class="n">r</span><span class="p">}</span> <span class="p">{</span><span class="n">r</span> <span class="o">+</span> <span class="n">r0</span><span class="p">}</span> <span class="p">{</span><span class="n">r</span><span class="p">})</span> <span class="p">(</span><span class="kt">AXsymm</span><span class="o">+</span> <span class="p">{</span><span class="n">r0</span><span class="p">}</span> <span class="p">{</span><span class="n">r</span><span class="p">})</span> <span class="p">(</span><span class="kt">AX</span><span class="o">+</span><span class="mi">0</span> <span class="p">{</span><span class="n">r</span><span class="p">}))</span>
+<div class="highlight-agda"><div class="highlight"><pre>THM0+ <span class="o">{</span>r<span class="o">}</span> <span class="ow">=</span> AXsymm== <span class="o">{</span>r0 + r<span class="o">}</span> <span class="o">{</span>r<span class="o">}</span> <span class="o">((</span>AXtrans== <span class="o">{</span>r0 + r<span class="o">}</span> <span class="o">{</span>r + r0<span class="o">}</span> <span class="o">{</span>r<span class="o">})</span> <span class="o">(</span>AXsymm+ <span class="o">{</span>r0<span class="o">}</span> <span class="o">{</span>r<span class="o">})</span> <span class="o">(</span>AX+0 <span class="o">{</span>r<span class="o">}))</span>
 </pre></div>
 </div>
 <p>This kind of symplicity really helps readability,
@@ -206,21 +206,21 @@ but it surely is a nice feature of Agda.</p>
 <div class="section" id="another-theorem">
 <h2>Another Theorem</h2>
 <p>Here are some axioms for strict inequality:</p>
-<div class="highlight-haskell"><div class="highlight"><pre>data _&lt;_ : ℝ -&gt; ℝ -&gt; Set where
-  AXtrans&lt;&lt;&lt; : ∀ {r s t} -&gt; r &lt; s -&gt; s &lt; t -&gt; r &lt; t
-  AX&lt;=&lt; : ∀ {r s t} -&gt; r &lt; s -&gt; s == t -&gt; r &lt; t
-  AX=&lt;&lt; : ∀ {r s t} -&gt; r == s -&gt; s &lt; t -&gt; r &lt; t
-  AX0&lt;1 : r0 &lt; r1
-  AX+&lt;&lt; : ∀ {r s t} -&gt; r &lt; s -&gt; (r + t) &lt; (s + t)
+<div class="highlight-agda"><div class="highlight"><pre><span class="kr">data</span> _&lt;_ <span class="ow">:</span> ℝ <span class="ow">-&gt;</span> ℝ <span class="ow">-&gt;</span> <span class="kt">Set</span> <span class="kr">where</span>
+  <span class="nf">AXtrans&lt;&lt;&lt;</span> <span class="ow">:</span> <span class="ow">∀</span> <span class="o">{</span>r s t<span class="o">}</span> <span class="ow">-&gt;</span> r &lt; s <span class="ow">-&gt;</span> s &lt; t <span class="ow">-&gt;</span> r &lt; t
+  <span class="nf">AX&lt;=&lt;</span> <span class="ow">:</span> <span class="ow">∀</span> <span class="o">{</span>r s t<span class="o">}</span> <span class="ow">-&gt;</span> r &lt; s <span class="ow">-&gt;</span> s <span class="ow">==</span> t <span class="ow">-&gt;</span> r &lt; t
+  <span class="nf">AX=&lt;&lt;</span> <span class="ow">:</span> <span class="ow">∀</span> <span class="o">{</span>r s t<span class="o">}</span> <span class="ow">-&gt;</span> r <span class="ow">==</span> s <span class="ow">-&gt;</span> s &lt; t <span class="ow">-&gt;</span> r &lt; t
+  <span class="nf">AX0&lt;1</span> <span class="ow">:</span> r0 &lt; r1
+  <span class="nf">AX+&lt;&lt;</span> <span class="ow">:</span> <span class="ow">∀</span> <span class="o">{</span>r s t<span class="o">}</span> <span class="ow">-&gt;</span> r &lt; s <span class="ow">-&gt;</span> <span class="o">(</span>r + t<span class="o">)</span> &lt; <span class="o">(</span>s + t<span class="o">)</span>
 </pre></div>
 </div>
 <p>Let us prove that <span class="docutils literal"><span class="pre">r</span> <span class="pre">&lt;</span> <span class="pre">r</span> <span class="pre">+</span> <span class="pre">1</span></span>.</p>
-<div class="highlight-haskell"><div class="highlight"><pre>THM&lt;+1 : {r : ℝ} -&gt; r &lt; (r + r1)
-THM&lt;+1 = AX&lt;=&lt; (AX=&lt;&lt; THM0+ (AX+&lt;&lt; AX0&lt;1)) AXsymm+
--- AX0&lt;1              0 &lt; 1
--- AX&lt;+ %             so 0 + r &lt; 1 + r
--- AX=&lt;&lt; THM0+ %      so r &lt; 1 + r
--- AX&lt;=&lt; % AXsymm+    so r &lt; r + 1
+<div class="highlight-agda"><div class="highlight"><pre><span class="nf">THM&lt;+1</span> <span class="ow">:</span> <span class="o">{</span>r <span class="ow">:</span> ℝ<span class="o">}</span> <span class="ow">-&gt;</span> r &lt; <span class="o">(</span>r + r1<span class="o">)</span>
+THM&lt;+1 <span class="ow">=</span> AX&lt;=&lt; <span class="o">(</span>AX=&lt;&lt; THM0+ <span class="o">(</span>AX+&lt;&lt; AX0&lt;1<span class="o">))</span> AXsymm+
+<span class="c1">-- AX0&lt;1              0 &lt; 1</span>
+<span class="c1">-- AX&lt;+ %             so 0 + r &lt; 1 + r</span>
+<span class="c1">-- AX=&lt;&lt; THM0+ %      so r &lt; 1 + r</span>
+<span class="c1">-- AX&lt;=&lt; % AXsymm+    so r &lt; r + 1</span>
 </pre></div>
 </div>
 <p>Again, to interpret these proofs, it is useful
