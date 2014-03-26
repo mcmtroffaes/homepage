@@ -151,21 +151,13 @@ the other properties could be proved from the definition of <span class="docutil
 Can we do better? What are the problems with the above approach?</p>
 <p>An obvious problem occurs if we have to specify
 many parameters. Whenever we need
-the <span class="docutils literal"><span class="pre">IsEquivalence</span></span> type, or its <span class="docutils literal"><span class="pre">isEquivalence</span></span> constructor,
-we also need to specify four parameters
-(excluding the hidden parameter <span class="docutils literal"><span class="pre">M</span></span>), namely the relation,
-along with the three axioms.
-This makes the code hard to read,
-and even worse,
-we might get the ordering of parameters wrong.
-In the above example, we only have three axioms,
-but in general, the number of axioms that we may want to work with
-simultaneously can become very, very large.</p>
-<p>Finally, and perhaps this is the strongest shortcoming of all,
-showing already in this very simple example:
-using <span class="docutils literal"><span class="pre">IsEquivalence</span></span>
-in theorems that require equivalence relations
-does not lead to further abstraction and simplification of our code.
+the it <span class="docutils literal"><span class="pre">isEquivalence</span></span> constructor,
+we also need to specify three proofs.
+Three is perhaps not that bad,
+but for structures with many more properties,
+we might get the ordering of arguments wrong.</p>
+<p>The same issue occurs when we want to use <span class="docutils literal"><span class="pre">IsEquivalence</span></span>
+as a premise of a theorem.
 For example:</p>
 <div class="highlight-haskell"><div class="highlight"><pre>data ⊥ : Set where
 ¬_ : Set -&gt; Set
@@ -182,11 +174,11 @@ theorem-equivalence-simple
 </div>
 <p>In order to specify an instance of <span class="docutils literal"><span class="pre">IsEquivalence</span></span>
 in the premises of the theorem,
-we can now use our new data type
-instead of having to specify proofs of all axioms.</p>
-<p>Similarly, it provides with some simplification
-when we have to apply the theorem,
-say, to prove that it holds for natural numbers:</p>
+we can now use our new data type,
+extracting the proofs of each of the properties by pattern matching.</p>
+<p>When we have to apply the theorem,
+say, to prove that it holds for natural numbers,
+things become particularly simple:</p>
 <div class="highlight-haskell"><div class="highlight"><pre>theorem-==-equivalence-simple :
   ∀ {r s t} -&gt; r == s -&gt; ¬ (s == t) -&gt; ¬ (r == t)
 theorem-==-equivalence-simple
@@ -196,7 +188,8 @@ theorem-==-equivalence-simple
 </div>
 <div class="section" id="record-syntax">
 <h2>Record Syntax</h2>
-<p>One downside is that pattern matching will become a bit tedious
+<p>As already mentioned,
+pattern matching quickly becomes tedious and error prone
 if we have many properties.
 It can be very easy to get the ordering wrong.
 A logical improvement would be to provide named parameters.
