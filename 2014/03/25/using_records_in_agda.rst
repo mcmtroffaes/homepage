@@ -104,22 +104,14 @@ Can we do better? What are the problems with the above approach?
 
 An obvious problem occurs if we have to specify
 many parameters. Whenever we need
-the ``IsEquivalence`` type, or its ``isEquivalence`` constructor,
-we also need to specify four parameters
-(excluding the hidden parameter ``M``), namely the relation,
-along with the three axioms.
-This makes the code hard to read,
-and even worse,
-we might get the ordering of parameters wrong.
-In the above example, we only have three axioms,
-but in general, the number of axioms that we may want to work with
-simultaneously can become very, very large.
+the it ``isEquivalence`` constructor,
+we also need to specify three proofs.
+Three is perhaps not that bad,
+but for structures with many more properties,
+we might get the ordering of arguments wrong.
 
-Finally, and perhaps this is the strongest shortcoming of all,
-showing already in this very simple example:
-using ``IsEquivalence``
-in theorems that require equivalence relations
-does not lead to further abstraction and simplification of our code.
+The same issue occurs when we want to use ``IsEquivalence``
+as a premise of a theorem.
 For example:
 
 .. code-block:: haskell
@@ -138,12 +130,12 @@ For example:
 
 In order to specify an instance of ``IsEquivalence``
 in the premises of the theorem,
-we can now use our new data type
-instead of having to specify proofs of all axioms.
+we can now use our new data type,
+extracting the proofs of each of the properties by pattern matching.
 
-Similarly, it provides with some simplification
-when we have to apply the theorem,
-say, to prove that it holds for natural numbers:
+When we have to apply the theorem,
+say, to prove that it holds for natural numbers,
+things become particularly simple:
 
 .. code-block:: haskell
 
@@ -155,7 +147,8 @@ say, to prove that it holds for natural numbers:
 Record Syntax
 -------------
 
-One downside is that pattern matching will become a bit tedious
+As already mentioned,
+pattern matching quickly becomes tedious and error prone
 if we have many properties.
 It can be very easy to get the ordering wrong.
 A logical improvement would be to provide named parameters.
