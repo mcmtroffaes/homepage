@@ -3,12 +3,13 @@ module Equivalence where
   data IsEquivalence
     {M : Set}
     (_≈_ : M -> M -> Set)
-    (refl : ∀ {r} -> r ≈ r)
-    (symm : ∀ {r s} -> r ≈ s -> s ≈ r)
-    (trans : ∀ {r s t} -> r ≈ s -> s ≈ t -> r ≈ t)
     : Set where
 
-    isEquivalence : IsEquivalence _≈_ refl symm trans
+    isEquivalence :
+      (refl : ∀ {r} -> r ≈ r)
+      -> (symm : ∀ {r s} -> r ≈ s -> s ≈ r)
+      -> (trans : ∀ {r s t} -> r ≈ s -> s ≈ t -> r ≈ t)
+      -> IsEquivalence _≈_
 
   data ℕ : Set where
     zero : ℕ
@@ -24,8 +25,8 @@ module Equivalence where
   theorem-==-trans natrefl natrefl = natrefl
 
   theorem-==-is-equivalence
-    : IsEquivalence _==_ natrefl theorem-==-symm theorem-==-trans
-  theorem-==-is-equivalence = isEquivalence
+    : IsEquivalence _==_
+  theorem-==-is-equivalence = isEquivalence natrefl theorem-==-symm theorem-==-trans
 
   data ⊥ : Set where
   ¬_ : Set -> Set
@@ -33,13 +34,10 @@ module Equivalence where
   theorem-equivalence-simple :
     {M : Set}
     -> {_≈_ : M -> M -> Set}
-    -> {refl : ∀ {r} -> r ≈ r}
-    -> {symm : ∀ {r s} -> r ≈ s -> s ≈ r}
-    -> {trans : ∀ {r s t} -> r ≈ s -> s ≈ t -> r ≈ t}
-    -> IsEquivalence _≈_ refl symm trans
+    -> IsEquivalence _≈_
     -> ∀ {r s t} -> r ≈ s -> ¬ (s ≈ t) -> ¬ (r ≈ t)
   theorem-equivalence-simple
-    {_} {_≈_} {_} {symm} {trans} _
+    (isEquivalence refl symm trans)
     r≈s ¬s≈t r≈t = ¬s≈t (trans (symm r≈s) r≈t)
 
   theorem-==-equivalence-simple :
