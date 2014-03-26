@@ -1,12 +1,8 @@
-What is Haskell?
-================
-
-
-
-.. author:: default
-.. categories:: none
-.. tags:: none
-.. comments::
+---
+title: What is Haskell?
+author: Matthias C. M. Troffaes
+tags: haskell
+---
 
 Did you see `John Carmack's keynote at QuakeCon 2013
 <http://www.youtube.com/watch?v=Uooh0Y9fC_M>`_?
