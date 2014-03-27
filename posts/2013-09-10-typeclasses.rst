@@ -1,21 +1,17 @@
-Typeclasses
-===========
-
-
-
-.. author:: default
-.. categories:: none
-.. tags:: none
-.. comments::
+---
+title: Typeclasses
+author: Matthias C. M. Troffaes
+tags: haskell
+---
 
 Polymorphism
 ------------
 
-.. highlight:: haskell
-
 We already saw one way to achieve polymorphism in Haskell:
-:ref:`type variables <type-variables>`. For example,
-we defined function composition as::
+type variables. For example,
+we defined function composition as
+
+.. code:: haskell
 
   (.) :: (b -> c) -> (a -> b) -> (a -> c)
   (f . g) x = f $ g x
@@ -36,7 +32,9 @@ for different types.
 
 This is exactly what a *typeclass* does: it allows us to specify that
 a certain type implements certain functions.
-The monad typeclass is defined as follows::
+The monad typeclass is defined as follows:
+
+.. code:: haskell
 
   class Monad m where
       (>>=) :: m a -> (a -> m b) -> m b
@@ -52,7 +50,9 @@ are required to be polymorphic, through type variables.
 So, in essence,
 typeclasses are used to declare that
 a particular type implements a particular interface.
-For example, the list monad would be implemented as::
+For example, the list monad would be implemented as
+
+.. code:: haskell
 
   instance Monad [] where
       (>>=) xs f = concat . map f $ xs
@@ -78,7 +78,9 @@ with the value it stores being the value computed so far.
 As an example of computation, we will parse three digits into an
 integer.
 A first challenge is to convert a single character into a numerical value.
-For this we use the ``ord`` function from the ``Data.Char`` module::
+For this we use the ``ord`` function from the ``Data.Char`` module:
+
+.. code:: haskell
 
   import Data.Char
 
@@ -87,14 +89,18 @@ consists of taking a character from the front of a string
 (we could also take it from the back, but Haskell encourages
 it the other way around), trying to convert it to an integer,
 and returning that integer along with the remainder of the characters
-still to convert. So, ideally, we would like our function signature to be::
+still to convert. So, ideally, we would like our function signature to be
+
+.. code:: haskell
 
   getdigit :: [Char] -> (Int, [Char])
 
 Two problems still to solve are:
 (i) how to deal with error conditions, and
 (ii) how to allow this function to be recursively "eat" characters.
-We change the function signature somewhat to accommodate both issues::
+We change the function signature somewhat to accommodate both issues:
+
+.. code:: haskell
 
   getdigit :: (Int, [Char]) -> [(Int, [Char])]
 
@@ -107,7 +113,9 @@ The second change is that the function now returns a list,
 so an empty list can signal an error condition,
 and a single element list can signal successful parsing.
 
-Here is the full implementation::
+Here is the full implementation.
+
+.. code:: haskell
 
   getdigit :: (Int, [Char]) -> [(Int, [Char])]
   getdigit (n, []) = []
@@ -123,7 +131,9 @@ and adds the parsed digit to that result;
 it also returns the remaining characters.
 
 How can we now parse, say, a three-digit integer?
-The list monad helps us out::
+The list monad helps us out.
+
+.. code:: haskell
 
   getint :: [Char] -> [(Int, [Char])]
   getint xs = getdigit (0, xs) >>= getdigit >>= getdigit
@@ -161,18 +171,24 @@ Maybe
 Using a list to keep track of a failure mode is somewhat contorted:
 we are using a cannon to shoot a fly.
 Haskell provides a simpler data structure just for the purpose
-of storing so-called *optional* values::
+of storing so-called *optional* values.
+
+.. code:: haskell
 
   data Maybe a = Nothing | Just a
 
 Semantically, a ``Maybe`` is just like a list with at most one element.
-Its monad implementation is somewhat simpler than that of lists::
+Its monad implementation is somewhat simpler than that of lists.
+
+.. code:: haskell
 
   (>>=) :: Maybe a -> (a -> Maybe b) -> Maybe b
   (>>=) Nothing f = Nothing
   (>>=) (Just a) f = f a
 
-The full implementation becomes::
+The full implementation becomes
+
+.. code:: haskell
 
   getdigit2 :: (Int, [Char]) -> Maybe (Int, [Char])
   getdigit2 (n, []) = Nothing
