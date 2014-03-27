@@ -1,12 +1,8 @@
-Agda, Dependent Types, Theorem Proving
-======================================
-
-
-
-.. author:: default
-.. categories:: none
-.. tags:: none
-.. comments::
+---
+title: Agda, Dependent Types, Theorem Proving
+author: Matthias C. M. Troffaes
+tags: agda
+---
 
 Agda
 ----
@@ -82,7 +78,7 @@ would hold true.
 Coming from a standard set-theoretic background,
 it can be helpful to think of types as sets,
 and of the colon operator ``:``
-as an `is an element of' operator `` ∈``.
+as an "is an element of" operator ``∈``.
 
 Dependent Types
 ---------------
