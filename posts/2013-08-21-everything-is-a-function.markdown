@@ -10,8 +10,8 @@ Monads and The Magic Blob
 Everyone who starts learning Haskell eventually hits monads.
 In fact, it ought to be the first thing to start with in Haskell:
 remember how any Haskell program essentially does one thing, namely
-evaluating the `main` function?
-Guess what `main` returns: yes, indeed, a monad.
+evaluating the `main`{.haskell} function?
+Guess what `main`{.haskell} returns: yes, indeed, a monad.
 
 Many (though certainly not all) tutorials I came across
 start with treating monads---specifically, the IO monad---as
@@ -53,8 +53,8 @@ with a so-called type signature:
 increment :: Int -> Int
 ```
 
-In the above, `Int` is simply the name of the type for integers in Haskell.
-The code declares the fact that the function, named `increment`,
+In the above, `Int`{.haskell} is simply the name of the type for integers in Haskell.
+The code declares the fact that the function, named `increment`{.haskell},
 takes an integer, and returns an integer.
 Once we have this, we can define the function itself:
 
@@ -63,7 +63,7 @@ increment x = x + 1
 ```
 
 The left hand side denotes the function name (`increment`)
-and its argument (`x`).
+and its argument (`x`{.haskell}).
 Note that we do not need to use brackets for the function argument:
 a space denotes function application.
 This may seem a bit weird at first,
@@ -71,15 +71,15 @@ but one gets used it quite quickly:
 it makes for neat code.
 
 The right hand side denotes the expression used to evaluate the function,
-namely `x + 1`, which does what you expect.
+namely `x + 1`{.haskell}, which does what you expect.
 We already have something weird here: surely, addition is a function too.
-How can we write `x + 1` if every function takes just a single argument?
-And why is the function, `+`, denoted in between of its arguments?
+How can we write `x + 1`{.haskell} if every function takes just a single argument?
+And why is the function, `+`{.haskell}, denoted in between of its arguments?
 Well, there are two things going on:
 
--   `x + 1` is just an alternative notation for `((+) x) 1`.
+-   `x + 1`{.haskell} is just an alternative notation for `((+) x) 1`{.haskell}.
 -   As the notation in the previous point already suggests,
-    `(+)` is *a function which returns another function*:
+    `(+)`{.haskell} is *a function which returns another function*:
     [^1]
 
     ``` {.sourceCode .haskell}
@@ -88,14 +88,14 @@ Well, there are two things going on:
 
     The brackets around the plus symbol
     distinguish the *infix* notation
-    `x + 1` from the *prefix* notation `((+) x) 1`.
+    `x + 1`{.haskell} from the *prefix* notation `((+) x) 1`{.haskell}.
 
-So, `x + 1` first evaluates `(+) x`,
-which is a function with type signature `Int -> Int`.
-Consequently, we apply this function to the argument `1`,
+So, `x + 1`{.haskell} first evaluates `(+) x`{.haskell},
+which is a function with type signature `Int -> Int`{.haskell}.
+Consequently, we apply this function to the argument `1`{.haskell},
 to get an integer back.
 To make the confusion complete,
-observe that we can also denote `(+) x` as `(x+)`.
+observe that we can also denote `(+) x`{.haskell} as `(x+)`{.haskell}.
 Cool.
 
 Here is the full code,
@@ -108,17 +108,17 @@ main :: IO ()
 main = print (increment 5)
 ```
 
-The type signature of `main` is a bit strange: main takes no arguments,
-and returns something that has type `IO ()`.
-In fact, `IO ()` is a monad.
+The type signature of `main`{.haskell} is a bit strange: main takes no arguments,
+and returns something that has type `IO ()`{.haskell}.
+In fact, `IO ()`{.haskell} is a monad.
 For now, suffice it to say that
-to get an IO monad out of some result, we can use the `print` function.
-Coincidently, `print` will also print its argument to the screen,
+to get an IO monad out of some result, we can use the `print`{.haskell} function.
+Coincidently, `print`{.haskell} will also print its argument to the screen,
 which is rather convenient.
 
 A few conventions help us with reducing bracket bloat.
 
-1.  The mapping operator `->` in type signatures is right-associative,
+1.  The mapping operator `->`{.haskell} in type signatures is right-associative,
     so we can write
 
     ``` {.sourceCode .haskell}
@@ -147,8 +147,8 @@ A few conventions help us with reducing bracket bloat.
 3.  Space (for function application)
     has higher precedence than any other operator.
 
-Note that, earlier, we put brackets around `increment 5`
-to apply its outcome to the `print` function. Had we omitted those brackets,
+Note that, earlier, we put brackets around `increment 5`{.haskell}
+to apply its outcome to the `print`{.haskell} function. Had we omitted those brackets,
 as in
 
 ``` {.sourceCode .haskell}
@@ -181,9 +181,9 @@ main = print (affine 1 2 3)
 
 There are two more infix operators which help us with readability.
 
-First, the `$` operator denotes function application,
+First, the `$`{.haskell} operator denotes function application,
 so it is identical to the space operator,
-with the only difference that `$` has very low precedence
+with the only difference that `$`{.haskell} has very low precedence
 and is right-associative,
 whereas space has very high precedence
 and is left-associative.
@@ -193,7 +193,7 @@ Thus, we can simplify the last line and write
 main = print $ affine 1 2 3
 ```
 
-Finally, the `.` operator denotes function composition.
+Finally, the `.`{.haskell} operator denotes function composition.
 Here is its definition
 
 ``` {.sourceCode .haskell}
@@ -201,12 +201,12 @@ Here is its definition
 (f . g) x = f $ g x
 ```
 
-In the above, `a`, `b`, and `c`, are generic placeholders
-for any type our heart desires; we say that `.` is polymorphic,
-and `a`, `b`, and `c` are called *type variables*.
+In the above, `a`{.haskell}, `b`{.haskell}, and `c`{.haskell}, are generic placeholders
+for any type our heart desires; we say that `.`{.haskell} is polymorphic,
+and `a`{.haskell}, `b`{.haskell}, and `c`{.haskell} are called *type variables*.
 They are similar to template arguments in C++.
 
-`.` has higher precedence than `$`, but lower precedence
+`.`{.haskell} has higher precedence than `$`{.haskell}, but lower precedence
 than space.
 Function composition is associative, so if we chain functions together
 through composition, there is no need to write brackets to denote
@@ -237,18 +237,18 @@ Lessons Learned
     is left-associative, which saves us brackets when working with functions
     that take multiple arguments.
 
--   A dollar `$` is like space, but with very low precedence, and it is
+-   A dollar `$`{.haskell} is like space, but with very low precedence, and it is
     right-associative.
 
--   A dot `.` denotes function composition. It is associative,
-    and has medium precedence (higher than `$`, and actually also
+-   A dot `.`{.haskell} denotes function composition. It is associative,
+    and has medium precedence (higher than `$`{.haskell}, and actually also
     higher than all the usual binary operators, but lower than space).
 
--   Mapping operators `->` in type signatures are right-associative, which
+-   Mapping operators `->`{.haskell} in type signatures are right-associative, which
     saves us brackets, again, when working with functions that take
     multiple arguments.
 
--   The standard binary infix operators (`+`, `*`, `-`, `/`,
+-   The standard binary infix operators (`+`{.haskell}, `*`{.haskell}, `-`{.haskell}, `/`{.haskell},
     and so on) can be used
     in prefix notation---i.e. as normal functions---by
     surrounding them with brackets.
@@ -259,9 +259,9 @@ Lessons Learned
 
 -   A function can be polymorphic through type variables in its type signature.
 
--   For now, `main` returns magic blob.
-    For the time being, we will use `print` to blobify our final result,
+-   For now, `main`{.haskell} returns magic blob.
+    For the time being, we will use `print`{.haskell} to blobify our final result,
     and be happy in our ignorance.
 
-[^1]: Actually, the type signature is `(+) :: Num a => a -> a -> a`
+[^1]: Actually, the type signature is `(+) :: Num a => a -> a -> a`{.haskell}
       but let us not get ahead of ourselves.
