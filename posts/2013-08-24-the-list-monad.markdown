@@ -65,12 +65,12 @@ We can also denote infinite arithmetic progressions:
 
 In many (or perhaps most?) languages, the fundamental operation to
 extend lists is appending, that is, extending at the end of the
-list---for example, in Python, it is very natural to use the `+=`
+list---for example, in Python, it is very natural to use the `+=`{.python}
 operator.
 In Haskell however, *prepending* is the fundamental operation to
 extend lists. The reason for this is straightforward: if you allow infinite
 lists, prepending is the only sensible extension operator.
-The `:` (colon) operator denotes prepend:
+The `:`{.haskell} (colon) operator denotes prepend:
 
 ``` {.sourceCode .haskell}
 1:[3,4,5] == [1,3,4,5]
@@ -83,11 +83,11 @@ func :: [Int] -> Int
 func xs = 3 * sum xs
 ```
 
-So, `[Int]` denote a list of `Int` elements.
-Observe that the argument of `func` is called `xs`, rather than `x`.
+So, `[Int]`{.haskell} denote a list of `Int`{.haskell} elements.
+Observe that the argument of `func`{.haskell} is called `xs`{.haskell}, rather than `x`{.haskell}.
 It is a useful convention in Haskell code to denote list variables by
-`xs`, `ys`, and so on,
-and to denote their elements by `x`, `y`, and so on.
+`xs`{.haskell}, `ys`{.haskell}, and so on,
+and to denote their elements by `x`{.haskell}, `y`{.haskell}, and so on.
 
 In Haskell, all of a list's elements must be of the same type.
 For example, we **cannot** write
@@ -135,8 +135,8 @@ In the above, the function
 null :: [a] -> Bool
 ```
 
-returns `True` if its list argument is empty---remember
-that `a` is a type variable,
+returns `True`{.haskell} if its list argument is empty---remember
+that `a`{.haskell} is a type variable,
 so this function is polymorphic and will work for lists of any type.
 
 Anyway, let us stop this brief digression and get back to topic: monads!
@@ -161,7 +161,7 @@ which results in
 ```
 
 First, let us tackle each of the parts separately,
-namely `x <- [1,2,3]`, `y <- [-x,x]`, and `x + y ^ 3`.
+namely `x <- [1,2,3]`{.haskell}, `y <- [-x,x]`{.haskell}, and `x + y ^ 3`{.haskell}.
 Can we rewrite these as functions?
 
 ``` {.sourceCode .haskell}
@@ -175,7 +175,7 @@ funcfinal :: Int -> Int -> [Int]
 funcfinal x y = [x + y ^ 3]
 ```
 
-Note that we do not actually need `funcx`---we introduce it here
+Note that we do not actually need `funcx`{.haskell}---we introduce it here
 merely for the sake of symmetry. The important observation is
 that all these functions produce lists.
 If we may get slightly ahead of ourselves,
@@ -183,10 +183,10 @@ in light of general monad theory,
 what matters here is that all these functions
 produce *containers* of the same *form*.
 
-Next, we need a function to combine `funcx`, `funcy`, and `funcfinal`.
-Specifically, we wish to *bind* the outcome of `funcx`
-to the input of the function `funcy`, and then to *bind*
-the outcome of both of these to `funcfinal`.
+Next, we need a function to combine `funcx`{.haskell}, `funcy`{.haskell}, and `funcfinal`{.haskell}.
+Specifically, we wish to *bind* the outcome of `funcx`{.haskell}
+to the input of the function `funcy`{.haskell}, and then to *bind*
+the outcome of both of these to `funcfinal`{.haskell}.
 Here is what you might write in a possible attempt:
 
 ``` {.sourceCode .haskell}
@@ -194,7 +194,7 @@ bind :: [Int] -> (Int -> [Int]) -> [Int]
 bind zs f = concat . map f $ zs
 ```
 
-In the above, `map` applies a function to every element of a list:
+In the above, `map`{.haskell} applies a function to every element of a list:
 
 ``` {.sourceCode .haskell}
 map funcy $ funcx
@@ -206,7 +206,7 @@ gives
 [[-1,1],[-2,2],[-3,3]]
 ```
 
-The function `concat` concatenates this list of lists. Consequently,
+The function `concat`{.haskell} concatenates this list of lists. Consequently,
 
 ``` {.sourceCode .haskell}
 bind funcx funcy
@@ -221,9 +221,9 @@ gives
 This is not exactly the result we want,
 but we are clearly getting close:
 we already have a list with six elements.
-The elements are `y` rather than `x + y ^ 3`,
-because we have not yet used `funcfinal`.
-Can we use `bind` to combine `funcy` and `funcfinal`?
+The elements are `y`{.haskell} rather than `x + y ^ 3`{.haskell},
+because we have not yet used `funcfinal`{.haskell}.
+Can we use `bind`{.haskell} to combine `funcy`{.haskell} and `funcfinal`{.haskell}?
 Of course! For instance,
 
 ``` {.sourceCode .haskell}
@@ -236,8 +236,8 @@ will give us
 [0,2]
 ```
 
-which is the desired result, for `x = 1`.
-The only remaining problem is to feed all values for `x`
+which is the desired result, for `x = 1`{.haskell}.
+The only remaining problem is to feed all values for `x`{.haskell}
 into this expression:
 
 ``` {.sourceCode .haskell}
@@ -245,7 +245,7 @@ bind2 f1 f2 x = bind (f1 x) (f2 x)
 ```
 
 (The type signature is rather complex, so we have omitted it here.)
-To get the final result, we thus apply `bind` twice:
+To get the final result, we thus apply `bind`{.haskell} twice:
 
 ``` {.sourceCode .haskell}
 bind funcx $ bind2 funcy funcfinal
@@ -258,10 +258,10 @@ This is about as close as we can get to the original expression
 ```
 
 where
-`funcx` represents `x <- [1,2,3]`,
-`funcy` represents `y <- [x,-x]`, and
-`funcfinal` represents `x + y ^ 3`.
-The `bind` and `bind2` functions are merely glue.
+`funcx`{.haskell} represents `x <- [1,2,3]`{.haskell},
+`funcy`{.haskell} represents `y <- [x,-x]`{.haskell}, and
+`funcfinal`{.haskell} represents `x + y ^ 3`{.haskell}.
+The `bind`{.haskell} and `bind2`{.haskell} functions are merely glue.
 
 If you followed this far, congratulations!!
 You may not realize it yet, but you now know in essence what a monad is.
@@ -270,7 +270,7 @@ which binds functions that operate on these containers.
 Everything else about monads in Haskell comes down to:
 
 1.   adding syntactic sugar to remove the boilerplate in the above code, and
-2.   generalizing from `[Int]` lists to arbitrary containers.
+2.   generalizing from `[Int]`{.haskell} lists to arbitrary containers.
 
 Yippikayee!
 
@@ -289,7 +289,7 @@ The first thing we can do is rewrite the glue in infix notation:
 funcx `bind` (funcy `bind2` funcfinal)
 ```
 
-For any function `f` in Haskell
+For any function `f`{.haskell} in Haskell
 
 ``` {.sourceCode .haskell}
 x `f` y
@@ -351,7 +351,7 @@ simply by observing that we could also have written
 funcxy'' = bind2 funcy funcfinal
 ```
 
-Note that our full code is now down to two lines: a definition of `bind`,
+Note that our full code is now down to two lines: a definition of `bind`{.haskell},
 (which is highly generic: we can reuse it for any list comprehension),
 and the comprehension itself:
 
@@ -371,13 +371,13 @@ an unbalanced parenthesis [^1]:
 We got rid of all brackets,
 and this *almost* looks like our list comprehension.
 
-The `>>=` Operator
-------------------
+The `>>=`{.haskell} Operator
+----------------------------
 
-Because the `bind` operation is so generically useful
+Because the `bind`{.haskell} operation is so generically useful
 for arbitrary list comprehensions,
-Haskell implements an `>>=` operator for us,
-which behaves just like our `bind`.
+Haskell implements an `>>=`{.haskell} operator for us,
+which behaves just like our `bind`{.haskell}.
 We get
 
 ``` {.sourceCode .haskell}
@@ -401,8 +401,8 @@ bind [1,2,3] (\x -> bind [-x,x] (\y -> [x + y ^ 3]))
 
 which, although perhaps more explicit, may feel less natural.
 
-Do Notation and the `<-` Operator
----------------------------------
+Do Notation and the `<-`{.haskell} Operator
+-------------------------------------------
 
 For large list comprehensions, keeping everything on a single line
 becomes tedious. Instead, we can write
@@ -414,7 +414,7 @@ becomes tedious. Instead, we can write
 ```
 
 where it is **very important to remember that
-the body of `->` extends to the right as far as logically possible**,
+the body of `->`{.haskell} extends to the right as far as logically possible**,
 i.e. with brackets, our code is equivalent to
 
 ``` {.sourceCode .haskell}
@@ -426,7 +426,7 @@ i.e. with brackets, our code is equivalent to
 Perhaps, you will find that this is already obscure enough.
 Nevertheless, Haskell allows you to take this yet one step further,
 with a so-called do block.
-A do block allows us to replace `>>=` operators with
+A do block allows us to replace `>>=`{.haskell} operators with
 newlines and some sort of 'reverse lambda notation':
 
 ``` {.sourceCode .haskell}
@@ -436,7 +436,7 @@ do x <- [1,2,3]
 ```
 
 The only remaining touch we can give this code is to use Haskell's
-`return` function:
+`return`{.haskell} function:
 
 ``` {.sourceCode .haskell}
 do x <- [1,2,3]
@@ -444,7 +444,7 @@ do x <- [1,2,3]
    return (x + y ^ 3)
 ```
 
-The `return` function transforms a value into a container
+The `return`{.haskell} function transforms a value into a container
 (or, a monad, if you like), and for lists, it is defined as
 
 ``` {.sourceCode .haskell}
@@ -473,8 +473,8 @@ do x <- [1,2]
    [x + y, x - y]
 ```
 
-there is no guarantee whatsoever that Haskell will evaluate `[1, 2]`
-before `[9,10]`. For all we know,
+there is no guarantee whatsoever that Haskell will evaluate `[1, 2]`{.haskell}
+before `[9,10]`{.haskell}. For all we know,
 Haskell might even evaluate them in parallel.
 
 The Monad Typeclass
@@ -482,11 +482,11 @@ The Monad Typeclass
 
 The do notation does not only exist for lists, but applies to any monad.
 It is crucial to realize that
-**the `>>=` operator determines how a do block is evaluated**,
+**the `>>=`{.haskell} operator determines how a do block is evaluated**,
 as do blocks are simply a fancy way of rewriting
-a `>>=`-separated chain of expressions.
+a `>>=`{.haskell}-separated chain of expressions.
 In fact, any container type
-which implements `>>=` and `return` is a monad.
+which implements `>>=`{.haskell} and `return`{.haskell} is a monad.
 We have not yet seen
 how Haskell can overload functions to take arbitrary types.
 This is done through Haskell's typeclasses.
