@@ -47,14 +47,18 @@ In Haskell, functions have a name, and one argument.
 Yes, all functions have a single argument---we will see in a bit how we
 can fake functions with multiple arguments.
 It is a good habit, although not necessary, to annotate your functions
-with a so-called type signature::
+with a so-called type signature:
+
+.. code:: haskell
 
   increment :: Int -> Int
 
 In the above, ``Int`` is simply the name of the type for integers in Haskell.
 The code declares the fact that the function, named ``increment``,
 takes an integer, and returns an integer.
-Once we have this, we can define the function itself::
+Once we have this, we can define the function itself:
+
+.. code:: haskell
 
   increment x = x + 1
 
@@ -79,7 +83,7 @@ Well, there are two things going on:
   ``(+)`` is *a function which returns another function*:
   [1]_
 
-  ::
+  .. code:: haskell
 
     (+) :: Int -> (Int -> Int)
 
@@ -96,7 +100,9 @@ observe that we can also denote ``(+) x`` as ``(x+)``.
 Cool.
 
 Here is the full code,
-which you can save as ``test.hs`` and run with ``runghc test.hs``::
+which you can save as ``test.hs`` and run with ``runghc test.hs``:
+
+.. code:: haskell
 
   increment :: Int -> Int
   increment x = x + 1
@@ -114,20 +120,28 @@ which is rather convenient.
 A few conventions help us with reducing bracket bloat.
 
 1. The mapping operator ``->`` in type signatures is right-associative,
-   so we can write::
+   so we can write
+
+   .. code:: haskell
 
      (+) :: Int -> Int -> Int
 
-   instead of::
+   instead of
+
+   .. code:: haskell
 
      (+) :: Int -> (Int -> Int)
 
 2. Space (for function application) is left-associative,
-   so we can write::
+   so we can write
+
+   .. code:: haskell
 
      (+) x 1
 
-   instead of::
+   instead of
+
+   .. code:: haskell
 
      ((+) x) 1
 
@@ -136,11 +150,15 @@ A few conventions help us with reducing bracket bloat.
 
 Note that, earlier, we put brackets around ``increment 5``
 to apply its outcome to the ``print`` function. Had we omitted those brackets,
-as in::
+as in
+
+.. code:: haskell
 
   main = print increment 5
 
-then the compiler would have interpreted this as::
+then the compiler would have interpreted this as
+
+.. code:: haskell
 
   main = (print increment) 5
 
@@ -153,7 +171,9 @@ Indeed, type checks do prevent a rather frequent cause
 of sometimes hard to track bugs;
 that is why those type signatures are especially important.
 
-Anyway, with this knowledge, we can now for instance define::
+Anyway, with this knowledge, we can now for instance define
+
+.. code:: haskell
 
   affine :: Double -> Double -> Double -> Double
   affine a b x = a + b * x
@@ -168,12 +188,16 @@ with the only difference that ``$`` has very low precedence
 and is right-associative,
 whereas space has very high precedence
 and is left-associative.
-Thus, we can simplify the last line and write::
+Thus, we can simplify the last line and write
+
+.. code:: haskell
 
   main = print $ affine 1 2 3
 
 Finally, the ``.`` operator denotes function composition.
-Here is its definition::
+Here is its definition
+
+.. code:: haskell
 
   (.) :: (b -> c) -> (a -> b) -> (a -> c)
   (f . g) x = f $ g x
@@ -194,11 +218,15 @@ the order of composition.
 Something to Blow Your Mind
 ---------------------------
 
-Explain why::
+Explain why
+
+.. code:: haskell
 
   main = print . affine 1 2 $ 3
 
-is the same as::
+is the same as
+
+.. code:: haskell
 
   main = print $ affine 1 2 3
 
