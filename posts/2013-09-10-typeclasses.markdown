@@ -16,7 +16,7 @@ we defined function composition as
 (f . g) x = f $ g x
 ```
 
-Above, `a`, `b`, and `c` are generic placeholders
+Above, `a`{.haskell}, `b`{.haskell}, and `c`{.haskell} are generic placeholders
 to denote arbitrary types. These are called type variables.
 
 If we think about generalising the monad pattern to general types,
@@ -44,7 +44,7 @@ Note that we are also required to implement a return function
 to embed a type into our monad;
 actually, for may examples, this is not really required,
 but it can be useful in case a type's constructors are hidden.
-Note that the bind operator `>>=` and the `return` function
+Note that the bind operator `>>=`{.haskell} and the `return`{.haskell} function
 are required to be polymorphic, through type variables.
 
 So, in essence,
@@ -78,7 +78,7 @@ with the value it stores being the value computed so far.
 As an example of computation, we will parse three digits into an
 integer.
 A first challenge is to convert a single character into a numerical value.
-For this we use the `ord` function from the `Data.Char` module:
+For this we use the `ord`{.haskell} function from the `Data.Char`{.haskell} module:
 
 ``` {.sourceCode .haskell}
 import Data.Char
@@ -105,7 +105,7 @@ getdigit :: (Int, [Char]) -> [(Int, [Char])]
 ```
 
 Two things have happened: we have written the function
-to take just a single argument, namely, a tuple of `Int` and `[Char]`.
+to take just a single argument, namely, a tuple of `Int`{.haskell} and `[Char]`{.haskell}.
 This will simplify chaining: suppose we have eaten a character
 and are left with a remaining string, then we can simply call
 the function again to get the next digit with its remaining string, and so on.
@@ -143,20 +143,20 @@ That looks rather elegant, but what is going on here?
 Remember what the list monad does: it takes a list, applies a function
 to all elements of that list, and then concatenates the resulting
 elements of that list. Let us analyse this process in the above code.
-First, we start with `getdigit (0, xs)`.
+First, we start with `getdigit (0, xs)`{.haskell}.
 If, on the one hand,
-the input `xs` is empty, or has an invalid first character,
+the input `xs`{.haskell} is empty, or has an invalid first character,
 then we end up with an empty list.
 If, on the other hand,
-the input `xs` starts with a valid character,
+the input `xs`{.haskell} starts with a valid character,
 then we get a list containing the value of that character,
-along with the tail of `xs`, i.e. all characters still to process.
+along with the tail of `xs`{.haskell}, i.e. all characters still to process.
 
-The monad operation `>>=` will then apply `getdigit`
+The monad operation `>>=`{.haskell} will then apply `getdigit`{.haskell}
 to all elements of the list we just obtained---remember that this
 list is either empty, or contains exactly one element.
-If that list was empty, `>>=` will just return an empty list again
-without even calling `getdigit`.
+If that list was empty, `>>=`{.haskell} will just return an empty list again
+without even calling `getdigit`{.haskell}.
 If that list contained one element,
 it will multiply the original result by 10, add the newly processed digit
 to the result, and return a list containing one pair,
@@ -177,7 +177,7 @@ of storing so-called *optional* values.
 data Maybe a = Nothing | Just a
 ```
 
-Semantically, a `Maybe` is just like a list with at most one element.
+Semantically, a `Maybe`{.haskell} is just like a list with at most one element.
 Its monad implementation is somewhat simpler than that of lists.
 
 ``` {.sourceCode .haskell}
@@ -202,4 +202,4 @@ getint2 xs = getdigit2 (0, xs) >>= getdigit2 >>= getdigit2
 
 This is obviously very similar to our list implementation.
 The main difference is that the intent of the code has become clearer
-due to the explicit use of `Maybe`, `Nothing`, and `Just`.
+due to the explicit use of `Maybe`{.haskell}, `Nothing`{.haskell}, and `Just`{.haskell}.
