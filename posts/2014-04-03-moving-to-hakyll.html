@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-        <title>Blow Your Mind With Haskell - Moving to Hakyll</title>
+        <title>Blow Your Mind With Haskell - Moving to Hakyll and Agda Syntax Highlighting in Pandoc</title>
         <link rel="stylesheet" type="text/css" href="../css/default.css" />
         <link rel="stylesheet" type="text/css" href="../css/syntax.css" />
     </head>
@@ -18,7 +18,7 @@
         </div>
 
         <div id="content">
-            <h1>Moving to Hakyll</h1>
+            <h1>Moving to Hakyll and Agda Syntax Highlighting in Pandoc</h1>
 
             <div class="info">
     Posted on April  3, 2014
@@ -27,7 +27,22 @@
     
 </div>
 
-<p>I’ve just finished moving this blog from Sphinx (tinkerer) to Hakyll, in order to make it easier to integrate it with other parts of my website.</p>
+<p>I have just finished moving this blog from <a href="http://tinkerer.me/">tinkerer</a> to <a href="http://jaspervdj.be/hakyll/">Hakyll</a>.</p>
+<h2 id="agda-syntax-highlighting-in-pandoc">Agda Syntax Highlighting in Pandoc</h2>
+<p>One issue I ran into is that Hakyll does not support Agda syntax highlighting. It turns out that Hakyll uses pandoc, which uses highlighting-kate, which uses KDE’s kate. So I ended up writing an Agda syntax highlighting file for kate. The code is currently up for <a href="https://git.reviewboard.kde.org/r/117167/">review on the bug tracker</a>.</p>
+<p>Note that there are some other solutions on the web, notably <a href="http://hackage.haskell.org/package/hakyll-agda">hakyll-agda</a> and <a href="http://hackage.haskell.org/package/PandocAgda">PandocAgda</a>, to enable Agda syntax highlighting with Hakyll, however these solutions will only highlight complete Agda modules, and they will go through the Agda compiler itself thereby requiring the full Agda compiler to be installed. Unfortunately, it seems impossible (or at least highly non-trivial) to install Agda and Hakyll simultaneously: cabal keeps telling me their dependencies cannot be simultaneously satisfied. Also, only being able to highlight full modules seems overly restrictive.</p>
+<p>Here is how to enable Agda syntax highlighting for Hakyll, using a sandbox (you probably do not want your own build of highlighting-kate to interfere with the rest of your Haskell installation):</p>
+<pre class="sourceCode bash"><code class="sourceCode bash"><span class="kw">hsenv</span>
+<span class="kw">source</span> .hsenv/bin/activate
+<span class="kw">git</span> clone git://github.com/mcmtroffaes/highlighting-kate.git
+<span class="kw">cd</span> highlighting-kate
+<span class="kw">git</span> checkout agda-syntax
+<span class="kw">cabal</span> install -j hxt regex-posix utf8-string
+<span class="kw">make</span> prep
+<span class="kw">cabal</span> install -j
+<span class="kw">cabal</span> install -j hakyll</code></pre>
+<p>Now you have an Agda syntax enabled Hakyll sandbox.</p>
+<p>Hopefully the patch gets merged soon into kate, and then into highlighting-kate. Enjoy!</p>
 
         </div>
         <div id="footer">
