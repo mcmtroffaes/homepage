@@ -4,13 +4,9 @@ author: Matthias C. M. Troffaes
 tags: hakyll, kate, agda
 ---
 
-Hakyll
-------
-
-I've just finished moving this blog from
+I have just finished moving this blog from
 [tinkerer](http://tinkerer.me/) to
-[Hakyll](http://jaspervdj.be/hakyll/),
-in order to make it easier to integrate it with other parts of my website.
+[Hakyll](http://jaspervdj.be/hakyll/).
 
 Agda Syntax Highlighting in Pandoc
 ----------------------------------
