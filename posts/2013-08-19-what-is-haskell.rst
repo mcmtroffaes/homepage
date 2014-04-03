@@ -1,12 +1,8 @@
-What is Haskell?
-================
-
-
-
-.. author:: default
-.. categories:: none
-.. tags:: none
-.. comments::
+---
+title: What is Haskell?
+author: Matthias C. M. Troffaes
+tags: haskell
+---
 
 Did you see `John Carmack's keynote at QuakeCon 2013
 <http://www.youtube.com/watch?v=Uooh0Y9fC_M>`_?
@@ -94,8 +90,8 @@ has a number of important practical implications:
    with a compiler that expects only pure functions
    and immutable data, appears to be difficult, if not impossible.
 
-The latter is a bummer.
-It is wildly surprising that Haskell can work
+Concerning the latter,
+it is wildly surprising that Haskell can work
 with impure functions in a sane way.
 To do so, we have to rely on a generic but very useful
 system called a *monad*.
