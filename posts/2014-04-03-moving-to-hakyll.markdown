@@ -44,8 +44,8 @@ highlighting-kate to interfere with the rest of your Haskell installation):
 hsenv
 source .hsenv/bin/activate
 git clone git://github.com/mcmtroffaes/highlighting-kate.git
-git checkout agda-syntax
 cd highlighting-kate
+git checkout agda-syntax
 cabal install -j hxt regex-posix utf8-string
 make prep
 cabal install -j
