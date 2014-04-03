@@ -40,12 +40,12 @@ data _==_ : ℝ -> ℝ -> Set where
 
 How can we make this nicer?
 Well, it would be quite nice if we could
-somehow seperate the first three axioms that turn `_==_` into an
+somehow seperate the first three axioms that turn `_==_`{.agda} into an
 equivalence relation.
 Secondly, there might be many different ways
 in which we can actually construct an equivalence relation on a type.
 In fact, we might work with different equivalence relations at the same time.
-How can we generically say that some arbitrary relation, say `_≈_`,
+How can we generically say that some arbitrary relation, say `_≈_`{.agda},
 is an equivalence relation?
 
 Parametric Data Types in Overdrive
@@ -69,9 +69,9 @@ data IsEquivalence
     -> IsEquivalence _≈_
 ```
 
-So, if we can create an instance of the type `IsEquivalence`
-for some relation `_≈_`, then `_≈_` is an equivalence relation.
-Here is an example of how we might use `IsEquivalence`:
+So, if we can create an instance of the type `IsEquivalence`{.agda}
+for some relation `_≈_`{.agda}, then `_≈_`{.agda} is an equivalence relation.
+Here is an example of how we might use `IsEquivalence`{.agda}:
 
 ``` {.sourceCode .agda}
 data ℕ : Set where
@@ -93,8 +93,8 @@ theorem-==-is-equivalence
 ```
 
 Note that in the above example,
-only reflexivity had to be specified as an axiom of `_==_`, and
-the other properties could be proved from the definition of `_==_`
+only reflexivity had to be specified as an axiom of `_==_`{.agda}, and
+the other properties could be proved from the definition of `_==_`{.agda}
 (of course this will not be the case in general!).
 
 This is very generic already.
@@ -102,13 +102,13 @@ Can we do better? What are the problems with the above approach?
 
 An obvious problem occurs if we have to specify
 many parameters. Whenever we need
-the it `isEquivalence` constructor,
+the it `isEquivalence`{.agda} constructor,
 we also need to specify three proofs.
 Three is perhaps not that bad,
 but for structures with many more properties,
 we might get the ordering of arguments wrong.
 
-The same issue occurs when we want to use `IsEquivalence`
+The same issue occurs when we want to use `IsEquivalence`{.agda}
 as a premise of a theorem.
 For example:
 
@@ -126,7 +126,7 @@ theorem-equivalence-simple
   r≈s ¬s≈t r≈t = ¬s≈t (trans (symm r≈s) r≈t)
 ```
 
-In order to specify an instance of `IsEquivalence`
+In order to specify an instance of `IsEquivalence`{.agda}
 in the premises of the theorem,
 we can now use our new data type,
 extracting the proofs of each of the properties by pattern matching.
@@ -164,7 +164,7 @@ record IsEquivalence2
 ```
 
 Note the differences from our earlier data type definition:
-(i) we write "record" instead of "data",
+(i) we write `record`{.agda} instead of `data`{.agda},
 (ii) we have moved the constructor's arguments into so-called fields,
 (iii) we no longer have to specify a constructor.
 (In fact, we still could specify a specifically named constructor
@@ -219,8 +219,8 @@ theorem-equivalence2-simple-alt equiv r≈s ¬s≈t r≈t
       where open IsEquivalence2 equiv
 ```
 
-The `open` command opens a module, that is, brings its declarations
-into the current namespace, so we can use `trans` and `symm`
+The `open`{.agda} command opens a module, that is, brings its declarations
+into the current namespace, so we can use `trans`{.agda} and `symm`{.agda}
 directly without having to specify the record type and the instance.
 
 The record syntax that we discussed
@@ -287,12 +287,12 @@ record IsMockReals
   thm<+1 = trans<=< (trans=<< r0+r (cong+< 0<1)) symm+
 ```
 
-The new bits are: `public`, which re-exports all imported declarations,
-`renaming` which renames imported declarations,
+The new bits are: `public`{.agda}, which re-exports all imported declarations,
+`renaming`{.agda} which renames imported declarations,
 and the use of declarations directly inside the record
-We could have used `where open ...` syntax as well in case we did not
+We could have used `where open`{.agda} syntax as well in case we did not
 want the theorems to be included as members of the record.
-The Agda standard library seems not to put theorems inside records generally;
+The Agda standard library seems not to put theorems inside records;
 it may also not always be obvious which record a theorem should belongs to.
 
 An interesting question:
