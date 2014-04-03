@@ -90,8 +90,8 @@ has a number of important practical implications:
    with a compiler that expects only pure functions
    and immutable data, appears to be difficult, if not impossible.
 
-The latter is a bummer.
-It is wildly surprising that Haskell can work
+Concerning the latter,
+it is wildly surprising that Haskell can work
 with impure functions in a sane way.
 To do so, we have to rely on a generic but very useful
 system called a *monad*.
