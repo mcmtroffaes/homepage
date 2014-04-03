@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+        <title>Blow Your Mind With Haskell - Everything is a Function</title>
+        <link rel="stylesheet" type="text/css" href="../css/default.css" />
+        <link rel="stylesheet" type="text/css" href="../css/syntax.css" />
+    </head>
+    <body>
+        <div id="header">
+        <div id="navigation">
+            <a href="../">Home</a>
+            <a href="../about.html">About</a>
+            <!--<a href="/contact.html">Contact</a>-->
+            <a href="../archive.html">Archive</a>
+        </div>
+        </div>
+
+        <div id="content">
+            <h1>Everything is a Function</h1>
+
+            <div class="info">
+    Posted on August 21, 2013
+    
+        by Matthias C. M. Troffaes
+    
+</div>
+
+<h1 id="monads-and-the-magic-blob">Monads and The Magic Blob</h1>
+<p>Everyone who starts learning Haskell eventually hits monads. In fact, it ought to be the first thing to start with in Haskell: remember how any Haskell program essentially does one thing, namely evaluating the <code class="sourceCode haskell">main</code> function? Guess what <code class="sourceCode haskell">main</code> returns: yes, indeed, a monad.</p>
+<p>Many (though certainly not all) tutorials I came across start with treating monads—specifically, the IO monad—as some kind of a magical blob. In retrospect, now that I <em>think</em> to have an at least somewhat sufficiently accurate understanding of what monads do, and what role they play in functional languages, it makes sense to me to try to understand monads first, before diving into the IO monad magic.</p>
+<p>So, my aim is to try to explain in the next few posts how monads work in a pure functional language, and how they allow you to refactor your code to be more beautiful—because that is what Haskell is all about, beautiful code! Apparently, monads are <em>also</em> useful for functions that have side effects, i.e. functions whose result does not depend only on the value of their arguments. Once we have a good understanding of what monads are, our plan is to look at the implementation of the IO monad, to finally understand the magic.</p>
+<h1 id="functions">Functions</h1>
+<p>Before we look at monads, it is useful to reflect on how Haskell works with functions, and how it provides really convenient notation for combining simple functions together to make up really complex functions. That is the main purpose of the current post.</p>
+<p>First, how do we denote functions? In Haskell, functions have a name, and one argument. Yes, all functions have a single argument—we will see in a bit how we can fake functions with multiple arguments. It is a good habit, although not necessary, to annotate your functions with a so-called type signature:</p>
+<pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">increment ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Int</span></code></pre>
+<p>In the above, <code class="sourceCode haskell"><span class="dt">Int</span></code> is simply the name of the type for integers in Haskell. The code declares the fact that the function, named <code class="sourceCode haskell">increment</code>, takes an integer, and returns an integer. Once we have this, we can define the function itself:</p>
+<pre class="sourceCode haskell"><code class="sourceCode haskell">increment x <span class="fu">=</span> x <span class="fu">+</span> <span class="dv">1</span></code></pre>
+<p>The left hand side denotes the function name (<code>increment</code>) and its argument (<code class="sourceCode haskell">x</code>). Note that we do not need to use brackets for the function argument: a space denotes function application. This may seem a bit weird at first, but one gets used it quite quickly: it makes for neat code.</p>
+<p>The right hand side denotes the expression used to evaluate the function, namely <code class="sourceCode haskell">x <span class="fu">+</span> <span class="dv">1</span></code>, which does what you expect. We already have something weird here: surely, addition is a function too. How can we write <code class="sourceCode haskell">x <span class="fu">+</span> <span class="dv">1</span></code> if every function takes just a single argument? And why is the function, <code class="sourceCode haskell"><span class="fu">+</span></code>, denoted in between of its arguments? Well, there are two things going on:</p>
+<ul>
+<li><code class="sourceCode haskell">x <span class="fu">+</span> <span class="dv">1</span></code> is just an alternative notation for <code class="sourceCode haskell">((<span class="fu">+</span>) x) <span class="dv">1</span></code>.</li>
+<li><p>As the notation in the previous point already suggests, <code class="sourceCode haskell">(<span class="fu">+</span>)</code> is <em>a function which returns another function</em>: <a href="#fn1" class="footnoteRef" id="fnref1"><sup>1</sup></a></p>
+<pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">(+) ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> (<span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Int</span>)</code></pre>
+<p>The brackets around the plus symbol distinguish the <em>infix</em> notation <code class="sourceCode haskell">x <span class="fu">+</span> <span class="dv">1</span></code> from the <em>prefix</em> notation <code class="sourceCode haskell">((<span class="fu">+</span>) x) <span class="dv">1</span></code>.</p></li>
+</ul>
+<p>So, <code class="sourceCode haskell">x <span class="fu">+</span> <span class="dv">1</span></code> first evaluates <code class="sourceCode haskell">(<span class="fu">+</span>) x</code>, which is a function with type signature <code class="sourceCode haskell"><span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Int</span></code>. Consequently, we apply this function to the argument <code class="sourceCode haskell"><span class="dv">1</span></code>, to get an integer back. To make the confusion complete, observe that we can also denote <code class="sourceCode haskell">(<span class="fu">+</span>) x</code> as <code class="sourceCode haskell">(x<span class="fu">+</span>)</code>. Cool.</p>
+<p>Here is the full code, which you can save as <code>test.hs</code> and run with <code>runghc test.hs</code>:</p>
+<pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">increment ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Int</span>
+increment x <span class="fu">=</span> x <span class="fu">+</span> <span class="dv">1</span>
+<span class="ot">main ::</span> <span class="dt">IO</span> ()
+main <span class="fu">=</span> print (increment <span class="dv">5</span>)</code></pre>
+<p>The type signature of <code class="sourceCode haskell">main</code> is a bit strange: main takes no arguments, and returns something that has type <code class="sourceCode haskell"><span class="dt">IO</span> ()</code>. In fact, <code class="sourceCode haskell"><span class="dt">IO</span> ()</code> is a monad. For now, suffice it to say that to get an IO monad out of some result, we can use the <code class="sourceCode haskell">print</code> function. Coincidently, <code class="sourceCode haskell">print</code> will also print its argument to the screen, which is rather convenient.</p>
+<p>A few conventions help us with reducing bracket bloat.</p>
+<ol style="list-style-type: decimal">
+<li><p>The mapping operator <code class="sourceCode haskell"><span class="ot">-&gt;</span></code> in type signatures is right-associative, so we can write</p>
+<pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">(+) ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Int</span></code></pre>
+<p>instead of</p>
+<pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">(+) ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> (<span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Int</span>)</code></pre></li>
+<li><p>Space (for function application) is left-associative, so we can write</p>
+<pre class="sourceCode haskell"><code class="sourceCode haskell">(<span class="fu">+</span>) x <span class="dv">1</span></code></pre>
+<p>instead of</p>
+<pre class="sourceCode haskell"><code class="sourceCode haskell">((<span class="fu">+</span>) x) <span class="dv">1</span></code></pre></li>
+<li><p>Space (for function application) has higher precedence than any other operator.</p></li>
+</ol>
+<p>Note that, earlier, we put brackets around <code class="sourceCode haskell">increment <span class="dv">5</span></code> to apply its outcome to the <code class="sourceCode haskell">print</code> function. Had we omitted those brackets, as in</p>
+<pre class="sourceCode haskell"><code class="sourceCode haskell">main <span class="fu">=</span> print increment <span class="dv">5</span></code></pre>
+<p>then the compiler would have interpreted this as</p>
+<pre class="sourceCode haskell"><code class="sourceCode haskell">main <span class="fu">=</span> (print increment) <span class="dv">5</span></code></pre>
+<p>due to the left-associativity of the space operator (as function application), which is obviously wrong. In fact, Haskell will give you a compile error on such code, because the expression fails the type checks. Indeed, type checks do prevent a rather frequent cause of sometimes hard to track bugs; that is why those type signatures are especially important.</p>
+<p>Anyway, with this knowledge, we can now for instance define</p>
+<pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">affine ::</span> <span class="dt">Double</span> <span class="ot">-&gt;</span> <span class="dt">Double</span> <span class="ot">-&gt;</span> <span class="dt">Double</span> <span class="ot">-&gt;</span> <span class="dt">Double</span>
+affine a b x <span class="fu">=</span> a <span class="fu">+</span> b <span class="fu">*</span> x
+<span class="ot">main ::</span> <span class="dt">IO</span> ()
+main <span class="fu">=</span> print (affine <span class="dv">1</span> <span class="dv">2</span> <span class="dv">3</span>)</code></pre>
+<p>There are two more infix operators which help us with readability.</p>
+<p>First, the <code class="sourceCode haskell"><span class="fu">$</span></code> operator denotes function application, so it is identical to the space operator, with the only difference that <code class="sourceCode haskell"><span class="fu">$</span></code> has very low precedence and is right-associative, whereas space has very high precedence and is left-associative. Thus, we can simplify the last line and write</p>
+<pre class="sourceCode haskell"><code class="sourceCode haskell">main <span class="fu">=</span> print <span class="fu">$</span> affine <span class="dv">1</span> <span class="dv">2</span> <span class="dv">3</span></code></pre>
+<p>Finally, the <code class="sourceCode haskell"><span class="fu">.</span></code> operator denotes function composition. Here is its definition</p>
+<pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">(.) ::</span> (b <span class="ot">-&gt;</span> c) <span class="ot">-&gt;</span> (a <span class="ot">-&gt;</span> b) <span class="ot">-&gt;</span> (a <span class="ot">-&gt;</span> c)
+(f <span class="fu">.</span> g) x <span class="fu">=</span> f <span class="fu">$</span> g x</code></pre>
+<p>In the above, <code class="sourceCode haskell">a</code>, <code class="sourceCode haskell">b</code>, and <code class="sourceCode haskell">c</code>, are generic placeholders for any type our heart desires; we say that <code class="sourceCode haskell"><span class="fu">.</span></code> is polymorphic, and <code class="sourceCode haskell">a</code>, <code class="sourceCode haskell">b</code>, and <code class="sourceCode haskell">c</code> are called <em>type variables</em>. They are similar to template arguments in C++.</p>
+<p><code class="sourceCode haskell"><span class="fu">.</span></code> has higher precedence than <code class="sourceCode haskell"><span class="fu">$</span></code>, but lower precedence than space. Function composition is associative, so if we chain functions together through composition, there is no need to write brackets to denote the order of composition.</p>
+<h1 id="something-to-blow-your-mind">Something to Blow Your Mind</h1>
+<p>Explain why</p>
+<pre class="sourceCode haskell"><code class="sourceCode haskell">main <span class="fu">=</span> print <span class="fu">.</span> affine <span class="dv">1</span> <span class="dv">2</span> <span class="fu">$</span> <span class="dv">3</span></code></pre>
+<p>is the same as</p>
+<pre class="sourceCode haskell"><code class="sourceCode haskell">main <span class="fu">=</span> print <span class="fu">$</span> affine <span class="dv">1</span> <span class="dv">2</span> <span class="dv">3</span></code></pre>
+<h1 id="lessons-learned">Lessons Learned</h1>
+<ul>
+<li><p>A function that takes multiple arguments can be modelled as a function which returns another function.</p></li>
+<li><p>Space is an operator: it applies functions to arguments, and it is left-associative, which saves us brackets when working with functions that take multiple arguments.</p></li>
+<li><p>A dollar <code class="sourceCode haskell"><span class="fu">$</span></code> is like space, but with very low precedence, and it is right-associative.</p></li>
+<li><p>A dot <code class="sourceCode haskell"><span class="fu">.</span></code> denotes function composition. It is associative, and has medium precedence (higher than <code class="sourceCode haskell"><span class="fu">$</span></code>, and actually also higher than all the usual binary operators, but lower than space).</p></li>
+<li><p>Mapping operators <code class="sourceCode haskell"><span class="ot">-&gt;</span></code> in type signatures are right-associative, which saves us brackets, again, when working with functions that take multiple arguments.</p></li>
+<li><p>The standard binary infix operators (<code class="sourceCode haskell"><span class="fu">+</span></code>, <code class="sourceCode haskell"><span class="fu">*</span></code>, <code class="sourceCode haskell"><span class="fu">-</span></code>, <code class="sourceCode haskell"><span class="fu">/</span></code>, and so on) can be used in prefix notation—i.e. as normal functions—by surrounding them with brackets. It is now not clear why this is useful—just take it on faith that there are plenty of situations where it is useful to pass these operators as arguments of other functions, which is made possible through the prefix notation.</p></li>
+<li><p>A function can be polymorphic through type variables in its type signature.</p></li>
+<li><p>For now, <code class="sourceCode haskell">main</code> returns magic blob. For the time being, we will use <code class="sourceCode haskell">print</code> to blobify our final result, and be happy in our ignorance.</p></li>
+</ul>
+<div class="footnotes">
+<hr />
+<ol>
+<li id="fn1"><p>Actually, the type signature is <code class="sourceCode haskell"><span class="ot">(+) ::</span> <span class="dt">Num</span> a <span class="ot">=&gt;</span> a <span class="ot">-&gt;</span> a <span class="ot">-&gt;</span> a</code> but let us not get ahead of ourselves.<a href="#fnref1">↩</a></p></li>
+</ol>
+</div>
+
+        </div>
+        <div id="footer">
+            Site generated by
+            <a href="http://jaspervdj.be/hakyll">Hakyll</a>
+        </div>
+    </body>
+</html>

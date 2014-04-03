@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+        <title>Blow Your Mind With Haskell - Agda, Dependent Types, Theorem Proving</title>
+        <link rel="stylesheet" type="text/css" href="../css/default.css" />
+        <link rel="stylesheet" type="text/css" href="../css/syntax.css" />
+    </head>
+    <body>
+        <div id="header">
+        <div id="navigation">
+            <a href="../">Home</a>
+            <a href="../about.html">About</a>
+            <!--<a href="/contact.html">Contact</a>-->
+            <a href="../archive.html">Archive</a>
+        </div>
+        </div>
+
+        <div id="content">
+            <h1>Agda, Dependent Types, Theorem Proving</h1>
+
+            <div class="info">
+    Posted on January  9, 2014
+    
+        by Matthias C. M. Troffaes
+    
+</div>
+
+<h1 id="agda">Agda</h1>
+<p>A few days ago, I stumbled on <a href="http://youtu.be/vy5C-mlUQ1w">David Sankel’s talk at BoostCon 2013</a> on Agda. Whilst the focus of the talk is, eventually, software design, computer assisted theorem proving was repeatedly mentioned. Some years ago I tried the proof assistent <a href="http://www.cl.cam.ac.uk/research/hvg/Isabelle/">Isabelle</a> but I never really played around enough in it to a point where I could really use it.</p>
+<p>Now, what David Sankel’s talk made me realise, is that functional programming languages are a stepping stone to proof assistents. The only bit missing from Haskell to make this happen are so-called <em>dependent types</em>. Take Haskell, add dependent types, and you get Agda! So, for the next few months, I have set myself the task of understanding how exactly this works.</p>
+<h1 id="types-as-instances">Types as Instances</h1>
+<p>The first important feature which enables assisted theorem proving in Agda is the unification of types and instances. In many languages, including C++ and Haskell, types and instances are completely different concepts. In Agda, types are instances as well. This is certainly not unique to Agda. For example, in Python, types are called classes, and it turns out that an instance of a class can be another class: simply derive your class from <code class="sourceCode python"><span class="dt">type</span></code>. Such class is called a <em>metaclass</em> in Python, to distinguish it from “standard” classes, which derive from <code class="sourceCode python"><span class="dt">object</span></code>. In Agda, by convention, standard types are instances of a builtin type called <code class="sourceCode agda"><span class="dt">Set</span></code>. So, one could think of Agda’s <code class="sourceCode agda"><span class="dt">Set</span></code> as Python’s <code class="sourceCode python"><span class="dt">type</span></code>.</p>
+<p>There is however one crucial difference: in Agda, <code class="sourceCode agda"><span class="dt">Set</span></code> is not an instance of <code class="sourceCode agda"><span class="dt">Set</span></code>, whereas <code class="sourceCode python"><span class="dt">type</span></code> is an instance of <code class="sourceCode python"><span class="dt">type</span></code> in Python:</p>
+<pre class="sourceCode agda"><code class="sourceCode agda">x <span class="ot">:</span> <span class="dt">Set</span>
+x <span class="ot">=</span> <span class="dt">Set</span></code></pre>
+<p>will fail to load in Agda, but</p>
+<pre class="sourceCode python"><code class="sourceCode python">&gt;&gt;&gt; <span class="dt">isinstance</span>(<span class="dt">type</span>, <span class="dt">type</span>)
+<span class="ot">True</span></code></pre>
+<p>runs just fine in Python. Instead, in Agda, <code class="sourceCode agda"><span class="dt">Set</span></code> is an instance of <code class="sourceCode agda"><span class="dt">Set1</span></code>:</p>
+<pre class="sourceCode agda"><code class="sourceCode agda">x <span class="ot">:</span> <span class="dt">Set1</span>
+x <span class="ot">=</span> <span class="dt">Set</span></code></pre>
+<p>loads just fine in Agda. There are deep reasons for <code class="sourceCode agda"><span class="dt">Set</span></code> not being an instance of itself: if <code class="sourceCode agda"><span class="dt">Set</span></code> were an instance of <code class="sourceCode agda"><span class="dt">Set</span></code>, then <a href="https://en.wikipedia.org/wiki/Russell%27s_paradox">Russell’s paradox</a> would hold true. Coming from a standard set-theoretic background, it can be helpful to think of types as sets, and of the colon operator <code class="sourceCode agda"><span class="ot">:</span></code> as an “is an element of” operator <code class="sourceCode agda">∈</code>.</p>
+<h1 id="dependent-types">Dependent Types</h1>
+<p>What are they? Informally, they are types which depend on a value, like templates in C++. Here is an example:</p>
+<pre class="sourceCode agda"><code class="sourceCode agda">id <span class="ot">:</span> <span class="ot">(</span>A <span class="ot">:</span> <span class="dt">Set</span><span class="ot">)</span> <span class="ot">-&gt;</span> A <span class="ot">-&gt;</span> A
+id <span class="ot">_</span> a <span class="ot">=</span> a</code></pre>
+<p>The type signature declares a function, which takes as arguments an arbitrary type and a value of that type, and returns a value of that type. The definition is simply the identity map. Something to blow your mind: could you define any other function with the same function signature?</p>
+<p>In the above example, the second argument and the return value have dependent types, because their type depends on the first argument.</p>
+<h1 id="proving-theorems">Proving Theorems</h1>
+<p>With just these ingredients—static typing with unified types and instances, and dependent types—we can do all of constructive mathematics. How does this work? The key thing to remember is that <strong>a theorem is a type</strong>, and <strong>a proof of that theorem is an instance of that type.</strong> That sounds weird at first, so let us first explore some simple examples.</p>
+<p>Let us start with propositional logic. Propositional logic deals with statements. In set theory, statements are usually identified with subsets of some possibility space. We have seen that we can think of sets as types: by convention, let us take statements to be instances of Agda’s <code class="sourceCode agda"><span class="dt">Set</span></code> type.</p>
+<p>How do we specify that a statement is true, or false? Well, theorems are statements, and theorems are true if they can be proven, that is, if the corresponding type has an instance. So, we specify that a statement is true simply by stating that it has a value. For example, we can declare the following algebraic data types: <a href="#fn1" class="footnoteRef" id="fnref1"><sup>1</sup></a></p>
+<pre class="sourceCode agda"><code class="sourceCode agda"><span class="kw">data</span> False <span class="ot">:</span> <span class="dt">Set</span> <span class="kw">where</span>
+
+<span class="kw">data</span> True <span class="ot">:</span> <span class="dt">Set</span> <span class="kw">where</span>
+  tt <span class="ot">:</span> True</code></pre>
+<p>Here, <code class="sourceCode agda">False</code> is a proposition which has no instances, or, no proofs. We can identify it with the impossible event.</p>
+<p>Conversely, <code class="sourceCode agda">True</code> is a proposition which is always true, i.e. we can identify it with the true event: it has exactly one instance, or proof, namely <code class="sourceCode agda">tt</code> (we could declare more constructors, this would make no practical difference).</p>
+<p>So, what can we do with propositions? Well, one proposition can imply another. How do we formalize that? We need to distinguish carefully between two things: the statement that A implies B, which is a theorem and hence an instance of <code class="sourceCode agda"><span class="dt">Set</span></code>, and an actual proof of A implying B, which is an instance of the theorem’s type.</p>
+<p>How do we produce a new statement from two existing statements? We use a function:</p>
+<pre class="sourceCode agda"><code class="sourceCode agda"><span class="ot">_</span>implies<span class="ot">_</span> <span class="ot">:</span> <span class="dt">Set</span> <span class="ot">-&gt;</span> <span class="dt">Set</span> <span class="ot">-&gt;</span> <span class="dt">Set</span></code></pre>
+<p>(The underscores make this an infix function, which will read better.) So, the function <code class="sourceCode agda">implies</code> takes as arguments two statements or theorems, and uses them to produce a new statement. What statement?</p>
+<pre class="sourceCode agda"><code class="sourceCode agda">A implies B <span class="ot">=</span> A <span class="ot">-&gt;</span> B</code></pre>
+<p>The set of functions from A to B? What does this mean? It means that <code class="sourceCode agda">A implies B</code> is considered true if there is an instance of <code class="sourceCode agda">A <span class="ot">-&gt;</span> B</code>, that is if <strong>there is a function that transforms any proof of A into a proof of B</strong>.</p>
+<p>We can now prove a first theorem:</p>
+<pre class="sourceCode agda"><code class="sourceCode agda">thmimpliesisreflexive <span class="ot">:</span> <span class="ot">(</span>A <span class="ot">:</span> <span class="dt">Set</span><span class="ot">)</span> <span class="ot">-&gt;</span> <span class="ot">(</span>A implies A<span class="ot">)</span>
+thmimpliesisreflexive A <span class="ot">=</span> <span class="ot">\</span>a <span class="ot">-&gt;</span> a</code></pre>
+<p>The definition of the proof reads as follows. The function has one argument: <code class="sourceCode agda">A</code> is simply the theorem or statement under consideration. The result is an implication, which we represent as a function. For our purpose, the identity map <code class="sourceCode agda"><span class="ot">\</span>a <span class="ot">-&gt;</span> a</code> does the job. <code class="sourceCode agda">a</code> is a proof of the left hand side of the implication, namely of <code class="sourceCode agda">A</code>. The function needs to produce a proof for the right hand side of the implication, which is also <code class="sourceCode agda">A</code>. Obviously, we can simply return the same proof <code class="sourceCode agda">a</code> again.</p>
+<p>A more tricky case:</p>
+<pre class="sourceCode agda"><code class="sourceCode agda">thmfimpt <span class="ot">:</span> <span class="ot">(</span>False implies True<span class="ot">)</span>
+thmfimpt <span class="ot">()</span></code></pre>
+<p>The type <code class="sourceCode agda">False implies True</code> simply maps proofs of <code class="sourceCode agda">False</code> to proofs of <code class="sourceCode agda">True</code>. But, there are no proofs of <code class="sourceCode agda">False</code>. Consequently, <code class="sourceCode agda">thmfimpt</code> is simply the empty function, mapping nothing to nothing. In Agda, we say that a function is empty by writing empty brackets.</p>
+<p>Can we do negation? Easily, in terms of implication:</p>
+<pre class="sourceCode agda"><code class="sourceCode agda">not <span class="ot">:</span> <span class="dt">Set</span> <span class="ot">-&gt;</span> <span class="dt">Set</span>
+not A <span class="ot">=</span> <span class="ot">(</span>A implies False<span class="ot">)</span></code></pre>
+<p>So, <code class="sourceCode agda">not A</code> is true if we can map every proof of <code class="sourceCode agda">A</code> to a proof of <code class="sourceCode agda">False</code>. But, <code class="sourceCode agda">False</code> has no proofs. So we can only do this if <code class="sourceCode agda">A</code> has no proofs. Similarly, <code class="sourceCode agda">not A</code> is false if there is no map from a proof of <code class="sourceCode agda">A</code> to a proof of <code class="sourceCode agda">False</code>. This happens as soon as <code class="sourceCode agda">A</code> has a proof (otherwise, if there would be such a map, <code class="sourceCode agda">False</code> would be true).</p>
+<p>So, to show that <code class="sourceCode agda">not A</code> is true, effectively, we must establish that there is no proof of <code class="sourceCode agda">A</code>. To do this, we rely on contradiction: assuming we had a proof for <code class="sourceCode agda">A</code>, we find a map that gives us a proof for <code class="sourceCode agda">False</code>. Agda’s typechecker will figure out from this that <code class="sourceCode agda">A</code> has no proofs: if it had, it would have a proof of <code class="sourceCode agda">False</code>, which would contradict the type declaration of <code class="sourceCode agda">False</code>.</p>
+<p>Here is an example of proving a negation:</p>
+<pre class="sourceCode agda"><code class="sourceCode agda">thmntimpf <span class="ot">:</span> not <span class="ot">(</span>True implies False<span class="ot">)</span>
+thmntimpf timpf <span class="ot">=</span> timpf tt</code></pre>
+<p>How do we interpret this proof? The function signature reduces to <code class="sourceCode agda">True implies False <span class="ot">-&gt;</span> False</code>, so <code class="sourceCode agda">timpf</code> is a proof of <code class="sourceCode agda">True implies False</code>. Applying this function to our proof of truth, <code class="sourceCode agda">tt</code>, we get a proof of <code class="sourceCode agda">False</code>, establishing the contradiction.</p>
+<p>Let us finish with proving something slightly less trivial:</p>
+<pre class="sourceCode agda"><code class="sourceCode agda">thmcontraposition <span class="ot">:</span> <span class="ot">(</span>A B <span class="ot">:</span> <span class="dt">Set</span><span class="ot">)</span> <span class="ot">-&gt;</span> <span class="ot">((</span>A implies B<span class="ot">)</span> implies <span class="ot">((</span>not B<span class="ot">)</span> implies <span class="ot">(</span>not A<span class="ot">)))</span>
+thmcontraposition A B aimpb nb a <span class="ot">=</span> nb <span class="ot">(</span>aimpb a<span class="ot">)</span></code></pre>
+<p>How do we arrive at this proof? In emacs, write the proof definition as</p>
+<pre class="sourceCode agda"><code class="sourceCode agda">thmcontraposition A B <span class="ot">=</span> <span class="ot">{! !}</span></code></pre>
+<p>and use C-c C-l to load the file. This will tell you that the normalised type signature of the expression between curly brackets is <code class="sourceCode agda">A implies B <span class="ot">-&gt;</span> not B <span class="ot">-&gt;</span> A <span class="ot">-&gt;</span> False</code> (this is also easy to figure this out without the help of Agda, but using Agda to provide hints like this saves some time). In other words, <code class="sourceCode agda">aimpb</code> proves <code class="sourceCode agda">A implies B</code>, <code class="sourceCode agda">nb</code> proves <code class="sourceCode agda">not B</code>, and <code class="sourceCode agda">a</code> proves <code class="sourceCode agda">A</code>. We must produce <code class="sourceCode agda">False</code>: a contradiction. Indeed, <code class="sourceCode agda">aimpb a</code> turns <code class="sourceCode agda">a</code> into a proof of <code class="sourceCode agda">B</code>. And <code class="sourceCode agda">nb</code> turns this proof into a proof of <code class="sourceCode agda">False</code>. Done!</p>
+<p>Note that <code class="sourceCode agda">nb <span class="ot">(</span>aimpb a<span class="ot">)</span></code> translates directly into the proof by contradiction: Given A implies B, and not B, we must show that A does not hold. Assume, A were to hold (<code class="sourceCode agda">a</code>). Then, because A implies B, B needs to hold as well (<code class="sourceCode agda">aimpb a</code>). But, B does not hold, so we arrived at a contradiction (<code class="sourceCode agda">nb <span class="ot">(</span>aimpb a<span class="ot">)</span></code>).</p>
+<p>Finally, note that the actual act of theorem proving does not involve compilation of the code into a binary. The theorems are proved as soon as it is verified that the function definitions match the type signatures. So, <strong>theorem proving is just a special case of type checking</strong>.</p>
+<div class="footnotes">
+<hr />
+<ol>
+<li id="fn1"><p>In Haskell, this would be:</p>
+<pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">data</span> <span class="dt">False</span>
+<span class="kw">data</span> <span class="dt">True</span> <span class="fu">=</span> <span class="dt">True</span></code></pre>
+<a href="#fnref1">↩</a></li>
+</ol>
+</div>
+
+        </div>
+        <div id="footer">
+            Site generated by
+            <a href="http://jaspervdj.be/hakyll">Hakyll</a>
+        </div>
+    </body>
+</html>

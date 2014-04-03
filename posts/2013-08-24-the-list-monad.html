@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+        <title>Blow Your Mind With Haskell - The List Monad</title>
+        <link rel="stylesheet" type="text/css" href="../css/default.css" />
+        <link rel="stylesheet" type="text/css" href="../css/syntax.css" />
+    </head>
+    <body>
+        <div id="header">
+        <div id="navigation">
+            <a href="../">Home</a>
+            <a href="../about.html">About</a>
+            <!--<a href="/contact.html">Contact</a>-->
+            <a href="../archive.html">Archive</a>
+        </div>
+        </div>
+
+        <div id="content">
+            <h1>The List Monad</h1>
+
+            <div class="info">
+    Posted on August 24, 2013
+    
+        by Matthias C. M. Troffaes
+    
+</div>
+
+<p>In the last post, we briefly looked at functions. Today, we will use our learnings to investigate a first simple example of monads, namely, lists.</p>
+<p>Lists are as fundamental to Haskell as functions. Indeed, because everything is a function in Haskell, you may have wondered how one writes loops in such language. In a purely functional language, loops are naturally translated to operations on lists.</p>
+<h1 id="list-syntax">List Syntax</h1>
+<p>First, some syntax. The empty list is denoted as</p>
+<pre class="sourceCode haskell"><code class="sourceCode haskell">[]</code></pre>
+<p>Lists can, obviously, contain as many elements as we want. In fact, in Haskell, a list can even take any countable number of elements. This is possible because Haskell is lazy. To compare with Python, lists are like Python generators, which can also go on to countable infinity. Finite lists are denoted as follows:</p>
+<pre class="sourceCode haskell"><code class="sourceCode haskell">[<span class="dv">2</span>,<span class="dv">3</span>,<span class="dv">5</span>,<span class="dv">7</span>,<span class="dv">11</span>,<span class="dv">13</span>]</code></pre>
+<p>In Haskell, a list consisting of characters is a <em>string</em>:</p>
+<pre class="sourceCode haskell"><code class="sourceCode haskell">[<span class="ch">'h'</span>,<span class="ch">'e'</span>,<span class="ch">'l'</span>,<span class="ch">'l'</span>,<span class="ch">'o'</span>]</code></pre>
+<p>Because this notation is rather heavy, we can write the above list also as</p>
+<pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="st">&quot;hello&quot;</span></code></pre>
+<p>which is simply syntactic sugar.</p>
+<p>The arithmetic progression, say, starting at 5, with step size 2, and ending at 21, is denoted as</p>
+<pre class="sourceCode haskell"><code class="sourceCode haskell">[<span class="dv">5</span>,<span class="dv">7</span><span class="fu">..</span><span class="dv">21</span>]</code></pre>
+<p>We can also denote infinite arithmetic progressions:</p>
+<pre class="sourceCode haskell"><code class="sourceCode haskell">[<span class="dv">5</span>,<span class="dv">7</span><span class="fu">..</span>]</code></pre>
+<p>In many (or perhaps most?) languages, the fundamental operation to extend lists is appending, that is, extending at the end of the list—for example, in Python, it is very natural to use the <code class="sourceCode python">+=</code> operator. In Haskell however, <em>prepending</em> is the fundamental operation to extend lists. The reason for this is straightforward: if you allow infinite lists, prepending is the only sensible extension operator. The <code class="sourceCode haskell"><span class="fu">:</span></code> (colon) operator denotes prepend:</p>
+<pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="dv">1</span><span class="fu">:</span>[<span class="dv">3</span>,<span class="dv">4</span>,<span class="dv">5</span>] <span class="fu">==</span> [<span class="dv">1</span>,<span class="dv">3</span>,<span class="dv">4</span>,<span class="dv">5</span>]</code></pre>
+<p>How do we denote lists in type signatures? Here is an example:</p>
+<pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">func ::</span> [<span class="dt">Int</span>] <span class="ot">-&gt;</span> <span class="dt">Int</span>
+func xs <span class="fu">=</span> <span class="dv">3</span> <span class="fu">*</span> sum xs</code></pre>
+<p>So, <code class="sourceCode haskell">[<span class="dt">Int</span>]</code> denote a list of <code class="sourceCode haskell"><span class="dt">Int</span></code> elements. Observe that the argument of <code class="sourceCode haskell">func</code> is called <code class="sourceCode haskell">xs</code>, rather than <code class="sourceCode haskell">x</code>. It is a useful convention in Haskell code to denote list variables by <code class="sourceCode haskell">xs</code>, <code class="sourceCode haskell">ys</code>, and so on, and to denote their elements by <code class="sourceCode haskell">x</code>, <code class="sourceCode haskell">y</code>, and so on.</p>
+<p>In Haskell, all of a list’s elements must be of the same type. For example, we <strong>cannot</strong> write</p>
+<pre class="sourceCode haskell"><code class="sourceCode haskell">[<span class="dv">2</span>,<span class="ch">'a'</span>,<span class="st">&quot;xyz&quot;</span>]</code></pre>
+<h1 id="comprehension">Comprehension</h1>
+<p>There is one more notation for lists which is enormously useful:</p>
+<pre class="sourceCode haskell"><code class="sourceCode haskell">[ [n,x,y,z] <span class="fu">|</span> n <span class="ot">&lt;-</span> [<span class="dv">2</span><span class="fu">..</span><span class="dv">15</span>], x <span class="ot">&lt;-</span> [<span class="dv">1</span><span class="fu">..</span><span class="dv">15</span>], y <span class="ot">&lt;-</span> [<span class="dv">1</span><span class="fu">..</span><span class="dv">15</span>],
+              z <span class="ot">&lt;-</span> [<span class="dv">1</span><span class="fu">..</span><span class="dv">15</span>], x <span class="fu">^</span> n <span class="fu">+</span> y <span class="fu">^</span> n <span class="fu">==</span> z <span class="fu">^</span> n]</code></pre>
+<p>This will give you all numbers, less than 15, satisfying the conditions of Fermat’s equation <span class="math"><em>x</em><sup><em>n</em></sup> + <em>y</em><sup><em>n</em></sup> = <em>z</em><sup><em>n</em></sup></span>; for the curious, the answer is</p>
+<pre class="sourceCode haskell"><code class="sourceCode haskell">[[<span class="dv">2</span>,<span class="dv">3</span>,<span class="dv">4</span>,<span class="dv">5</span>],[<span class="dv">2</span>,<span class="dv">4</span>,<span class="dv">3</span>,<span class="dv">5</span>],[<span class="dv">2</span>,<span class="dv">5</span>,<span class="dv">12</span>,<span class="dv">13</span>],[<span class="dv">2</span>,<span class="dv">6</span>,<span class="dv">8</span>,<span class="dv">10</span>],[<span class="dv">2</span>,<span class="dv">8</span>,<span class="dv">6</span>,<span class="dv">10</span>],
+ [<span class="dv">2</span>,<span class="dv">9</span>,<span class="dv">12</span>,<span class="dv">15</span>],[<span class="dv">2</span>,<span class="dv">12</span>,<span class="dv">5</span>,<span class="dv">13</span>],[<span class="dv">2</span>,<span class="dv">12</span>,<span class="dv">9</span>,<span class="dv">15</span>]]</code></pre>
+<p>Note that <span class="math"><em>n</em></span> is never larger than 2, per <a href="http://en.wikipedia.org/wiki/Fermat%27s_Last_Theorem">Fermat’s famous last theorem</a>. Here is how you could ask Haskell to try to prove the theorem:</p>
+<pre class="sourceCode haskell"><code class="sourceCode haskell">null [ [n,x,y,z] <span class="fu">|</span> n <span class="ot">&lt;-</span> [<span class="dv">3</span><span class="fu">..</span>], x <span class="ot">&lt;-</span> [<span class="dv">1</span><span class="fu">..</span>], y <span class="ot">&lt;-</span> [<span class="dv">1</span><span class="fu">..</span>],
+                   z <span class="ot">&lt;-</span> [<span class="dv">1</span><span class="fu">..</span>], x <span class="fu">^</span> n <span class="fu">+</span> y <span class="fu">^</span> n <span class="fu">==</span> z <span class="fu">^</span> n]</code></pre>
+<p>The calculation is still running on my machine—in fact, it will never end, because Haskell will simply use brute force, which is of course problematic when there are infinitely many cases to consider. In the above, the function</p>
+<pre class="sourceCode haskell"><code class="sourceCode haskell">null<span class="ot"> ::</span> [a] <span class="ot">-&gt;</span> <span class="dt">Bool</span></code></pre>
+<p>returns <code class="sourceCode haskell"><span class="dt">True</span></code> if its list argument is empty—remember that <code class="sourceCode haskell">a</code> is a type variable, so this function is polymorphic and will work for lists of any type.</p>
+<p>Anyway, let us stop this brief digression and get back to topic: monads!</p>
+<h1 id="a-poor-mans-monad">A Poor Man’s Monad</h1>
+<p>One way to explain monads, is to try to implement list comprehension by ourselves, using just functions, aiming to get as close as possible to the list comprehension syntax. For this purpose, let us investigate a very simple example, and try to rewrite</p>
+<pre class="sourceCode haskell"><code class="sourceCode haskell">[ x <span class="fu">+</span> y <span class="fu">^</span> <span class="dv">3</span> <span class="fu">|</span> x <span class="ot">&lt;-</span> [<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">3</span>], y <span class="ot">&lt;-</span> [<span class="fu">-</span>x,x] ]</code></pre>
+<p>which results in</p>
+<pre class="sourceCode haskell"><code class="sourceCode haskell">[<span class="dv">0</span>,<span class="dv">2</span>,<span class="fu">-</span><span class="dv">6</span>,<span class="dv">10</span>,<span class="fu">-</span><span class="dv">24</span>,<span class="dv">30</span>]</code></pre>
+<p>First, let us tackle each of the parts separately, namely <code class="sourceCode haskell">x <span class="ot">&lt;-</span> [<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">3</span>]</code>, <code class="sourceCode haskell">y <span class="ot">&lt;-</span> [<span class="fu">-</span>x,x]</code>, and <code class="sourceCode haskell">x <span class="fu">+</span> y <span class="fu">^</span> <span class="dv">3</span></code>. Can we rewrite these as functions?</p>
+<pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">funcx ::</span> [<span class="dt">Int</span>]
+funcx <span class="fu">=</span> [<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">3</span>]
+
+<span class="ot">funcy ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> [<span class="dt">Int</span>]
+funcy x <span class="fu">=</span> [<span class="fu">-</span>x, x]
+
+<span class="ot">funcfinal ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> [<span class="dt">Int</span>]
+funcfinal x y <span class="fu">=</span> [x <span class="fu">+</span> y <span class="fu">^</span> <span class="dv">3</span>]</code></pre>
+<p>Note that we do not actually need <code class="sourceCode haskell">funcx</code>—we introduce it here merely for the sake of symmetry. The important observation is that all these functions produce lists. If we may get slightly ahead of ourselves, in light of general monad theory, what matters here is that all these functions produce <em>containers</em> of the same <em>form</em>.</p>
+<p>Next, we need a function to combine <code class="sourceCode haskell">funcx</code>, <code class="sourceCode haskell">funcy</code>, and <code class="sourceCode haskell">funcfinal</code>. Specifically, we wish to <em>bind</em> the outcome of <code class="sourceCode haskell">funcx</code> to the input of the function <code class="sourceCode haskell">funcy</code>, and then to <em>bind</em> the outcome of both of these to <code class="sourceCode haskell">funcfinal</code>. Here is what you might write in a possible attempt:</p>
+<pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">bind ::</span> [<span class="dt">Int</span>] <span class="ot">-&gt;</span> (<span class="dt">Int</span> <span class="ot">-&gt;</span> [<span class="dt">Int</span>]) <span class="ot">-&gt;</span> [<span class="dt">Int</span>]
+bind zs f <span class="fu">=</span> concat <span class="fu">.</span> map f <span class="fu">$</span> zs</code></pre>
+<p>In the above, <code class="sourceCode haskell">map</code> applies a function to every element of a list:</p>
+<pre class="sourceCode haskell"><code class="sourceCode haskell">map funcy <span class="fu">$</span> funcx</code></pre>
+<p>gives</p>
+<pre class="sourceCode haskell"><code class="sourceCode haskell">[[<span class="fu">-</span><span class="dv">1</span>,<span class="dv">1</span>],[<span class="fu">-</span><span class="dv">2</span>,<span class="dv">2</span>],[<span class="fu">-</span><span class="dv">3</span>,<span class="dv">3</span>]]</code></pre>
+<p>The function <code class="sourceCode haskell">concat</code> concatenates this list of lists. Consequently,</p>
+<pre class="sourceCode haskell"><code class="sourceCode haskell">bind funcx funcy</code></pre>
+<p>gives</p>
+<pre class="sourceCode haskell"><code class="sourceCode haskell">[<span class="fu">-</span><span class="dv">1</span>,<span class="dv">1</span>,<span class="fu">-</span><span class="dv">2</span>,<span class="dv">2</span>,<span class="fu">-</span><span class="dv">3</span>,<span class="dv">3</span>]</code></pre>
+<p>This is not exactly the result we want, but we are clearly getting close: we already have a list with six elements. The elements are <code class="sourceCode haskell">y</code> rather than <code class="sourceCode haskell">x <span class="fu">+</span> y <span class="fu">^</span> <span class="dv">3</span></code>, because we have not yet used <code class="sourceCode haskell">funcfinal</code>. Can we use <code class="sourceCode haskell">bind</code> to combine <code class="sourceCode haskell">funcy</code> and <code class="sourceCode haskell">funcfinal</code>? Of course! For instance,</p>
+<pre class="sourceCode haskell"><code class="sourceCode haskell">bind (funcy <span class="dv">1</span>) (funcfinal <span class="dv">1</span>)</code></pre>
+<p>will give us</p>
+<pre class="sourceCode haskell"><code class="sourceCode haskell">[<span class="dv">0</span>,<span class="dv">2</span>]</code></pre>
+<p>which is the desired result, for <code class="sourceCode haskell">x <span class="fu">=</span> <span class="dv">1</span></code>. The only remaining problem is to feed all values for <code class="sourceCode haskell">x</code> into this expression:</p>
+<pre class="sourceCode haskell"><code class="sourceCode haskell">bind2 f1 f2 x <span class="fu">=</span> bind (f1 x) (f2 x)</code></pre>
+<p>(The type signature is rather complex, so we have omitted it here.) To get the final result, we thus apply <code class="sourceCode haskell">bind</code> twice:</p>
+<pre class="sourceCode haskell"><code class="sourceCode haskell">bind funcx <span class="fu">$</span> bind2 funcy funcfinal</code></pre>
+<p>This is about as close as we can get to the original expression</p>
+<pre class="sourceCode haskell"><code class="sourceCode haskell">[ x <span class="fu">+</span> y <span class="fu">^</span> <span class="dv">3</span> <span class="fu">|</span> x <span class="ot">&lt;-</span> [<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">3</span>], y <span class="ot">&lt;-</span> [<span class="fu">-</span>x,x] ]</code></pre>
+<p>where <code class="sourceCode haskell">funcx</code> represents <code class="sourceCode haskell">x <span class="ot">&lt;-</span> [<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">3</span>]</code>, <code class="sourceCode haskell">funcy</code> represents <code class="sourceCode haskell">y <span class="ot">&lt;-</span> [x,<span class="fu">-</span>x]</code>, and <code class="sourceCode haskell">funcfinal</code> represents <code class="sourceCode haskell">x <span class="fu">+</span> y <span class="fu">^</span> <span class="dv">3</span></code>. The <code class="sourceCode haskell">bind</code> and <code class="sourceCode haskell">bind2</code> functions are merely glue.</p>
+<p>If you followed this far, congratulations!! You may not realize it yet, but you now know in essence what a monad is. A monad is a container, along with a higher order function which binds functions that operate on these containers. Everything else about monads in Haskell comes down to:</p>
+<ol style="list-style-type: decimal">
+<li>adding syntactic sugar to remove the boilerplate in the above code, and</li>
+<li>generalizing from <code class="sourceCode haskell">[<span class="dt">Int</span>]</code> lists to arbitrary containers.</li>
+</ol>
+<p>Yippikayee!</p>
+<h1 id="syntactic-sugar">Syntactic Sugar</h1>
+<p>The aim of this section is to simplify the structure of our monad code, step by step.</p>
+<h2 id="infix-notation">Infix Notation</h2>
+<p>The first thing we can do is rewrite the glue in infix notation:</p>
+<pre class="sourceCode haskell"><code class="sourceCode haskell">funcx <span class="ot">`bind`</span> (funcy <span class="ot">`bind2`</span> funcfinal)</code></pre>
+<p>For any function <code class="sourceCode haskell">f</code> in Haskell</p>
+<pre class="sourceCode haskell"><code class="sourceCode haskell">x <span class="ot">`f`</span> y</code></pre>
+<p>is just a shorthand notation for</p>
+<pre class="sourceCode haskell"><code class="sourceCode haskell">f x y</code></pre>
+<p>Backticked functions are left-associative. In the above, we are using the operators in a right-associative way, thus we need brackets to denote the order of operation.</p>
+<h2 id="lambda-functions">Lambda Functions</h2>
+<p>To get one more step closer to list comprehension notation, we would like to get rid of the helper functions. For this purpose, we can use so-called lambda functions, which allow us to define anonymous functions directly into our expressions. Note that the use of lambda functions is somewhat frowned upon, and are generally only used for very simple functions:</p>
+<pre class="sourceCode haskell"><code class="sourceCode haskell">[<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">3</span>] <span class="ot">`bind`</span> ((\x <span class="ot">-&gt;</span> [<span class="fu">-</span>x,x]) <span class="ot">`bind2`</span> (\x y <span class="ot">-&gt;</span> [x <span class="fu">+</span> y <span class="fu">^</span> <span class="dv">3</span>]))</code></pre>
+<p>In fact, with lambda functions, we can also get rid of <code>bind2</code>:</p>
+<pre class="sourceCode haskell"><code class="sourceCode haskell">[<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">3</span>] <span class="ot">`bind`</span> (\x <span class="ot">-&gt;</span> ([<span class="fu">-</span>x,x] <span class="ot">`bind`</span> (\y <span class="ot">-&gt;</span> [x <span class="fu">+</span> y <span class="fu">^</span> <span class="dv">3</span>])))</code></pre>
+<p>Oh dear, what has happened here? Let us look at the unsugared version of this code:</p>
+<pre class="sourceCode haskell"><code class="sourceCode haskell">bind funcx funcxy</code></pre>
+<p>where</p>
+<pre class="sourceCode haskell"><code class="sourceCode haskell">funcxy x <span class="fu">=</span> bind [<span class="fu">-</span>x,x] (\y <span class="ot">-&gt;</span> [x <span class="fu">+</span> y <span class="fu">^</span> <span class="dv">3</span>])</code></pre>
+<p>or equivalently</p>
+<pre class="sourceCode haskell"><code class="sourceCode haskell">funcxy' x <span class="fu">=</span> bind (funcy x) (funcfinal x)</code></pre>
+<p>It now becomes clear that this is entirely equivalent to the original code, simply by observing that we could also have written</p>
+<pre class="sourceCode haskell"><code class="sourceCode haskell">funcxy'' <span class="fu">=</span> bind2 funcy funcfinal</code></pre>
+<p>Note that our full code is now down to two lines: a definition of <code class="sourceCode haskell">bind</code>, (which is highly generic: we can reuse it for any list comprehension), and the comprehension itself:</p>
+<pre class="sourceCode haskell"><code class="sourceCode haskell">bind zs f <span class="fu">=</span> concat <span class="fu">.</span> map f <span class="fu">$</span> zs
+[<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">3</span>] <span class="ot">`bind`</span> (\x <span class="ot">-&gt;</span> ([<span class="fu">-</span>x,x] <span class="ot">`bind`</span> (\y <span class="ot">-&gt;</span> [x <span class="fu">+</span> y <span class="fu">^</span> <span class="dv">3</span>])))</code></pre>
+<p>We can omit the brackets around lambda definitions, because the body of the lambda extends as far to the right as possible without hitting an unbalanced parenthesis <a href="#fn1" class="footnoteRef" id="fnref1"><sup>1</sup></a>:</p>
+<pre class="sourceCode haskell"><code class="sourceCode haskell">[<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">3</span>] <span class="ot">`bind`</span> \x <span class="ot">-&gt;</span> [<span class="fu">-</span>x,x] <span class="ot">`bind`</span> \y <span class="ot">-&gt;</span> [x <span class="fu">+</span> y <span class="fu">^</span> <span class="dv">3</span>]</code></pre>
+<p>We got rid of all brackets, and this <em>almost</em> looks like our list comprehension.</p>
+<h2 id="the-operator">The <code class="sourceCode haskell"><span class="fu">&gt;&gt;=</span></code> Operator</h2>
+<p>Because the <code class="sourceCode haskell">bind</code> operation is so generically useful for arbitrary list comprehensions, Haskell implements an <code class="sourceCode haskell"><span class="fu">&gt;&gt;=</span></code> operator for us, which behaves just like our <code class="sourceCode haskell">bind</code>. We get</p>
+<pre class="sourceCode haskell"><code class="sourceCode haskell">[<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">3</span>] <span class="fu">&gt;&gt;=</span> \x <span class="ot">-&gt;</span> [<span class="fu">-</span>x,x] <span class="fu">&gt;&gt;=</span> \y <span class="ot">-&gt;</span> [x <span class="fu">+</span> y <span class="fu">^</span> <span class="dv">3</span>]</code></pre>
+<p>We note that, in this example, the infix notation, along with the lambda notation, is absolutely indispensible to make for readable code. To convince yourself, compare with the prefix notation,</p>
+<pre class="sourceCode haskell"><code class="sourceCode haskell">bind [<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">3</span>] (\x <span class="ot">-&gt;</span> (bind [<span class="fu">-</span>x,x] (\y <span class="ot">-&gt;</span> [x <span class="fu">+</span> y <span class="fu">^</span> <span class="dv">3</span>])))</code></pre>
+<p>or with fewer brackets,</p>
+<pre class="sourceCode haskell"><code class="sourceCode haskell">bind [<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">3</span>] (\x <span class="ot">-&gt;</span> bind [<span class="fu">-</span>x,x] (\y <span class="ot">-&gt;</span> [x <span class="fu">+</span> y <span class="fu">^</span> <span class="dv">3</span>]))</code></pre>
+<p>which, although perhaps more explicit, may feel less natural.</p>
+<h2 id="do-notation-and-the---operator">Do Notation and the <code class="sourceCode haskell"><span class="ot">&lt;-</span></code> Operator</h2>
+<p>For large list comprehensions, keeping everything on a single line becomes tedious. Instead, we can write</p>
+<pre class="sourceCode haskell"><code class="sourceCode haskell">[<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">3</span>] <span class="fu">&gt;&gt;=</span>
+\x <span class="ot">-&gt;</span> [<span class="fu">-</span>x,x] <span class="fu">&gt;&gt;=</span>
+\y <span class="ot">-&gt;</span> [x <span class="fu">+</span> y <span class="fu">^</span> <span class="dv">3</span>]</code></pre>
+<p>where it is <strong>very important to remember that the body of <code class="sourceCode haskell"><span class="ot">-&gt;</span></code> extends to the right as far as logically possible</strong>, i.e. with brackets, our code is equivalent to</p>
+<pre class="sourceCode haskell"><code class="sourceCode haskell">[<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">3</span>] <span class="fu">&gt;&gt;=</span>
+    (\x <span class="ot">-&gt;</span> [<span class="fu">-</span>x,x] <span class="fu">&gt;&gt;=</span>
+        (\y <span class="ot">-&gt;</span> [x <span class="fu">+</span> y <span class="fu">^</span> <span class="dv">3</span>]))</code></pre>
+<p>Perhaps, you will find that this is already obscure enough. Nevertheless, Haskell allows you to take this yet one step further, with a so-called do block. A do block allows us to replace <code class="sourceCode haskell"><span class="fu">&gt;&gt;=</span></code> operators with newlines and some sort of ‘reverse lambda notation’:</p>
+<pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">do</span> x <span class="ot">&lt;-</span> [<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">3</span>]
+   y <span class="ot">&lt;-</span> [<span class="fu">-</span>x,x]
+   [x <span class="fu">+</span> y <span class="fu">^</span> <span class="dv">3</span>]</code></pre>
+<p>The only remaining touch we can give this code is to use Haskell’s <code class="sourceCode haskell">return</code> function:</p>
+<pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">do</span> x <span class="ot">&lt;-</span> [<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">3</span>]
+   y <span class="ot">&lt;-</span> [<span class="fu">-</span>x,x]
+   return (x <span class="fu">+</span> y <span class="fu">^</span> <span class="dv">3</span>)</code></pre>
+<p>The <code class="sourceCode haskell">return</code> function transforms a value into a container (or, a monad, if you like), and for lists, it is defined as</p>
+<pre class="sourceCode haskell"><code class="sourceCode haskell">return<span class="ot"> ::</span> a <span class="ot">-&gt;</span> [a]
+return x <span class="fu">=</span> [x]</code></pre>
+<p>This now looks suspiciously similar to code from an imperative language, for instance the following in Python:</p>
+<pre class="sourceCode python"><code class="sourceCode python"><span class="kw">def</span> example():
+    <span class="kw">for</span> x in [<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>]:
+        <span class="kw">for</span> y in [-x, x]:
+            <span class="kw">yield</span> x + y ** <span class="dv">3</span></code></pre>
+<p>It is tempting, yet flawed, to think of do blocks as a sequence of imperative statements. Indeed, Haskell may evaluate expressions in any order it wants, and is only constrained by data flow. For example, in</p>
+<pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">do</span> x <span class="ot">&lt;-</span> [<span class="dv">1</span>,<span class="dv">2</span>]
+   y <span class="ot">&lt;-</span> [<span class="dv">9</span>,<span class="dv">10</span>]
+   [x <span class="fu">+</span> y, x <span class="fu">-</span> y]</code></pre>
+<p>there is no guarantee whatsoever that Haskell will evaluate <code class="sourceCode haskell">[<span class="dv">1</span>, <span class="dv">2</span>]</code> before <code class="sourceCode haskell">[<span class="dv">9</span>,<span class="dv">10</span>]</code>. For all we know, Haskell might even evaluate them in parallel.</p>
+<h1 id="the-monad-typeclass">The Monad Typeclass</h1>
+<p>The do notation does not only exist for lists, but applies to any monad. It is crucial to realize that <strong>the <code class="sourceCode haskell"><span class="fu">&gt;&gt;=</span></code> operator determines how a do block is evaluated</strong>, as do blocks are simply a fancy way of rewriting a <code class="sourceCode haskell"><span class="fu">&gt;&gt;=</span></code>-separated chain of expressions. In fact, any container type which implements <code class="sourceCode haskell"><span class="fu">&gt;&gt;=</span></code> and <code class="sourceCode haskell">return</code> is a monad. We have not yet seen how Haskell can overload functions to take arbitrary types. This is done through Haskell’s typeclasses.</p>
+<p>We will cover typeclasses in a next post, along with more monad examples.</p>
+<h1 id="something-to-blow-your-mind">Something to Blow Your Mind</h1>
+<ol style="list-style-type: decimal">
+<li><p>Our attempt at proving Fermat’s theorem using Haskell leads to a never ending evaluation, quite logically so.</p>
+<p>Explain why</p>
+<pre class="sourceCode haskell"><code class="sourceCode haskell">null [ [x,y,z] <span class="fu">|</span> x <span class="ot">&lt;-</span> [<span class="dv">1</span><span class="fu">..</span>], y <span class="ot">&lt;-</span> [<span class="dv">1</span><span class="fu">..</span>],
+                 z <span class="ot">&lt;-</span> [<span class="dv">1</span><span class="fu">..</span>], x <span class="fu">^</span> <span class="dv">2</span> <span class="fu">+</span> y <span class="fu">^</span> <span class="dv">2</span> <span class="fu">==</span> z <span class="fu">^</span> <span class="dv">2</span>]</code></pre>
+<p>might not end either (depending on the details of the compiler) although the list is non-empty, but</p>
+<pre class="sourceCode haskell"><code class="sourceCode haskell">null [ [x,y,z] <span class="fu">|</span> x <span class="ot">&lt;-</span> [<span class="dv">3</span><span class="fu">..</span>], y <span class="ot">&lt;-</span> [<span class="dv">4</span><span class="fu">..</span>],
+                 z <span class="ot">&lt;-</span> [<span class="dv">1</span><span class="fu">..</span>], x <span class="fu">^</span> <span class="dv">2</span> <span class="fu">+</span> y <span class="fu">^</span> <span class="dv">2</span> <span class="fu">==</span> z <span class="fu">^</span> <span class="dv">2</span>]</code></pre>
+<p>might be evaluated in finite time (again depending on the details of the compiler).</p></li>
+<li><p>Fermat’s problem involved filtering, but our poor man’s implementation did not implement filtering. What extra operations do we need for our list monad to gain filtering ability?</p>
+<p>How could you abstract this to apply to general monads?</p>
+<p>Hint. Analyze the following code:</p>
+<pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">filt ::</span> <span class="dt">Bool</span> <span class="ot">-&gt;</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> [<span class="dt">Int</span>]
+filt cond x <span class="fu">=</span> <span class="kw">if</span> cond <span class="kw">then</span> [x] <span class="kw">else</span> []
+
+[<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">3</span>] <span class="fu">&gt;&gt;=</span>
+\x <span class="ot">-&gt;</span> [<span class="fu">-</span>x<span class="fu">..</span>x] <span class="fu">&gt;&gt;=</span>
+\y <span class="ot">-&gt;</span> [x <span class="fu">+</span> y <span class="fu">^</span> <span class="dv">3</span>] <span class="fu">&gt;&gt;=</span>
+filt (odd y)</code></pre></li>
+</ol>
+<div class="footnotes">
+<hr />
+<ol>
+<li id="fn1"><p><a href="http://stackoverflow.com/questions/11237076/haskell-precedence-lambda-and-operator">http://stackoverflow.com/questions/11237076/haskell-precedence-lambda-and-operator</a><a href="#fnref1">↩</a></p></li>
+</ol>
+</div>
+
+        </div>
+        <div id="footer">
+            Site generated by
+            <a href="http://jaspervdj.be/hakyll">Hakyll</a>
+        </div>
+    </body>
+</html>

@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+        <title>Blow Your Mind With Haskell - What is Haskell?</title>
+        <link rel="stylesheet" type="text/css" href="../css/default.css" />
+        <link rel="stylesheet" type="text/css" href="../css/syntax.css" />
+    </head>
+    <body>
+        <div id="header">
+        <div id="navigation">
+            <a href="../">Home</a>
+            <a href="../about.html">About</a>
+            <!--<a href="/contact.html">Contact</a>-->
+            <a href="../archive.html">Archive</a>
+        </div>
+        </div>
+
+        <div id="content">
+            <h1>What is Haskell?</h1>
+
+            <div class="info">
+    Posted on August 19, 2013
+    
+        by Matthias C. M. Troffaes
+    
+</div>
+
+<p>Did you see <a href="http://www.youtube.com/watch?v=Uooh0Y9fC_M">John Carmack’s keynote at QuakeCon 2013</a>? I was deeply intrigued by his comments about Haskell, and by his statement that every programmer should learn Haskell to write more so-called pure functional code, thereby reducing bugs and increasing productivity.</p>
+<p>Apparently, <strong>Haskell is beautiful</strong>. Everybody says. More than enough reason for me! So, last week, I set myself the task to learn Haskell. I worked through Chapters 1–7 of <a href="http://book.realworldhaskell.org/read/">Real World Haskell</a> in reasonable depth, and started scratching the surface of Chapters 8–15. This post is a brief summary of my experience so far.</p>
+<p>Then, first, what is Haskell? Haskell is a programming language with a particular set of restrictions:</p>
+<ol>
+<li>All values are <em>immutable</em> (i.e. <code>const</code> if you come from C++). This may seem weird at first, but in fact, it is not as bad as it sounds.</li>
+<li>All values are either <em>data</em> (integers, characters, but also lists, records, unions, and so on), or <em>functions</em>. These values can be composed together to make <em>expressions</em> (as in any other programming language). Classes as you may know them from the Object Oriented world do not exist in Haskell.</li>
+<li>The compiler assumes that functions are <a href="http://en.wikipedia.org/wiki/Pure_function">pure</a>: if you call the same pure function with the same arguments, then you will always get the same result back. In other words, pure functions are functions in a mathematical sense. For example, <code>getch</code> is an impure function in C: its result is not deterministic.</li>
+<li>All values are <em>statically typed</em>, that is, their type is fixed at compile time.</li>
+<li>At runtime, a Haskell program simply evaluates the expression called <code>main</code>.</li>
+<li>Evaluation is <em>lazy</em>, that is, expressions are only evaluated when their result is required for the evaluation of <code>main</code>.</li>
+<li>There is no specified order in which subexpressions are evaluated, i.e. the compiler may resolve the evaluation in any way deemed appropriate (potentially, even in parallel). <a href="#fn1" class="footnoteRef" id="fnref1"><sup>1</sup></a></li>
+</ol>
+<p>For someone coming from, say, Python or C++, some of these restrictions are highly peculiar, specifically, immutability, laziness, and execution through evaluation of a single expression. In more traditional languages, you essentially tell the computer what to do, step by step. In Haskell, you specify an expression you want to be evaluated, and the compiler figures out the steps to arrive at the result.</p>
+<p>All in all, the Haskell approach has a number of important practical implications:</p>
+<ol>
+<li>Due to delegating more work to the compiler, Haskell programs are typically much shorter than, say, their equivalent Python/C++/&lt;insert-your-language-here&gt; implementations.</li>
+<li>Haskell encourages you to write beautiful code: due to its emphasis on purity, there is a natural focus on hierarchically decomposing the problem into simple self-contained expressions, often leading to highly modularized self-explanatory code. Surely, that is a good thing!</li>
+<li>We cannot completely kick the habit of impurity, because I/O is an essential aspect of nearly every program! Nevertheless, at first sight, non-trivial I/O with a compiler that expects only pure functions and immutable data, appears to be difficult, if not impossible.</li>
+</ol>
+<p>Concerning the latter, it is wildly surprising that Haskell can work with impure functions in a sane way. To do so, we have to rely on a generic but very useful system called a <em>monad</em>. I hope to write a bit more about monads in the next few posts.</p>
+<div class="footnotes">
+<hr />
+<ol>
+<li id="fn1"><p>This is not entirely true. Some functions guarantee that certain of their arguments are evaluated first, even if the evaluation of those arguments is not needed. The only purpose this serves is to help the compiler to produce more efficient machine code. In principle, a really clever compiler would not need such hints. Also see: <a href="http://www.haskell.org/haskellwiki/Performance/Strictness">http://www.haskell.org/haskellwiki/Performance/Strictness</a><a href="#fnref1">↩</a></p></li>
+</ol>
+</div>
+
+        </div>
+        <div id="footer">
+            Site generated by
+            <a href="http://jaspervdj.be/hakyll">Hakyll</a>
+        </div>
+    </body>
+</html>

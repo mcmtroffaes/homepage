@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+        <title>Blow Your Mind With Haskell - Typeclasses</title>
+        <link rel="stylesheet" type="text/css" href="../css/default.css" />
+        <link rel="stylesheet" type="text/css" href="../css/syntax.css" />
+    </head>
+    <body>
+        <div id="header">
+        <div id="navigation">
+            <a href="../">Home</a>
+            <a href="../about.html">About</a>
+            <!--<a href="/contact.html">Contact</a>-->
+            <a href="../archive.html">Archive</a>
+        </div>
+        </div>
+
+        <div id="content">
+            <h1>Typeclasses</h1>
+
+            <div class="info">
+    Posted on September 10, 2013
+    
+        by Matthias C. M. Troffaes
+    
+</div>
+
+<h1 id="polymorphism">Polymorphism</h1>
+<p>We already saw one way to achieve polymorphism in Haskell: type variables. For example, we defined function composition as</p>
+<pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">(.) ::</span> (b <span class="ot">-&gt;</span> c) <span class="ot">-&gt;</span> (a <span class="ot">-&gt;</span> b) <span class="ot">-&gt;</span> (a <span class="ot">-&gt;</span> c)
+(f <span class="fu">.</span> g) x <span class="fu">=</span> f <span class="fu">$</span> g x</code></pre>
+<p>Above, <code class="sourceCode haskell">a</code>, <code class="sourceCode haskell">b</code>, and <code class="sourceCode haskell">c</code> are generic placeholders to denote arbitrary types. These are called type variables.</p>
+<p>If we think about generalising the monad pattern to general types, we will quickly find that type variables cannot help us doing so. Why is that? Well, to use the monad pattern, we need, in essence, to define a function that binds our monadic structures. Looking at further examples, we will very quickly find that we cannot implement this binding operation in a fully generic way using type variables, because the implementation of the binding operation is highly tied to the monad structure itself. In terms of, say, C++, we would like to overload the binding function for different types.</p>
+<p>This is exactly what a <em>typeclass</em> does: it allows us to specify that a certain type implements certain functions. The monad typeclass is defined as follows:</p>
+<pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">class</span> <span class="dt">Monad</span> m <span class="kw">where</span>
+<span class="ot">    (&gt;&gt;=) ::</span> m a <span class="ot">-&gt;</span> (a <span class="ot">-&gt;</span> m b) <span class="ot">-&gt;</span> m b
+<span class="ot">    return ::</span> a <span class="ot">-&gt;</span> m a</code></pre>
+<p>Note that we are also required to implement a return function to embed a type into our monad; actually, for may examples, this is not really required, but it can be useful in case a type’s constructors are hidden. Note that the bind operator <code class="sourceCode haskell"><span class="fu">&gt;&gt;=</span></code> and the <code class="sourceCode haskell">return</code> function are required to be polymorphic, through type variables.</p>
+<p>So, in essence, typeclasses are used to declare that a particular type implements a particular interface. For example, the list monad would be implemented as</p>
+<pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">instance</span> <span class="dt">Monad</span> [] <span class="kw">where</span>
+    (<span class="fu">&gt;&gt;=</span>) xs f <span class="fu">=</span> concat <span class="fu">.</span> map f <span class="fu">$</span> xs
+    return x <span class="fu">=</span> [x]</code></pre>
+<p>Of course, we do not have to type the above ourselves; Haskell has already done that for us.</p>
+<h1 id="a-simple-container-monad">A Simple Container Monad</h1>
+<p>Let us proceed to a second example of a monad. Suppose we are carrying out a computation on some value, but each step of the computation might fail for some reason. In case of failure, we simply wish to return a dummy value to signal this failure.</p>
+<p>For the time being, let us use a list for this purpose: an empty list denotes a failed computation, and a non-empty list of length one denotes successful computation, with the value it stores being the value computed so far.</p>
+<p>As an example of computation, we will parse three digits into an integer. A first challenge is to convert a single character into a numerical value. For this we use the <code class="sourceCode haskell">ord</code> function from the <code class="sourceCode haskell"><span class="dt">Data.Char</span></code> module:</p>
+<pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">import </span><span class="dt">Data.Char</span></code></pre>
+<p>We will construct our parser by chaining. A single step of the algorithm consists of taking a character from the front of a string (we could also take it from the back, but Haskell encourages it the other way around), trying to convert it to an integer, and returning that integer along with the remainder of the characters still to convert. So, ideally, we would like our function signature to be</p>
+<pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">getdigit ::</span> [<span class="dt">Char</span>] <span class="ot">-&gt;</span> (<span class="dt">Int</span>, [<span class="dt">Char</span>])</code></pre>
+<p>Two problems still to solve are: (i) how to deal with error conditions, and (ii) how to allow this function to be recursively “eat” characters. We change the function signature somewhat to accommodate both issues:</p>
+<pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">getdigit ::</span> (<span class="dt">Int</span>, [<span class="dt">Char</span>]) <span class="ot">-&gt;</span> [(<span class="dt">Int</span>, [<span class="dt">Char</span>])]</code></pre>
+<p>Two things have happened: we have written the function to take just a single argument, namely, a tuple of <code class="sourceCode haskell"><span class="dt">Int</span></code> and <code class="sourceCode haskell">[<span class="dt">Char</span>]</code>. This will simplify chaining: suppose we have eaten a character and are left with a remaining string, then we can simply call the function again to get the next digit with its remaining string, and so on. The second change is that the function now returns a list, so an empty list can signal an error condition, and a single element list can signal successful parsing.</p>
+<p>Here is the full implementation.</p>
+<pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">getdigit ::</span> (<span class="dt">Int</span>, [<span class="dt">Char</span>]) <span class="ot">-&gt;</span> [(<span class="dt">Int</span>, [<span class="dt">Char</span>])]
+getdigit (n, []) <span class="fu">=</span> []
+getdigit (n, x<span class="fu">:</span>xs)
+  <span class="fu">|</span> m <span class="fu">&gt;=</span> <span class="dv">0</span> <span class="fu">&amp;&amp;</span> m <span class="fu">&lt;=</span> <span class="dv">9</span> <span class="fu">=</span> [(<span class="dv">10</span> <span class="fu">*</span> n <span class="fu">+</span> m, xs)]
+  <span class="fu">|</span> otherwise        <span class="fu">=</span> []
+  <span class="kw">where</span> m <span class="fu">=</span> ord x <span class="fu">-</span> ord <span class="ch">'0'</span></code></pre>
+<p>In case of invalid input (empty string, or non-numerical character), the function simply returns an empty string. If the input is valid, then the function multiplies the result so far by 10, and adds the parsed digit to that result; it also returns the remaining characters.</p>
+<p>How can we now parse, say, a three-digit integer? The list monad helps us out.</p>
+<pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">getint ::</span> [<span class="dt">Char</span>] <span class="ot">-&gt;</span> [(<span class="dt">Int</span>, [<span class="dt">Char</span>])]
+getint xs <span class="fu">=</span> getdigit (<span class="dv">0</span>, xs) <span class="fu">&gt;&gt;=</span> getdigit <span class="fu">&gt;&gt;=</span> getdigit</code></pre>
+<p>That looks rather elegant, but what is going on here?</p>
+<p>Remember what the list monad does: it takes a list, applies a function to all elements of that list, and then concatenates the resulting elements of that list. Let us analyse this process in the above code. First, we start with <code class="sourceCode haskell">getdigit (<span class="dv">0</span>, xs)</code>. If, on the one hand, the input <code class="sourceCode haskell">xs</code> is empty, or has an invalid first character, then we end up with an empty list. If, on the other hand, the input <code class="sourceCode haskell">xs</code> starts with a valid character, then we get a list containing the value of that character, along with the tail of <code class="sourceCode haskell">xs</code>, i.e. all characters still to process.</p>
+<p>The monad operation <code class="sourceCode haskell"><span class="fu">&gt;&gt;=</span></code> will then apply <code class="sourceCode haskell">getdigit</code> to all elements of the list we just obtained—remember that this list is either empty, or contains exactly one element. If that list was empty, <code class="sourceCode haskell"><span class="fu">&gt;&gt;=</span></code> will just return an empty list again without even calling <code class="sourceCode haskell">getdigit</code>. If that list contained one element, it will multiply the original result by 10, add the newly processed digit to the result, and return a list containing one pair, namely the result and the remaining characters. If at this stage, parsing fails, an empty list is produced.</p>
+<p>Rinse and repeat.</p>
+<h1 id="maybe">Maybe</h1>
+<p>Using a list to keep track of a failure mode is somewhat contorted: we are using a cannon to shoot a fly. Haskell provides a simpler data structure just for the purpose of storing so-called <em>optional</em> values.</p>
+<pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">data</span> <span class="dt">Maybe</span> a <span class="fu">=</span> <span class="dt">Nothing</span> <span class="fu">|</span> <span class="dt">Just</span> a</code></pre>
+<p>Semantically, a <code class="sourceCode haskell"><span class="dt">Maybe</span></code> is just like a list with at most one element. Its monad implementation is somewhat simpler than that of lists.</p>
+<pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">(&gt;&gt;=) ::</span> <span class="dt">Maybe</span> a <span class="ot">-&gt;</span> (a <span class="ot">-&gt;</span> <span class="dt">Maybe</span> b) <span class="ot">-&gt;</span> <span class="dt">Maybe</span> b
+(<span class="fu">&gt;&gt;=</span>) <span class="dt">Nothing</span> f <span class="fu">=</span> <span class="dt">Nothing</span>
+(<span class="fu">&gt;&gt;=</span>) (<span class="dt">Just</span> a) f <span class="fu">=</span> f a</code></pre>
+<p>The full implementation becomes</p>
+<pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">getdigit2 ::</span> (<span class="dt">Int</span>, [<span class="dt">Char</span>]) <span class="ot">-&gt;</span> <span class="dt">Maybe</span> (<span class="dt">Int</span>, [<span class="dt">Char</span>])
+getdigit2 (n, []) <span class="fu">=</span> <span class="dt">Nothing</span>
+getdigit2 (n, x<span class="fu">:</span>xs)
+  <span class="fu">|</span> m <span class="fu">&gt;=</span> <span class="dv">0</span> <span class="fu">&amp;&amp;</span> m <span class="fu">&lt;=</span> <span class="dv">9</span> <span class="fu">=</span> <span class="dt">Just</span> (<span class="dv">10</span> <span class="fu">*</span> n <span class="fu">+</span> m, xs)
+  <span class="fu">|</span> otherwise        <span class="fu">=</span> <span class="dt">Nothing</span>
+  <span class="kw">where</span> m <span class="fu">=</span> ord x <span class="fu">-</span> ord <span class="ch">'0'</span>
+
+<span class="ot">getint2 ::</span> [<span class="dt">Char</span>] <span class="ot">-&gt;</span> <span class="dt">Maybe</span> (<span class="dt">Int</span>, [<span class="dt">Char</span>])
+getint2 xs <span class="fu">=</span> getdigit2 (<span class="dv">0</span>, xs) <span class="fu">&gt;&gt;=</span> getdigit2 <span class="fu">&gt;&gt;=</span> getdigit2</code></pre>
+<p>This is obviously very similar to our list implementation. The main difference is that the intent of the code has become clearer due to the explicit use of <code class="sourceCode haskell"><span class="dt">Maybe</span></code>, <code class="sourceCode haskell"><span class="dt">Nothing</span></code>, and <code class="sourceCode haskell"><span class="dt">Just</span></code>.</p>
+
+        </div>
+        <div id="footer">
+            Site generated by
+            <a href="http://jaspervdj.be/hakyll">Hakyll</a>
+        </div>
+    </body>
+</html>

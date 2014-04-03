@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+        <title>Blow Your Mind With Haskell - Propositional Logic in Agda</title>
+        <link rel="stylesheet" type="text/css" href="../css/default.css" />
+        <link rel="stylesheet" type="text/css" href="../css/syntax.css" />
+    </head>
+    <body>
+        <div id="header">
+        <div id="navigation">
+            <a href="../">Home</a>
+            <a href="../about.html">About</a>
+            <!--<a href="/contact.html">Contact</a>-->
+            <a href="../archive.html">Archive</a>
+        </div>
+        </div>
+
+        <div id="content">
+            <h1>Propositional Logic in Agda</h1>
+
+            <div class="info">
+    Posted on January 13, 2014
+    
+        by Matthias C. M. Troffaes
+    
+</div>
+
+<h2 id="types-are-theorems-proofs-are-instances-implications-are-functions">Types are Theorems, Proofs are Instances, Implications are Functions</h2>
+<p>In the last post, we looked at Agda, a extension of Haskell which implements dependent types, to assist us in proving theorems. In Agda, theorems are types, and proofs are instances of types. To verify the proof of a theorem, we define a function whose type signature corresponds to the theorem, and whose implementation is an instance of that type, namely, the proof.</p>
+<p>Why functions? Because functions embody implication. Specifically, A implies B if every proof of A can be transformed into a proof of B.</p>
+<pre class="sourceCode agda"><code class="sourceCode agda"><span class="ot">_</span>implies<span class="ot">_</span> <span class="ot">:</span> <span class="dt">Set</span> <span class="ot">-&gt;</span> <span class="dt">Set</span> <span class="ot">-&gt;</span> <span class="dt">Set</span>
+A implies B <span class="ot">=</span> A <span class="ot">-&gt;</span> B</code></pre>
+<p>So, in Agda, we essentially reason by transforming proofs. This corresponds nicely to how traditional mathematical reasoning works. In this post, we will further explore propositional logic to gain more confidence in proof transformation.</p>
+<p>We will not use the above <code class="sourceCode agda">implies</code> operator any more, and instead directly write <code class="sourceCode agda"><span class="ot">-&gt;</span></code> for implication.</p>
+<h2 id="conjunction-and-disjunction">Conjunction and Disjunction</h2>
+<p>How do we model logical ‘and’ and logical ‘or’? Both operators take two theorems, and return a new theorem, so the type signatures should be as follows:</p>
+<pre class="sourceCode agda"><code class="sourceCode agda"><span class="ot">_</span>and<span class="ot">_</span> <span class="ot">:</span> <span class="ot">(</span>A B <span class="ot">:</span> <span class="dt">Set</span><span class="ot">)</span> <span class="ot">-&gt;</span> <span class="dt">Set</span>
+<span class="ot">_</span>or<span class="ot">_</span> <span class="ot">:</span> <span class="ot">(</span>A B <span class="ot">:</span> <span class="dt">Set</span><span class="ot">)</span> <span class="ot">-&gt;</span> <span class="dt">Set</span></code></pre>
+<p>The implementations are also reasonably obvious: <code class="sourceCode agda">A and B</code> is proven if we have an instance of <code class="sourceCode agda">A</code> and an instance of <code class="sourceCode agda">B</code>, for instance, it could return a pair, i.e. a Haskell tuple. On the other hand, <code class="sourceCode agda">A or B</code> is proven if we have an instance of <code class="sourceCode agda">A</code> or an instance of <code class="sourceCode agda">B</code>: we could use Haskell’s <code class="sourceCode haskell"><span class="dt">Either</span></code> type.</p>
+<p>As far as I know, Agda has no builtin implementation for tuples, and it also has no <code class="sourceCode haskell"><span class="dt">Either</span></code> type, but it is easy to roll our own. For example:</p>
+<pre class="sourceCode agda"><code class="sourceCode agda"><span class="kw">data</span> Pair <span class="ot">(</span>A B <span class="ot">:</span> <span class="dt">Set</span><span class="ot">)</span> <span class="ot">:</span> <span class="dt">Set</span> <span class="kw">where</span>
+  <span class="ot">_</span>,<span class="ot">_</span> <span class="ot">:</span> A <span class="ot">-&gt;</span> B <span class="ot">-&gt;</span> Pair A B
+
+<span class="kw">data</span> Either <span class="ot">(</span>A B <span class="ot">:</span> <span class="dt">Set</span><span class="ot">)</span> <span class="ot">:</span> <span class="dt">Set</span> <span class="kw">where</span>
+  left <span class="ot">:</span> A <span class="ot">-&gt;</span> Either A B
+  right <span class="ot">:</span> B <span class="ot">-&gt;</span> Either A B
+
+<span class="ot">_</span>and<span class="ot">_</span> <span class="ot">:</span> <span class="ot">(</span>A B <span class="ot">:</span> <span class="dt">Set</span><span class="ot">)</span> <span class="ot">-&gt;</span> <span class="dt">Set</span>
+A and B <span class="ot">=</span> Pair A B
+
+<span class="ot">_</span>or<span class="ot">_</span> <span class="ot">:</span> <span class="ot">(</span>A B <span class="ot">:</span> <span class="dt">Set</span><span class="ot">)</span> <span class="ot">-&gt;</span> <span class="dt">Set</span>
+A or B <span class="ot">=</span> Either A B</code></pre>
+<p>The syntax for declaring data types is slightly different from Haskell’s, so this deserves some explanation. <code class="sourceCode agda">Pair</code> has constructor <code class="sourceCode agda"><span class="ot">_</span>,<span class="ot">_</span> <span class="ot">:</span> A <span class="ot">-&gt;</span> B <span class="ot">-&gt;</span> Pair A B</code>. The return type of a constructor is always the type it is defined for. What this signature thus says is that <code class="sourceCode agda"><span class="ot">_</span>,<span class="ot">_</span></code> constructs a new instance of <code class="sourceCode agda">Pair A B</code> by taking an instance of <code class="sourceCode agda">A</code> and an instance of <code class="sourceCode agda">B</code>. Remember that, in Haskell and also in Agda, constructors of algebraic data types do not declare their implementation as in C++, Python, or Java. In Haskell and Agda, constructors simply define expressions that create instances of a particular type.</p>
+<h2 id="expressing-a-proof-as-a-function">Expressing a Proof as a Function</h2>
+<p>Let us prove that <code class="sourceCode agda">A and B</code> implies <code class="sourceCode agda">A or B</code>: How does this work? Let us first do the proof in words, and then translate it into Agda code. Clearly, if <code class="sourceCode agda">A and B</code> holds, then <code class="sourceCode agda">A</code> holds. But if <code class="sourceCode agda">A</code> holds, then <code class="sourceCode agda">A or B</code> holds.</p>
+<pre class="sourceCode agda"><code class="sourceCode agda">lemma <span class="ot">:</span> <span class="ot">(</span>A B <span class="ot">:</span> <span class="dt">Set</span><span class="ot">)</span> <span class="ot">-&gt;</span> <span class="ot">(</span>A and B<span class="ot">)</span> <span class="ot">-&gt;</span> A
+lemma A B <span class="ot">(</span>a , b<span class="ot">)</span> <span class="ot">=</span> a
+
+theorem <span class="ot">:</span> <span class="ot">(</span>A B <span class="ot">:</span> <span class="dt">Set</span><span class="ot">)</span> <span class="ot">-&gt;</span> <span class="ot">(</span>A and B<span class="ot">)</span> <span class="ot">-&gt;</span> <span class="ot">(</span>A or B<span class="ot">)</span>
+theorem A B ab <span class="ot">=</span> left <span class="ot">(</span>lemma A B ab<span class="ot">)</span></code></pre>
+<p>Here, <code class="sourceCode agda">lemma</code> proves that if <code class="sourceCode agda">A and B</code> holds, then <code class="sourceCode agda">A</code> holds. To do so, we take a proof of <code class="sourceCode agda">A and B</code>, which is <code class="sourceCode agda"><span class="ot">(</span>a , b<span class="ot">)</span></code>, and transform it into a proof of <code class="sourceCode agda">A</code>, which is <code class="sourceCode agda">a</code>. Next, <code class="sourceCode agda">theorem</code> proves the initial statement. We take our proof of <code class="sourceCode agda">A and B</code>, which we denote by <code class="sourceCode agda">ab</code>, then apply <code class="sourceCode agda">lemma</code> to get a proof of <code class="sourceCode agda">A</code>, and then turn this into an instance of <code class="sourceCode agda">A or B</code>.</p>
+<p>Something rather interesting is happening in the last step: constructors can be used as theorems too! Our type signature <code class="sourceCode agda">left <span class="ot">:</span> A <span class="ot">-&gt;</span> Either A B</code> means that, from a proof of <code class="sourceCode agda">A</code>, we can prove <code class="sourceCode agda">Either A B</code>, which is the same as <code class="sourceCode agda">A or B</code>. In a sense, <strong>constructors are the axioms of our theory</strong>.</p>
+<p>To make this more formal, we could simply get rid of <code class="sourceCode agda">Pair</code> and <code class="sourceCode agda">Either</code>, and directly write:</p>
+<pre class="sourceCode agda"><code class="sourceCode agda"><span class="kw">data</span> <span class="ot">_</span>and<span class="ot">_</span> <span class="ot">(</span>A B <span class="ot">:</span> <span class="dt">Set</span><span class="ot">)</span> <span class="ot">:</span> <span class="dt">Set</span> <span class="kw">where</span>
+  <span class="ot">_</span>,<span class="ot">_</span> <span class="ot">:</span> A <span class="ot">-&gt;</span> B <span class="ot">-&gt;</span> A and B
+
+<span class="kw">data</span> <span class="ot">_</span>or<span class="ot">_</span> <span class="ot">(</span>A B <span class="ot">:</span> <span class="dt">Set</span><span class="ot">)</span> <span class="ot">:</span> <span class="dt">Set</span> <span class="kw">where</span>
+  left <span class="ot">:</span> A <span class="ot">-&gt;</span> A or B
+  right <span class="ot">:</span> B <span class="ot">-&gt;</span> A or B</code></pre>
+<p>Agda has some useful syntax that saves us from having to write all arguments: any arguments between curly braces can be omitted if they can be unambiguously inferred. With this in mind, the proof becomes a little bit more readable:</p>
+<pre class="sourceCode agda"><code class="sourceCode agda">lemma <span class="ot">:</span> <span class="ot">{</span>A B <span class="ot">:</span> <span class="dt">Set</span><span class="ot">}</span> <span class="ot">-&gt;</span> <span class="ot">(</span>A and B<span class="ot">)</span> <span class="ot">-&gt;</span> A
+lemma <span class="ot">(</span>a , b<span class="ot">)</span> <span class="ot">=</span> a
+
+theorem <span class="ot">:</span> <span class="ot">{</span>A B <span class="ot">:</span> <span class="dt">Set</span><span class="ot">}</span> <span class="ot">-&gt;</span> <span class="ot">(</span>A and B<span class="ot">)</span> <span class="ot">-&gt;</span> <span class="ot">(</span>A or B<span class="ot">)</span>
+theorem ab <span class="ot">=</span> left <span class="ot">(</span>lemma ab<span class="ot">)</span></code></pre>
+<p>(So, <code class="sourceCode agda">lemma</code> is simply Haskell’s <code class="sourceCode haskell">fst</code>!)</p>
+<p>Finally, note that we could also have integrated the lemma into the proof of the theorem:</p>
+<pre class="sourceCode agda"><code class="sourceCode agda">theorem <span class="ot">:</span> <span class="ot">{</span>A B <span class="ot">:</span> <span class="dt">Set</span><span class="ot">}</span> <span class="ot">-&gt;</span> <span class="ot">(</span>A and B<span class="ot">)</span> <span class="ot">-&gt;</span> <span class="ot">(</span>A or B<span class="ot">)</span>
+theorem <span class="ot">(</span>a , b<span class="ot">)</span> <span class="ot">=</span> left a</code></pre>
+<h2 id="using-pattern-matching-to-prove-distinct-cases">Using Pattern Matching to Prove Distinct Cases</h2>
+<p>Let us prove another theorem:</p>
+<pre class="sourceCode agda"><code class="sourceCode agda">distributivity <span class="ot">:</span> <span class="ot">{</span>A B C <span class="ot">:</span> <span class="dt">Set</span><span class="ot">}</span> <span class="ot">-&gt;</span> <span class="ot">(</span>A and <span class="ot">(</span>B or C<span class="ot">))</span> <span class="ot">-&gt;</span> <span class="ot">((</span>A and B<span class="ot">)</span> or <span class="ot">(</span>A and C<span class="ot">))</span>
+distributivity <span class="ot">(</span>a , left b<span class="ot">)</span> <span class="ot">=</span> left <span class="ot">(</span>a , b<span class="ot">)</span>
+distributivity <span class="ot">(</span>a , right c<span class="ot">)</span> <span class="ot">=</span> right <span class="ot">(</span>a , c<span class="ot">)</span></code></pre>
+<p>Here, we exploited pattern matching to prove two cases separately. An instance of <code class="sourceCode agda">A and <span class="ot">(</span>B or C<span class="ot">)</span></code> is a proof of <code class="sourceCode agda">A</code> (<code class="sourceCode agda">a</code>), along with a proof of either <code class="sourceCode agda">B</code> (<code class="sourceCode agda">left b</code>) or <code class="sourceCode agda">C</code> (<code class="sourceCode agda">right c</code>). We can convert <code class="sourceCode agda"><span class="ot">(</span>a , left b<span class="ot">)</span></code> into an instance of <code class="sourceCode agda"><span class="ot">((</span>A and B<span class="ot">)</span> or <span class="ot">(</span>A and C<span class="ot">))</span></code>, namely <code class="sourceCode agda">left <span class="ot">(</span>a , b<span class="ot">)</span></code>. Similarly, we can convert <code class="sourceCode agda"><span class="ot">(</span>a , left b<span class="ot">)</span></code> into an instance of <code class="sourceCode agda"><span class="ot">((</span>A and B<span class="ot">)</span> or <span class="ot">(</span>A and C<span class="ot">))</span></code>, namely <code class="sourceCode agda">right <span class="ot">(</span>a , c<span class="ot">)</span></code>.</p>
+
+        </div>
+        <div id="footer">
+            Site generated by
+            <a href="http://jaspervdj.be/hakyll">Hakyll</a>
+        </div>
+    </body>
+</html>
