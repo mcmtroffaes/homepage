@@ -4,7 +4,7 @@ author: Matthias C. M. Troffaes
 tags: hakyll, agda
 ---
 
-Thanks to the speedy response of the pcre-regex-builtin and
+Thanks to the speedy responses of the regex-pcre-builtin and
 highlighting-kate developers, enabling Agda syntax highlighting in
 Hakyll just became a little bit simpler:
 
