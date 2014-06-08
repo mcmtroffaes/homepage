@@ -289,7 +289,7 @@ record IsMockReals
 
 The new bits are: `public`{.agda}, which re-exports all imported declarations,
 `renaming`{.agda} which renames imported declarations,
-and the use of declarations directly inside the record
+and the use of declarations directly inside the record.
 We could have used `where open`{.agda} syntax as well in case we did not
 want the theorems to be included as members of the record.
 The Agda standard library seems not to put theorems inside records;
