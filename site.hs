@@ -1,7 +1,7 @@
 --------------------------------------------------------------------------------
 {-# LANGUAGE OverloadedStrings #-}
 import           Control.Monad (liftM)
-import           Data.Default
+import           Data.Default (def)
 import           Data.Monoid (mappend)
 import           Hakyll
 
@@ -29,7 +29,7 @@ main = hakyll $ do
     match "research.md" $ do
         route   $ setExtension "html"
         compile $ bibtexCompiler
-                  "elsevier-with-titles-alphabetical.csl" "research.bib"
+                  "csl/elsevier-with-titles-alphabetical.csl" "bib/research.bib"
             >>= loadAndApplyTemplate "templates/default.html" defaultContext
             >>= relativizeUrls
 
@@ -73,8 +73,8 @@ main = hakyll $ do
 
 bibtexCompiler :: String -> String -> Compiler (Item String)
 bibtexCompiler cslFileName bibFileName = do
-    csl <- load (fromFilePath $ "csl/" ++ cslFileName)
-    bib <- load (fromFilePath $ "bib/" ++ bibFileName)
+    csl <- load $ fromFilePath cslFileName
+    bib <- load $ fromFilePath bibFileName
     liftM writePandoc
         (getResourceBody >>= readPandocBiblio def csl bib)
 

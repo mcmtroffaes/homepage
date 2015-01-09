@@ -107,4 +107,5 @@ known. One could say that imprecise probability theory allows for a more
 accurate description of our knowledge of reality. It
 therefore allows for a more accurate criterion of optimality too.
 
-# Bibliography
+References
+==========
