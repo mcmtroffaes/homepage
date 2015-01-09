@@ -39,7 +39,9 @@ bibtexCompiler cslFileName bibFileName = do
 ```
 
 This is the least trivial bit. It would be nice if Hakyll provided
-this function by default.
+this function by default;
+in good open source spirit, I
+[submitted a patch](https://github.com/jaspervdj/hakyll/pull/327).
 
 Finally, compile any document that uses a bibliography with
 `bibtexCompiler`{.haskell} instead of `pandocCompiler`{.haskell},
