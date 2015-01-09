@@ -1,4 +1,3 @@
-Blow Your Mind With Haskell
-===========================
+This repository contains the source files for my homepage, which lives at:
 
-http://mcmtroffaes.github.io/blowyourmindwithhaskell/
+http://www.maths.dur.ac.uk/users/matthias.troffaes/
