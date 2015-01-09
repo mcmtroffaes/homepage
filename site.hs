@@ -1,8 +1,9 @@
 --------------------------------------------------------------------------------
 {-# LANGUAGE OverloadedStrings #-}
+import           Control.Monad (liftM)
+import           Data.Default
 import           Data.Monoid (mappend)
 import           Hakyll
-
 
 --------------------------------------------------------------------------------
 main :: IO ()
@@ -15,9 +16,20 @@ main = hakyll $ do
         route   idRoute
         compile compressCssCompiler
 
-    match (fromList ["about.rst" {-, "contact.markdown" -}]) $ do
+    match "bib/*" $ compile biblioCompiler
+
+    match "csl/*" $ compile cslCompiler
+
+    match (fromList ["about.rst", "contact.rst"]) $ do
         route   $ setExtension "html"
         compile $ pandocCompiler
+            >>= loadAndApplyTemplate "templates/default.html" defaultContext
+            >>= relativizeUrls
+
+    match "research.md" $ do
+        route   $ setExtension "html"
+        compile $ bibtexCompiler
+                  "elsevier-with-titles-alphabetical.csl" "research.bib"
             >>= loadAndApplyTemplate "templates/default.html" defaultContext
             >>= relativizeUrls
 
@@ -59,8 +71,13 @@ main = hakyll $ do
 
     match "templates/*" $ compile templateCompiler
 
+bibtexCompiler :: String -> String -> Compiler (Item String)
+bibtexCompiler cslFileName bibFileName = do
+    csl <- load (fromFilePath $ "csl/" ++ cslFileName)
+    bib <- load (fromFilePath $ "bib/" ++ bibFileName)
+    liftM writePandoc
+        (getResourceBody >>= readPandocBiblio def csl bib)
 
---------------------------------------------------------------------------------
 postCtx :: Context String
 postCtx =
     dateField "date" "%B %e, %Y" `mappend`
