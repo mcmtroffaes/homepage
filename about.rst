@@ -1,9 +1,6 @@
 ---
-title: About
+title: Bio
 ---
-
-Science
--------
 
 After receiving his M.Sc. degree in physical engineering in 2000
 from Gent University, Belgium, Matthias C. M. Troffaes joined the SYSTeMS research group
@@ -24,9 +21,6 @@ of Risk and Reliability, and the International Journal of
 Approximate Reasoning. Since 2009, he is member of the
 executive committee of the Society for Imprecise Probability: Theories
 and Applications (SIPTA).
-
-Music
------
 
 Besides these scientific activities, he
 studied harpsichord with Carine Verhenneman and organ with
