@@ -28,7 +28,7 @@ main = hakyll $ do
 
     match "research.md" $ do
         route   $ setExtension "html"
-        compile $ bibtexCompiler
+        compile $ pandocBiblioCompiler
                   "csl/elsevier-with-titles-alphabetical.csl" "bib/all.bib"
             >>= loadAndApplyTemplate "templates/default.html" defaultContext
             >>= relativizeUrls
@@ -71,8 +71,8 @@ main = hakyll $ do
 
     match "templates/*" $ compile templateCompiler
 
-bibtexCompiler :: String -> String -> Compiler (Item String)
-bibtexCompiler cslFileName bibFileName = do
+pandocBiblioCompiler :: String -> String -> Compiler (Item String)
+pandocBiblioCompiler cslFileName bibFileName = do
     csl <- load $ fromFilePath cslFileName
     bib <- load $ fromFilePath bibFileName
     liftM writePandoc
