@@ -29,11 +29,11 @@ wide range of extensions of the classical theory of probability.
 
 A behavioural approach to generalising probability theory, which is
 termed *lower previsions* and which can be seen as a
-generalisation of the work of De Finetti [@c1974:definetti] in the classical theory of
+generalisation of the work of De Finetti [@1974:definetti] in the classical theory of
 probability, has been extensively studied and developed during the
-1980's by Peter Walley [@c1981:walley:lowuppprobs] [@c1991:walley], based on the work of Boole [@c1854:boole], Smith [@c1961:smith], Williams [@c1975:williams:condprev] [@c2007:williams:condprev] [@c1976:williams], and many others.
+1980's by Peter Walley [@1981:walley:lowuppprobs] [@1991:walley], based on the work of Boole [@1854:boole], Smith [@1961:smith], Williams [@1975:williams:condprev] [@2007:williams:condprev] [@1976:williams], and many others.
 In Russia, Vladimir
-Kuznetsov [@c1991:kuznetsovinterval] developed, simultaneously and independently from Peter
+Kuznetsov [@1991:kuznetsovinterval] developed, simultaneously and independently from Peter
 Walley, a theory which is mathematically very similar to Walley's
 lower previsions.
 
@@ -47,7 +47,7 @@ reasons are:
   unifies a large number of other generalisations of probability
   theory. Interestingly, imprecise probability also unifies the
   classical theory of probability with the classical theory of logic:
-  see Boole's "An investigation of the laws of thought" [@c1854:boole].
+  see Boole's "An investigation of the laws of thought" [@1854:boole].
 
 * The theory has a very clear **behavioural interpretation** in terms
     of buying (or, equivalently, selling) prices, similar to de

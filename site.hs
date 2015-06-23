@@ -16,7 +16,7 @@ main = hakyll $ do
         route   idRoute
         compile compressCssCompiler
 
-    match "bib/*" $ compile biblioCompiler
+    match "bib/*.bib" $ compile biblioCompiler
 
     match "csl/*" $ compile cslCompiler
 
@@ -29,7 +29,7 @@ main = hakyll $ do
     match "research.md" $ do
         route   $ setExtension "html"
         compile $ bibtexCompiler
-                  "csl/elsevier-with-titles-alphabetical.csl" "bib/research.bib"
+                  "csl/elsevier-with-titles-alphabetical.csl" "bib/all.bib"
             >>= loadAndApplyTemplate "templates/default.html" defaultContext
             >>= relativizeUrls
 
