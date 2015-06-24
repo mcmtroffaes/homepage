@@ -5,7 +5,7 @@ tags: hakyll
 ---
 
 As I was playing around to get Hakyll to produce a page containing my
-publications, I soon realized that a more thourough understanding of
+publications, I soon realized that a more thorough understanding of
 the internals of Hakyll would be required. This post aims to go
 through the basic building blocks to get to building a custom
 publication page. First I strongly recommend reading
@@ -163,7 +163,7 @@ along with an `Identifier`{.haskell}.
 We already know that identifiers in Hakyll are file paths,
 so our `Item a`{.haskell} simply stores a file path along with its contents.
 
-Now, let us analyze `Compiler (Item a)`{.haskell}. The source code for
+Now, let us analyse `Compiler (Item a)`{.haskell}. The source code for
 the `Compiler`{.haskell} class is quite complicated, so instead of
 understanding the full implementation, let us merely try to understand
 the functions that produce a `Compiler`{.haskell}.  Later, we will also try
@@ -215,7 +215,7 @@ main = hakyll (match "index.html" (route idRoute >> compile getResourceString))
 The only new things here are
 the `OverloadedStrings` directive, and
 the use of the `>>` operator to join the rules together.
-The `OverloadedStrings` directive allows us to specify patters simply
+The `OverloadedStrings` directive allows us to specify patterns simply
 via strings. Remember that we said that rules are monads? Essentially,
 each rule stores some information which can be used by the next rule.
 If you have forgotten what monads are, you can think of `>>` as an
