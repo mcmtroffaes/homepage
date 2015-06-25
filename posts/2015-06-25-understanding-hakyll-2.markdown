@@ -281,3 +281,23 @@ use do notation anyway.
 
 That's it for now. Next, we will try to write our own Hakyll compiler
 with a custom context, to handle things like publication lists.
+
+Exercise
+========
+
+Rewrite
+
+``` {.sourceCode .haskell}
+pandocCompiler = fmap writePandoc (getResourceBody >>= readPandoc)
+```
+
+using do notation.
+
+<!--
+``` {.sourceCode .haskell}
+pandocCompiler = do
+    src <- getResourceBody
+    pd <- readPandoc src
+    return (writePandoc pd)
+```
+-->
