@@ -1,5 +1,5 @@
 ---
-title: Understanding Hakyll
+title: Understanding Hakyll (Part 1)
 author: Matthias C. M. Troffaes
 tags: hakyll
 ---
