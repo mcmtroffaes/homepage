@@ -204,3 +204,53 @@ bibliographic entry.
 So, you can use your favourite style, but you will likely need to
 remove the citation label text from the formatting instructions.
 A [full example is on github here](https://github.com/mcmtroffaes/homepage/tree/master/posts/2015-06-26/implementation-1).
+
+We now have a simple way to turn bibtex files into html files.
+We can now do a number of things to make this a little bit more clever:
+
+* Use templates to embed bibliographies into other documents.
+  This requires us to create a new context whose action is precisely
+  to replace placeholders by reference lists.
+
+* Allow filtering. We will write the actual filters in Haskell
+  as part of the site script.
+
+We will cover this next time.
+
+<!--- UNFINISHED, FOR NEW POST
+
+Filtering
+=========
+
+Let us start with the filtering job first. We can make use of the standard
+`filter`{.haskell} function to select a particular subset of references:
+
+``` {.sourceCode .haskell}
+filter :: (a -> Bool) -> [a] -> [a]
+```
+
+This function takes another function which returns `True`{.haskell} on
+all elements of a list that need to be retained. So, for example, to
+get the list of all journal articles by particular authors, say
+whose last name is "Troffaes", we write the following functions:
+
+``` {.sourceCode .haskell}
+isArticleJournal :: Reference -> Bool
+isArticleJournal ref = refType ref == ArticleJournal
+
+isPaperConference :: Reference -> Bool
+isPaperConference ref = refType ref == PaperConference
+
+isTroffaes :: Agent -> Bool
+isTroffaes = case $ unFormatted (familyName agent)
+    [Str txt] -> txt == "Troffaes"
+    _         -> False
+
+article :: Reference -> Bool
+article ref = (any isTroffaes (author ref)) && isArticleJournal
+
+conf :: Reference -> Bool
+conf ref = (any isTroffaes (author ref)) && isArticleJournal
+```
+
+-->
