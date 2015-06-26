@@ -1,6 +1,4 @@
 {-# LANGUAGE OverloadedStrings #-}
-import Control.Applicative ((<$>))
-import Data.Binary
 import Hakyll
 import Text.CSL
 import qualified Text.CSL.Output.Pandoc as CSL.Pandoc
