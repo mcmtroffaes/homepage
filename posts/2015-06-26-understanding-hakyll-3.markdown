@@ -203,7 +203,7 @@ Most, if not all, styles will print a label in front of each
 bibliographic entry.
 So, you can use your favourite style, but you will likely need to
 remove the citation label text from the formatting instructions.
-A [full example is on github here](https://github.com/mcmtroffaes/homepage/tree/master/posts/2015-06-26/implementation-1).
+A [full example is on github here](https://github.com/mcmtroffaes/homepage/tree/master/posts/2015-06-26/).
 
 We now have a simple way to turn bibtex files into html files.
 We can now do a number of things to make this a little bit more clever:
