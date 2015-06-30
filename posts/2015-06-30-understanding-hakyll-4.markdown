@@ -31,15 +31,13 @@ isPaperConference :: Reference -> Bool
 isPaperConference ref = refType ref == PaperConference
 
 isTroffaes :: Agent -> Bool
-isTroffaes = case $ unFormatted (familyName agent)
-    [Str txt] -> txt == "Troffaes"
-    _         -> False
+isTroffaes ag = familyName ag == "Troffaes"
 
 article :: Reference -> Bool
-article ref = (any isTroffaes (author ref)) && isArticleJournal
+article ref = (any isTroffaes (author ref)) && isArticleJournal ref
 
 conf :: Reference -> Bool
-conf ref = (any isTroffaes (author ref)) && isPaperConference
+conf ref = (any isTroffaes (author ref)) && isPaperConference ref
 ```
 
 In the previous post, the function which processed the bibtex file was:
@@ -64,7 +62,7 @@ readBiblio ibiblio = makeItem refs where Biblio refs = itemBody ibiblio
 readPandocReferences :: Item CSL -> Item [Reference] -> Compiler (Item Pandoc)
 readPandocReferences icsl irefs = do
     istyle <- styleCompiler icsl
-    let style = itemBody style
+    let style = itemBody istyle
         refs = itemBody irefs
         formatted = processBibliography procOpts style refs
         blocks = map (return . Plain . CSL.Pandoc.renderPandoc style)
@@ -116,7 +114,7 @@ a new `Context`{.haskell} type:
 
 ``` {.sourceCode .haskell}
 referencesFilterContext :: String -> (Reference -> Bool) -> Context a
-referencesFilterContext name condition = field name \item -> do
+referencesFilterContext name condition = field name $ \item -> do
     csl <- load $ fromFilePath "style.csl"
     bib <- load $ fromFilePath "refs.bib"
     refs <- readBiblio bib
@@ -128,16 +126,21 @@ referencesFilterContext name condition = field name \item -> do
 Now we can use this as follows:
 
 ``` {.sourceCode .haskell}
-refsContext =
-  referencesFilterContext "conferencepapers" conf `mappend`
-  referencesFilterContext "journalarticles" article `mappend`
-  defaultContext
+referencesContext =
+    referencesFilterContext "conferencepapers" conf `mappend`
+    referencesFilterContext "journalarticles" article `mappend`
+    defaultContext
 
-compile $ do
-    html1 <- pandocCompiler
-    html2 <- loadAndApplyTemplate "refs.html" refsContext html1
-    html3 <- relativizeUrls html2
-    return html3
+main = hakyll $ do
+    match "style.csl" $ compile cslCompiler
+    match "refs.bib" $ compile biblioCompiler
+    match "refs.html" $ compile templateCompiler
+    create ["index.html"] $ do
+         route idRoute
+         compile $ do
+             html1 <- makeItem ""
+             html2 <- loadAndApplyTemplate "refs.html" referencesContext html1
+             return html2
 ```
 
 where `refs.html` could be as follows:
@@ -151,6 +154,8 @@ $journalarticles
 
 $conferencepapers
 ```
+
+The [full source can be found on github](https://github.com/mcmtroffaes/homepage/tree/master/posts/2015-06-30/).
 
 That's it for now!
 
