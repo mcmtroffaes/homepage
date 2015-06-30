@@ -148,11 +148,11 @@ where `refs.html` could be as follows:
 ```
 <h2>Journal Articles</h2>
 
-$journalarticles
+$journalarticles$
 
 <h2>Conference Papers</h2>
 
-$conferencepapers
+$conferencepapers$
 ```
 
 The [full source can be found on github](https://github.com/mcmtroffaes/homepage/tree/master/posts/2015-06-30/).
