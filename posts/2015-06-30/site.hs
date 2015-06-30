@@ -47,19 +47,16 @@ renderPandocReferences csl refs = do
     pd <- readPandocReferences csl refs
     return (writePandoc pd)
 
-referencesFilterContext :: String -> (Reference -> Bool) -> Context a
-referencesFilterContext name condition = field name $ \item -> do
-    csl <- load $ fromFilePath "style.csl"
-    bib <- load $ fromFilePath "refs.bib"
+referencesFilterContext :: Item CSL -> String -> (Reference -> Bool) -> Context Biblio
+referencesFilterContext csl name condition = field name $ \bib -> do
     refs <- readBiblio bib
     refs2 <- makeItem $ filter condition $ itemBody refs
     html <- renderPandocReferences csl refs2
     return (itemBody html)
 
-referencesContext =
-    referencesFilterContext "conferencepapers" conf `mappend`
-    referencesFilterContext "journalarticles" article `mappend`
-    defaultContext
+referencesContext csl =
+    referencesFilterContext csl "conferencepapers" conf `mappend`
+    referencesFilterContext csl "journalarticles" article
 
 main = hakyll $ do
     match "style.csl" $ compile cslCompiler
@@ -68,6 +65,7 @@ main = hakyll $ do
     create ["index.html"] $ do
          route idRoute
          compile $ do
-             html1 <- makeItem ""
-             html2 <- loadAndApplyTemplate "refs.html" referencesContext html1
-             return html2
+             csl <- load $ fromFilePath "style.csl"
+             bib <- load $ fromFilePath "refs.bib"
+             html <- loadAndApplyTemplate "refs.html" (referencesContext csl) bib
+             return html

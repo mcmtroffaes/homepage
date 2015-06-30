@@ -109,27 +109,38 @@ Embedding
 To embed the generated html into another html file,
 we can make use of Hakyll's template system,
 which we already touched upon earlier.
-To create new template variables, Hakyll requires us to write
-a new `Context`{.haskell} type:
+To create new template variables, Hakyll requires us to create
+a new `Context`{.haskell} object:
 
 ``` {.sourceCode .haskell}
-referencesFilterContext :: String -> (Reference -> Bool) -> Context a
-referencesFilterContext name condition = field name $ \item -> do
-    csl <- load $ fromFilePath "style.csl"
-    bib <- load $ fromFilePath "refs.bib"
+referencesFilterContext :: Item CSL -> String -> (Reference -> Bool) -> Context Biblio
+referencesFilterContext csl name condition = field name $ \bib -> do
     refs <- readBiblio bib
     refs2 <- makeItem $ filter condition $ itemBody refs
     html <- renderPandocReferences csl refs2
     return (itemBody html)
 ```
 
+where we used the Hakyll function
+
+``` {.sourceCode .haskell}
+field :: String -> (Item a -> Compiler String) -> Context a
+```
+
+This function takes the name of the template variable as a string, and
+a function which takes an item (this corresponds to the item that is passed
+via `loadAndApplyTemplate`,
+and in our case we will pass a previously compiled Biblio object),
+and returns a string (the actually rendered html).
+The string is embedded in the compiler monad so we can use
+previously compiled files and take advantage of dependency tracking.
+
 Now we can use this as follows:
 
 ``` {.sourceCode .haskell}
-referencesContext =
-    referencesFilterContext "conferencepapers" conf `mappend`
-    referencesFilterContext "journalarticles" article `mappend`
-    defaultContext
+referencesContext csl =
+    referencesFilterContext csl "conferencepapers" conf `mappend`
+    referencesFilterContext csl "journalarticles" article
 
 main = hakyll $ do
     match "style.csl" $ compile cslCompiler
@@ -138,9 +149,10 @@ main = hakyll $ do
     create ["index.html"] $ do
          route idRoute
          compile $ do
-             html1 <- makeItem ""
-             html2 <- loadAndApplyTemplate "refs.html" referencesContext html1
-             return html2
+             csl <- load $ fromFilePath "style.csl"
+             bib <- load $ fromFilePath "refs.bib"
+             html <- loadAndApplyTemplate "refs.html" (referencesContext csl) bib
+             return html
 ```
 
 where `refs.html` could be as follows:
