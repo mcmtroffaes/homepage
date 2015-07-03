@@ -127,7 +127,7 @@ We can save ourselves some typing by adding the following line to your
 `.bashrc` file:
 
 ``` {.sourceCode .bash}
-alias nixbash="proot-x86_64 -b ~/nix:/nix bash --login
+alias nixbash="proot-x86_64 -b ~/nix:/nix bash --login"
 ```
 
 Now you can simply type `nixbash` in bash to start a Nix-enabled bash.
