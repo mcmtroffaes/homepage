@@ -186,9 +186,27 @@ In the mean time, you can install cabal-install with Nix (just replace
 "hakyll" with "cabal-install" in the Nix shell script;
 you will also need to specify "JuicyPixels"
 under your Haskell package list and "pkgs.zlib" under `buildInputs`
-to help cabal building Hakyll), and then use a
-cabal sandbox from within Nix to build highlighting-kate locally along
-with Hakyll:
+to help cabal building Hakyll).
+Here's the `shell.nix` script:
+
+``` {.sourceCode .nix}
+{ nixpkgs ? import <nixpkgs> {}, compiler ? "ghc7101" }:
+let
+  inherit (nixpkgs) pkgs;
+  ghc = pkgs.haskell.packages.${compiler}.ghcWithPackages (ps: with ps; [
+          JuicyPixels
+          cabal-install
+        ]);
+in
+pkgs.stdenv.mkDerivation {
+  name = "my-hakyll-env";
+  buildInputs = [ ghc pkgs.zlib ];
+  shellHook = "eval $(egrep ^export ${ghc}/bin/ghc)";
+}
+```
+
+Then use a cabal sandbox from within Nix
+to build highlighting-kate locally along with Hakyll:
 
 ``` {.sourceCode .bash}
 cabal sandbox init
