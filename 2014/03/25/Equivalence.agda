@@ -31,6 +31,7 @@ module Equivalence where
   data ⊥ : Set where
   ¬_ : Set -> Set
   ¬ A = A -> ⊥
+
   theorem-equivalence-simple :
     {M : Set}
     -> {_≈_ : M -> M -> Set}
