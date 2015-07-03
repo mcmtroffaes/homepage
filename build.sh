@@ -1,7 +1,6 @@
 #!/bin/bash
 
 rm -f site
-cabal exec ghc -- --make site.hs
-./site rebuild
-#rm -rf ../blowyourmindwithhaskell-gh-pages/*
-#cp -r _site/* ../blowyourmindwithhaskell-gh-pages/
+rm -rf _site _cache
+ghc --make site.hs
+./site build

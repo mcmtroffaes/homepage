@@ -71,13 +71,6 @@ main = hakyll $ do
 
     match "templates/*" $ compile templateCompiler
 
-pandocBiblioCompiler :: String -> String -> Compiler (Item String)
-pandocBiblioCompiler cslFileName bibFileName = do
-    csl <- load $ fromFilePath cslFileName
-    bib <- load $ fromFilePath bibFileName
-    liftM writePandoc
-        (getResourceBody >>= readPandocBiblio def csl bib)
-
 postCtx :: Context String
 postCtx =
     dateField "date" "%B %e, %Y" `mappend`
