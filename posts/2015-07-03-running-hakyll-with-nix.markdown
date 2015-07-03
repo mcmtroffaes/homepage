@@ -103,7 +103,7 @@ This will set up the following for you:
   comes down to the nix filesystem root, containing mostly symbolic
   links to `/nix` where all the built files reside.
 
-It will also add the following line to your `.bash_profile` file:
+It will also add the following to your `.bash_profile` file:
 
 ``` {.sourceCode .bash}
 if [ -e ~/.nix-profile/etc/profile.d/nix.sh ]; then
