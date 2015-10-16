@@ -125,7 +125,7 @@ pkgs.stdenv.mkDerivation {
 Put this in a ``shell.nix`` file, and run in your terminal:
 
 ``` {.sourcecode .bash}
-NIXPGKS_ALLOW_UNFREE=1 nix-shell
+NIXPKGS_ALLOW_UNFREE=1 nix-shell
 ```
 
 This will download all dependencies and compile your own version of
