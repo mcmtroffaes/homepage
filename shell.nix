@@ -1,10 +1,8 @@
 { nixpkgs ? import <nixpkgs> {}, compiler ? "ghc7102" }:
 let
   inherit (nixpkgs) pkgs;
-  ghc = pkgs.haskell.packages.${compiler}.ghcWithPackages (ps: with ps; [
-          #hakyll  # list of Haskell packages here!
-          JuicyPixels
-          cabal-install  # for now... Nix's highlighting-kate unicode broken
+  ghc = pkgs.haskellPackages.ghcWithPackages (ps: with ps; [
+          hakyll  # list of Haskell packages here!
         ]);
 in
 pkgs.stdenv.mkDerivation {
